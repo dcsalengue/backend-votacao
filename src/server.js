@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-// import cors from 'cors';
+import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
