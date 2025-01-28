@@ -7,7 +7,12 @@ import trataArquivos from './trataArquivos.js';
 
 import { v4 as uuidv4 } from 'uuid';
 
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+// Define __dirname para ES6
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(bodyParser.json()); // Para interpretar JSON
@@ -26,9 +31,10 @@ app.use(cors({
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
 
-// app.get("/", (req, res) => {
-//   res.send("Meu backend na Vercel");
-// });
+app.get("/", (req, res) => {
+  // res.send(path.join(__dirname, '..', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'index.html'))
+});
 
 // Rota para listar todos os usuários (READ)
 app.get('/usuarios', (req, res) => {

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script  type="module" src="./js/cripto.js" defer></script>
+    <script  type="module" src="./main.js" defer></script>
+    <!-- <link rel="stylesheet" href="css/styles.css" /> -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>    
+
+    <title>Votação</title>
+</head>
+
+<body class="h-screen w-screen m-auto ">
+    <section id="section-cadastro" class="flex p-4 bg-indigo-100 w-2/5">
+        <form id="form-cadastro-usuario" class="flex flex-wrap justify-center gap-4">
+            <input id="cadastro__nome" name="cadastro__nome" type="text" placeholder="Nome">
+            <input type="text" placeholder="email" id="cadastro__email" name="cadastro__usuario">
+            <input type="text"  id="cadastro__cpf" name="cadastro__cpf" maxlength="14" placeholder="000.000.000-00"
+                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+            <input type="hidden" id="hash__senha" name="hash__senha">
+            <input type="password" placeholder="senha" id="cadastro__senha" valida=false>
+            <input type="password" placeholder="Repetir senha" id="repete-senha">
+
+            <button id="botao-cadastrar" type="button">Enviar</button>
+        </form>
+
+    </section>
+
+
+    <section id="section-login" class="flex p-4 bg-indigo-100 w-2/5">
+        <div class="flex flex-wrap justify-center gap-4">
+            <input type="text"  id="login__cpf" name="login__cpf" maxlength="14" placeholder="000.000.000-00"
+                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+            <input type="password" placeholder="senha" id="login-senha">
+        </div>
+        <button id="botao-login" type="button">Login</button>
+    </section>
+
+
+    <section id="section-usuarios">
+        <ul id="lista-usuarios">
+
+        </ul>
+        <button id="botao-lista-usuarios" type="button">Lista usuários</button>
+    </section>
+
+    <footer class="flex flex-wrap justify-center gap-4">
+        Ao criar o usuário fazer hash do user e da senha e enviar essa informação no campo password em um input hidden
+        dentro do form
+        <button id="botao-testes" type="button">Teste</button>
+    </footer>
+</body>
+
+</html>
