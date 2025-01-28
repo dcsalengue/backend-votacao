@@ -1,11 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+// import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
 
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -15,13 +15,13 @@ app.use(bodyParser.text()); // Adicionado para aceitar payloads como texto
 app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de formulário
 
 
-// Middleware para habilitar CORS
-app.use(cors({
-  origin: 'http://127.0.0.1:5501',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
-  credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
-}));
+// // Middleware para habilitar CORS
+// app.use(cors({
+//   origin: 'http://127.0.0.1:5501',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
+//   credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
+// }));
 
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
