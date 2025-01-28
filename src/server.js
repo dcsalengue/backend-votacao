@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de
 
 // Middleware para habilitar CORS
 app.use(cors({
-  origin: 'http://127.0.0.1:5501',
+  origin: 'http://localhost:5501',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
   credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
