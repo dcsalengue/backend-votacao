@@ -1,8 +1,4 @@
 // Colocar aqui as funções que comunicam com o DOM html
-import api from "./api.js"
-
-
-
 
 const ui = {
     montaListaDeUsuarios(usuarios) {

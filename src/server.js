@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-// import cors from 'cors';
+import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
@@ -22,13 +22,13 @@ app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de
 // Usar algum meio de excluir as sessões mais antigas de tempos em tempos caso não sejam usadas 
 
 
-// // Middleware para habilitar CORS
-// app.use(cors({
-//   origin: 'http://localhost:5501',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
-//   credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
-// }));
+// Middleware para habilitar CORS
+app.use(cors({
+  origin: 'http://localhost:5500/public/',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
+  credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
+}));
 console.log("server.js foi carregado com sucesso!");
 
 app.use(express.static(path.join(__dirname, '..')));
@@ -36,13 +36,13 @@ app.use(express.static(path.join(__dirname, '..')));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'index.html'))
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
 });
 
-// Rota para listar todos os usuários (READ)
+// Rota para listar todos os usuários (READ) (proteger para somente o super usuário ober esses dados)
 app.get('/usuarios', (req, res) => {
   trataArquivos.refreshUsuarios()
-  console.log(`ln  35 - ${trataArquivos.arquivoUsuarios}`)
+  console.log(`ln  55 - ${trataArquivos.arquivoUsuarios}`)
   res.json(trataArquivos.arquivoUsuarios);
 });
 
@@ -110,57 +110,47 @@ app.get('/tokendesessao', (req, res) => {
   trataArquivos.criaArquivoDeSessoes(sessionKeys)
   const listaDeSessoes = trataArquivos.leArquivoDeSessoes()
 
-  listaDeSessoes.forEach((sessao) => {
-    console.log(`Session ID: ${sessao.sessionId}`);
-   // console.log(`Public Key: ${sessao.publicKey}`);
-   // console.log(`Private Key: ${sessao.privateKey}`);
-   // console.log(`Timestamp: ${sessao.timestamp}`);
-   console.log(formatMilliseconds(Date.now() - sessao.timestamp))
- });
-
-
   const sessoesValidas = listaDeSessoes.filter((sessao) => {
     // Calcula o tempo de vida em milissegundos
     const tempoDeVidaMs = Date.now() - sessao.timestamp;
-  
+    console.log(`Tempo de vida da sessão ${Date.now()} - ${sessao.timestamp} = ${tempoDeVidaMs}`)
+
     // Verifica se o tempo de vida é menor que 5 minutos (300000 ms)
     return tempoDeVidaMs < 5 * 60 * 1000; // 5 minutos em milissegundos
   });
-  trataArquivos.atualizaArquivoDeSessoes(sessoesValidas)
 
   console.log("Sessões válidas")
   sessoesValidas.forEach((sessao) => {
-    console.log(`Session ID: ${sessao.sessionId}`);
-   // console.log(`Public Key: ${sessao.publicKey}`);
-   // console.log(`Private Key: ${sessao.privateKey}`);
-   // console.log(`Timestamp: ${sessao.timestamp}`);
-   console.log(formatMilliseconds(Date.now() - sessao.timestamp))
- });
-  // Exibe as sessões válidas
-  console.log(sessoesValidas);
- 
-  // Salva as chaves na memória (pode ser aprimorado para persistência segura)
-  //console.log(listaDeSessoes)
+    console.log(`Session ID: ${sessao.sessionId} -> ${formatMilliseconds(Date.now() - sessao.timestamp)}`);
+    // console.log(`Public Key: ${sessao.publicKey}`);
+    // console.log(`Private Key: ${sessao.privateKey}`);
+    // console.log(`Timestamp: ${sessao.timestamp}`);
+  });
+
+  trataArquivos.atualizaArquivoDeSessoes(sessoesValidas)
 
   // Envia a chave pública e o ID da sessão ao cliente
   res.json({ publicKey, sessionId });
 });
+
 
 // Rota para criar um novo usuário (CREATE)
 app.post('/usuarios', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
+    // // Lê a lista de sessões válidas
+    // const listaDeSessoes = trataArquivos.leArquivoDeSessoes()
+    // const sessaoAtual = listaDeSessoes.filter(item => item.sessionId === sessionId);
+    const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
     // Verifica se a sessão é válida
-    if (!globalKeys[sessionId]) {
+    if (!privateKey) {
       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
     }
-
-    const privateKey = globalKeys[sessionId].privateKey;
     const decryptedData = await cripto.descriptografar(data, privateKey);
 
     // Converte os dados descriptografados de volta para JSON
-    const { nome, cpf, usuario, senha } = JSON.parse(decryptedData);
+    const { nome, email, cpf, senha } = JSON.parse(decryptedData);
 
     // Garante que os usuários estão sendo carregados corretamente
     let users = [];
@@ -176,7 +166,7 @@ app.post('/usuarios', async (req, res) => {
     }
 
     // Adiciona o novo usuário e atualiza o arquivo JSON
-    const newUser = { nome, cpf, usuario, senha };
+    const newUser = { nome, email, cpf, senha };
     trataArquivos.updateJsonFile(newUser);
     trataArquivos.refreshUsuarios();
 
@@ -192,22 +182,16 @@ app.post('/login', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    console.log(`Linha 150 ${umTeste}`)
-    console.log(`Linha 151 ${sessionId}`)
-    console.log(`Linha 152 globalKeys[${sessionId}] = ${globalKeys}`)
-
+    const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
     // Verifica se a sessão é válida
-    if (!globalKeys[sessionId]) {
+    if (!privateKey) {
       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
     }
-
-    const privateKey = globalKeys[sessionId].privateKey;
+    
     const decryptedData = await cripto.descriptografar(data, privateKey);
 
     // Converte os dados descriptografados de volta para JSON
-    const { usuario, senha } = JSON.parse(decryptedData);
-
-    console.log(usuario)
+    const { cpf, senha } = JSON.parse(decryptedData);
 
     // Garante que os usuários estão sendo carregados corretamente
     let users = [];
@@ -218,7 +202,7 @@ app.post('/login', async (req, res) => {
     }
 
     // Tenta encontrar o usuário
-    const user = users.find(u => u.cpf === usuario);
+    const user = users.find(u => u.cpf === cpf);
 
     // Verifica se o CPF já existe
     if (user) {

@@ -1,10 +1,10 @@
-import criptografia from "./js/cripto.js";
-import cpf from "./js/cpf.js";
-import api from "./js/api.js";
+import criptografia from "./cripto.js";
+import cpf from "./cpf.js";
+import api from "./api.js";
 
 const cadastroNome = document.getElementById('cadastro__nome');
+const cadastroEmail = document.getElementById('cadastro__email');
 const cadastroCpf = document.getElementById('cadastro__cpf');
-const cadastroUsuario = document.getElementById('cadastro__usuario');
 const cadastroSenha = document.getElementById('cadastro__senha');
 const repeteSenha = document.getElementById('repete-senha');
 const botaCadastrar = document.getElementById('botao-cadastrar');
@@ -52,12 +52,13 @@ botaCadastrar.addEventListener('click', async function (event) {
         alert('Senhas precisam ser idênticas.');
         return;
     }
+    // Validar email no formato texto@texto.texto (deve haver uma string antes e uma depois do @ e deve haver pelo menos 1 ponto
 
     console.log("CPF válido, senha confirmada");
 
     try {
         await api.requisitarTokenDeSessao();
-        await api.cadastrarUsuario(cadastroNome.value, cadastroCpf.value, cadastroUsuario.value, cadastroSenha.value);
+        await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value);
     } catch (error) {
         console.error("Erro ao cadastrar usuário:", error);
         alert("Erro ao cadastrar usuário. Tente novamente.");
@@ -67,17 +68,23 @@ botaCadastrar.addEventListener('click', async function (event) {
 
 // Lista usuários ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
-    const usuarios = JSON.parse(await api.listarUsuarios())
-    usuarios.forEach(usuario => {
-        listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
-    });
+    try {
+        const usuarios = JSON.parse(await api.listarUsuarios())     
+        console.log(usuarios)
+        usuarios.forEach(usuario => {
+            listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
+        });   
+    } catch (error) {
+     console.log(error)   
+    }
+    
 
 });
 botaoLogin.addEventListener("click", async () => {
     const publicKeyPem = await api.requisitarTokenDeSessao()
 
     const hashSenha = await criptografia.hash(loginSenha.value)
-    const usuario = { usuario: `${loginCpf.value}`, senha: `${hashSenha}` };
+    const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
     api.loginUsuario(usuario)
 

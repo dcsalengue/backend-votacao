@@ -25,14 +25,14 @@ class Api {
         }
     }
 
-    async cadastrarUsuario(nome, cpf, usuario, senha) {        
+    async cadastrarUsuario(nome, email, cpf,  senha) {        
         // Transforma senha em um hash RSA256
         const hashSenha = await criptografia.hash(senha)
         let jsonCadastro =
         {
             "nome": `${nome}`,
+            "email": `${email}`,
             "cpf": `${cpf}`,
-            "usuario": `${usuario}`,
             "senha": `${hashSenha}`
         }
 

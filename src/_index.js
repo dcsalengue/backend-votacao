@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+// import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
@@ -9,10 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
-const app = express();
-app.use(bodyParser.json()); // Para interpretar JSON
-app.use(bodyParser.text()); // Adicionado para aceitar payloads como texto
-app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de formulário
+// const app = express();
+// app.use(bodyParser.json()); // Para interpretar JSON
+// app.use(bodyParser.text()); // Adicionado para aceitar payloads como texto
+// app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de formulário
 
 const PORT = 3001;
 

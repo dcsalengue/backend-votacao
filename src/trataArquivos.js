@@ -41,9 +41,8 @@ const trataArquivos = {
     },
 
     atualizaArquivoDeSessoes(newContent) { // Para excluir sessões antigas 
-        let data = [];
-        data.push(newContent); // Adiciona o novo conteúdo
-        fs.writeFileSync(this.sessoesAbertas, JSON.stringify(data, null, 2), 'utf-8');
+       
+        fs.writeFileSync(this.sessoesAbertas, JSON.stringify(newContent, null, 2), 'utf-8');
     },
 
 
@@ -53,8 +52,16 @@ const trataArquivos = {
             data = JSON.parse(fs.readFileSync(this.sessoesAbertas, 'utf-8'));
         }  
         return data;
-    }
+    },
 
+    obtemPrivateKeyDeSessao(sessionId){
+        // Lê a lista de sessões válidas
+        const listaDeSessoes = this.leArquivoDeSessoes()
+        const sessaoAtual = listaDeSessoes.filter(item => item.sessionId === sessionId);
+        if(sessaoAtual[0]?.privateKey)
+            return sessaoAtual[0].privateKey
+        return undefined
+    }
 };
 
 export default trataArquivos;
