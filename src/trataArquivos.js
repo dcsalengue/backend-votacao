@@ -9,12 +9,12 @@ const __dirname = path.dirname(__filename);
 const trataArquivos = {
     arquivoUsuarios: [], // Array para armazenar usuários na memória
     bdUsuarios: path.join(__dirname, 'usuarios.json'), // Caminho do arquivo
-
+    sessoesAbertas: path.join(__dirname, 'sessoes.json'),// Caminho do arquivo
     // Atualiza o array local com o conteúdo do arquivo
     refreshUsuarios() {
         if (fs.existsSync(this.bdUsuarios)) {
             const data = fs.readFileSync(this.bdUsuarios, 'utf-8'); // 'this' para acessar bdUsuarios
-        //    console.log(data)
+            //    console.log(data)
             this.arquivoUsuarios = data;
         }
 
@@ -30,6 +30,31 @@ const trataArquivos = {
         data.push(newContent); // Adiciona o novo conteúdo
         fs.writeFileSync(this.bdUsuarios, JSON.stringify(data, null, 2), 'utf-8');
     },
+
+    criaArquivoDeSessoes(newContent) { // Append ao final 
+        let data = [];
+        if (fs.existsSync(this.sessoesAbertas)) {
+            data = JSON.parse(fs.readFileSync(this.sessoesAbertas, 'utf-8'));
+        }
+        data.push(newContent); // Adiciona o novo conteúdo
+        fs.writeFileSync(this.sessoesAbertas, JSON.stringify(data, null, 2), 'utf-8');
+    },
+
+    atualizaArquivoDeSessoes(newContent) { // Para excluir sessões antigas 
+        let data = [];
+        data.push(newContent); // Adiciona o novo conteúdo
+        fs.writeFileSync(this.sessoesAbertas, JSON.stringify(data, null, 2), 'utf-8');
+    },
+
+
+    leArquivoDeSessoes(){
+        let data = [];
+        if (fs.existsSync(this.sessoesAbertas)) {
+            data = JSON.parse(fs.readFileSync(this.sessoesAbertas, 'utf-8'));
+        }  
+        return data;
+    }
+
 };
 
 export default trataArquivos;
