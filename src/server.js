@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, '..')));
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'))
+  res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 // Rota para listar todos os usuários (READ) (proteger para somente o super usuário ober esses dados)
