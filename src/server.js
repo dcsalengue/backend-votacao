@@ -31,6 +31,9 @@ app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de
 // }));
 console.log("server.js foi carregado com sucesso!");
 
+// Servindo arquivos estáticos da pasta "public"
+app.use(express.static(path.join(__dirname, "../public")));
+
 app.use(express.static(path.join(__dirname, '..')));
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
