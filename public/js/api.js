@@ -1,9 +1,12 @@
 // Colocar aqui as funções de comunicação com o backend
 import criptografia from "./cripto.js";
 
-const URL_BASE = "http://localhost:3000"
-// const URL_BASE = "https://backend-votacao-cz6wr4ars-diegos-projects-f972c4f8.vercel.app";
+const URL_BASE =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://backend-votacao.vercel.app"; // Substitua pelo seu domínio real
 
+    console.log(window.location.hostname)
 // let sessionId = null
 // let publicKeySession = null
 class Api {

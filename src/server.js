@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-// import cors from 'cors';
+import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
@@ -22,13 +22,12 @@ app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de
 // Usar algum meio de excluir as sessões mais antigas de tempos em tempos caso não sejam usadas 
 
 
-// // Middleware para habilitar CORS
-// app.use(cors({
-//   origin: 'http://localhost:5500/public/',
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
-//   credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
-// }));
+// Middleware para habilitar CORS
+app.use(cors({
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
+  credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
+}));
 console.log("server.js foi carregado com sucesso!");
 
 // Servindo arquivos estáticos da pasta "public"
