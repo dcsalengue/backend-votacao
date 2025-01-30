@@ -10,5 +10,11 @@
     "email": "magda",
     "cpf": "015.145.440-08",
     "senha": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
+  },
+  {
+    "nome": "Joe Doe",
+    "email": "joe@doe.com",
+    "cpf": "116.687.228-95",
+    "senha": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
   }
 ]

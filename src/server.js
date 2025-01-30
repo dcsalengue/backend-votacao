@@ -1,6 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+// import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
@@ -22,13 +22,13 @@ app.use(bodyParser.urlencoded({ extended: true })); // Para interpretar dados de
 // Usar algum meio de excluir as sessões mais antigas de tempos em tempos caso não sejam usadas 
 
 
-// Middleware para habilitar CORS
-app.use(cors({
-  origin: 'http://localhost:5500/public/',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
-  credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
-}));
+// // Middleware para habilitar CORS
+// app.use(cors({
+//   origin: 'http://localhost:5500/public/',
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   allowedHeaders: ['Content-Type', 'tokensession'],  // Cabeçalhos permitidos, incluindo o 'session'
+//   credentials: true,  // Permite o envio de cookies e cabeçalhos personalizados
+// }));
 console.log("server.js foi carregado com sucesso!");
 
 app.use(express.static(path.join(__dirname, '..')));
@@ -88,7 +88,7 @@ app.delete('/usuarios/:cpf', (req, res) => {
   res.json({ message: 'Usuário excluído com sucesso!' });
 });
 
-function formatMilliseconds(ms) {
+function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAVELMENTE EXISTA ALGUMA BIBLIOTECA PRONTA
   // Calculando as partes de tempo (horas, minutos, segundos, milissegundos)
   const hours = Math.floor(ms / 3600000);
   const minutes = Math.floor((ms % 3600000) / 60000);
@@ -119,13 +119,14 @@ app.get('/tokendesessao', (req, res) => {
     return tempoDeVidaMs < 5 * 60 * 1000; // 5 minutos em milissegundos
   });
 
-  console.log("Sessões válidas")
-  sessoesValidas.forEach((sessao) => {
-    console.log(`Session ID: ${sessao.sessionId} -> ${formatMilliseconds(Date.now() - sessao.timestamp)}`);
-    // console.log(`Public Key: ${sessao.publicKey}`);
-    // console.log(`Private Key: ${sessao.privateKey}`);
-    // console.log(`Timestamp: ${sessao.timestamp}`);
-  });
+  // // Estrutura de debug
+  // console.log("Sessões válidas")
+  // sessoesValidas.forEach((sessao) => {
+  //   console.log(`Session ID: ${sessao.sessionId} -> ${formatMilliseconds(Date.now() - sessao.timestamp)}`);
+  //   // console.log(`Public Key: ${sessao.publicKey}`);
+  //   // console.log(`Private Key: ${sessao.privateKey}`);
+  //   // console.log(`Timestamp: ${sessao.timestamp}`);
+  // });
 
   trataArquivos.atualizaArquivoDeSessoes(sessoesValidas)
 
@@ -139,9 +140,7 @@ app.post('/usuarios', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    // // Lê a lista de sessões válidas
-    // const listaDeSessoes = trataArquivos.leArquivoDeSessoes()
-    // const sessaoAtual = listaDeSessoes.filter(item => item.sessionId === sessionId);
+    // Recupera  achave privada da sessão a partir do sessionId
     const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -152,13 +151,16 @@ app.post('/usuarios', async (req, res) => {
     // Converte os dados descriptografados de volta para JSON
     const { nome, email, cpf, senha } = JSON.parse(decryptedData);
 
-    // Garante que os usuários estão sendo carregados corretamente
-    let users = [];
-    if (Array.isArray(trataArquivos.arquivoUsuarios)) {
-      users = trataArquivos.arquivoUsuarios;
-    } else if (typeof trataArquivos.arquivoUsuarios === 'string') {
-      users = JSON.parse(trataArquivos.arquivoUsuarios);
-    }
+    // // Garante que os usuários estão sendo carregados corretamente
+    // let users = [];
+    // if (Array.isArray(trataArquivos.arquivoUsuarios)) {
+    //   users = trataArquivos.arquivoUsuarios;
+    // } else if (typeof trataArquivos.arquivoUsuarios === 'string') {
+    //   users = JSON.parse(trataArquivos.arquivoUsuarios);
+    // }
+
+    // Obtem o array de usuarios a partir do arquivo usuarios.json    
+    const users = trataArquivos.refreshUsuarios();
 
     // Verifica se o CPF já existe
     if (users.find(u => u.cpf === cpf)) {
@@ -187,19 +189,15 @@ app.post('/login', async (req, res) => {
     if (!privateKey) {
       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
     }
-    
+
+    // Decriptografa os dados de login usando a chave privada da sessão
     const decryptedData = await cripto.descriptografar(data, privateKey);
 
     // Converte os dados descriptografados de volta para JSON
     const { cpf, senha } = JSON.parse(decryptedData);
 
-    // Garante que os usuários estão sendo carregados corretamente
-    let users = [];
-    if (Array.isArray(trataArquivos.arquivoUsuarios)) {
-      users = trataArquivos.arquivoUsuarios;
-    } else if (typeof trataArquivos.arquivoUsuarios === 'string') {
-      users = JSON.parse(trataArquivos.arquivoUsuarios);
-    }
+    // Obtem o array de usuarios a partir do arquivo usuarios.json    
+    const users = trataArquivos.refreshUsuarios();
 
     // Tenta encontrar o usuário
     const user = users.find(u => u.cpf === cpf);
@@ -208,11 +206,14 @@ app.post('/login', async (req, res) => {
     if (user) {
       console.log(`CPF está cadastrado`);
       if (user.senha === senha) {
-        res.status(200).json({ message: `Login efetuado! ${user.nome}` });
+        console.log(`Login efetuado! ${user.nome}`)
+        res.status(200).send(`Login efetuado! ${user.nome}` );
       } else {
+        console.log(`Senha incorreta!`)
         return res.status(400).json({ error: 'Senha incorreta!' });
       }
     } else {
+      console.log(`CPF não cadastrado!`)
       return res.status(400).json({ error: 'CPF não cadastrado!' });
     }
 
@@ -223,6 +224,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
 app.post('/teste', (req, res) => {
   const mensagem = JSON.stringify(req.body, null, 2)
   // Serializa e exibe o payload recebido

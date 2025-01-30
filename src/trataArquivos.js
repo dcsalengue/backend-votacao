@@ -14,8 +14,8 @@ const trataArquivos = {
     refreshUsuarios() {
         if (fs.existsSync(this.bdUsuarios)) {
             const data = fs.readFileSync(this.bdUsuarios, 'utf-8'); // 'this' para acessar bdUsuarios
-            //    console.log(data)
             this.arquivoUsuarios = data;
+            return JSON.parse(data)
         }
 
     },
