@@ -1,10 +1,10 @@
 // Colocar aqui as funções de comunicação com o backend
 import criptografia from "./cripto.js";
 
-const URL_BASE =
+const URL_BASE =  
   window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "https://backend-votacao.vercel.app"; // Substitua pelo seu domínio real
+     ? "http://localhost:3000"
+     :  `https://${window.location.hostname}` // Substitua pelo seu domínio real
 
     console.log(window.location.hostname)
 // let sessionId = null
