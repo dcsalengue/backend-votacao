@@ -241,9 +241,9 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.get('/testarConexao', (req, res) => {
-  console.log(bd.testarConexao())
-  res.send('conexão testada')
+app.get('/testarConexao',async (req, res) => {
+  await bd.insereSessao()
+  res.json(await bd.obtemSessoes())
 })
 
 
