@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import bd from './trataBd.js'
 // Define __dirname para ES6
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +36,21 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.static(path.join(__dirname, '..')));
 // Middleware para lidar com JSON no corpo da requisição
 app.use(express.json());
+
+
+app.get('/testecriasessao', (req, res) => {
+  //const { publicKey, sessionId } = bd.criaSessao()
+  //const sessoes = bd.obtemSessoes()
+
+  res.json(bd.criaTabelaSessao());
+
+});
+app.get('/testeobtemsessoes', (req, res) => {
+  // const { publicKey, sessionId } = bd.criaSessao()
+  //const sessoes = bd.obtemSessoes()
+  res.json(bd.obtemSessoes());
+
+});
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/index.html"));
@@ -209,7 +224,7 @@ app.post('/login', async (req, res) => {
       console.log(`CPF está cadastrado`);
       if (user.senha === senha) {
         console.log(`Login efetuado! ${user.nome}`)
-        res.status(200).send(`Login efetuado! ${user.nome}` );
+        res.status(200).send(`Login efetuado! ${user.nome}`);
       } else {
         console.log(`Senha incorreta!`)
         return res.status(400).json({ error: 'Senha incorreta!' });
@@ -226,7 +241,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
+app.get('/testarConexao', (req, res) => {
+  console.log(bd.testarConexao())
+  res.send('conexão testada')
+})
 
 
 /////////////////////////////////////////////////////////////////////////////////////

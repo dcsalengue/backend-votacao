@@ -100,6 +100,37 @@ botaoLogin.addEventListener("click", async () => {
 
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
-    await api.requisitarTokenDeSessao()
-    console.log(`${api.publicKeySession} | ${api.sessionId}`)
+   
+    console.log(await api.testarConexao())
+    // await api.requisitarTokenDeSessao()
+    // console.log(`${api.publicKeySession} | ${api.sessionId}`)
 })
+
+
+/*
+Tabelas:
+
+
+
+CREATE TABLE "public"."sessoes" (
+  "sessionId" uuid  NOT NULL,
+  "privateKey" TEXT UNIQUE NOT NULL,
+  "publicKey" TEXT UNIQUE NOT NULL,
+  "created_at" TIMESTAMP NOT NULL,
+  "modified_at" TIMESTAMP NOT NULL,
+)
+
+
+CREATE TABLE "public"."usuarios" (
+  "nome" varchar(80) NOT NULL,
+  "email" varchar(80) NOT NULL,
+  "cpf" varchar(14) PRIMARY KEY,
+  "senha" TEXT NOT NULL,
+  "created_at" TIMESTAMP NOT NULL,
+  "permissao" INTEGER DEFAULT 0,
+  "privateKey" TEXT UNIQUE NOT NULL,
+  "publicKey" TEXT UNIQUE NOT NULL,
+  "modified_at" TIMESTAMP NOT NULL,
+)
+
+*/

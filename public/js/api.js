@@ -1,12 +1,12 @@
 // Colocar aqui as funções de comunicação com o backend
 import criptografia from "./cripto.js";
 
-const URL_BASE =  
-  window.location.hostname === "localhost"
-     ? "http://localhost:3000"
-     :  `https://${window.location.hostname}` // Substitua pelo seu domínio real
+const URL_BASE =
+    window.location.hostname === "localhost"
+        ? "http://localhost:3000"
+        : `https://${window.location.hostname}` // Substitua pelo seu domínio real
 
-    console.log(window.location.hostname)
+console.log(URL_BASE)
 // let sessionId = null
 // let publicKeySession = null
 class Api {
@@ -28,7 +28,7 @@ class Api {
         }
     }
 
-    async cadastrarUsuario(nome, email, cpf,  senha) {        
+    async cadastrarUsuario(nome, email, cpf, senha) {
         // Transforma senha em um hash RSA256
         const hashSenha = await criptografia.hash(senha)
         let jsonCadastro =
@@ -39,10 +39,10 @@ class Api {
             "senha": `${hashSenha}`
         }
 
-    // Criptografando os dados
-    const encryptedData = await criptografia.encryptUserData(this.publicKeySession, jsonCadastro);
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(this.publicKeySession, jsonCadastro);
 
-    console.log(this.sessionId)
+        console.log(this.sessionId)
         try {
             const response = await axios.post(`${URL_BASE}/usuarios`, {
                 data: encryptedData,
@@ -56,7 +56,7 @@ class Api {
     }
 
     async loginUsuario(loginUsuario) {
-        const loginEncriptado = await criptografia.encryptUserData(this.publicKeySession, loginUsuario );
+        const loginEncriptado = await criptografia.encryptUserData(this.publicKeySession, loginUsuario);
         try {
             const response = await axios.post(`${URL_BASE}/login`, {
                 data: loginEncriptado,
@@ -67,14 +67,14 @@ class Api {
             alert(`Erro ao salvar usuarios \r\n${error}`);
             throw error;
         }
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
         // try {
         //     const response = await axios.post(`${URL_BASE}/login`, loginEncriptado, {
         //         headers: {
@@ -104,6 +104,51 @@ class Api {
 
         } catch (error) {
             alert(`Erro ao requisitar token de sessão \r\n${error}`);
+            throw error;
+        }
+    }
+
+
+    async testecriasessao() {
+        try {
+            const response = await axios.get(`${URL_BASE}/testecriasessao`, {
+                withCredentials: true,  // Isso garante que os cookies e cabeÃ§alhos personalizados sejam enviados
+            });
+            ({ publicKey: this.publicKeySession, sessionId: this.sessionId } = response.data);
+
+            // Obtendo os dados do corpo da resposta (body)
+            return (`sessionId: ${this.sessionId} | publicKey: ${this.publicKeySession} `);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async testeobtemsessoes() {
+        try {
+            const response = await axios.get(`${URL_BASE}/testeobtemsessoes`, {
+                withCredentials: true,  // Isso garante que os cookies e cabeÃ§alhos personalizados sejam enviados
+            });
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async testarConexao() {
+        try {
+            const response = await axios.get(`${URL_BASE}/testarConexao`);
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
             throw error;
         }
     }
