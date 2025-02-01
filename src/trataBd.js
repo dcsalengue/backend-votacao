@@ -26,7 +26,7 @@ const bd = {
             });
 
             console.log("Sessão criada:", novaSessao);
-            return({sessionId, privateKey})
+            return({sessionId, publicKey})
         } catch (error) {
             console.error("Erro ao criar sessão:", error);
         } finally {
