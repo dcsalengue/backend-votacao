@@ -12,10 +12,9 @@ const bd = {
 
         const { publicKey, privateKey } = cripto.gerarParDeChaves();
         const sessionId = uuidv4();
-        const createdAt = new Date();
-        const modifiedAt = new Date();
 
         try {
+            // Insere dados no bd usando prisma
             const novaSessao = await prisma.sessoes.create({
                 data: {
                     sessionId: sessionId,
@@ -27,6 +26,7 @@ const bd = {
             });
 
             console.log("Sessão criada:", novaSessao);
+            return({sessionId, privateKey})
         } catch (error) {
             console.error("Erro ao criar sessão:", error);
         } finally {

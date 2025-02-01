@@ -67,29 +67,6 @@ class Api {
             alert(`Erro ao salvar usuarios \r\n${error}`);
             throw error;
         }
-
-
-
-
-
-
-
-
-        // try {
-        //     const response = await axios.post(`${URL_BASE}/login`, loginEncriptado, {
-        //         headers: {
-        //             'Content-Type': 'text/plain', // Indica que o corpo é texto simples
-        //         },
-        //     });
-
-
-        //     // Obtendo os dados do corpo da resposta (body)
-        //     return await response.data;
-
-        // } catch (error) {
-        //     alert(`Erro logar \r\n${error}`);
-        //     throw error;
-        // }
     }
 
     async requisitarTokenDeSessao() {

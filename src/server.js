@@ -4,12 +4,13 @@ import cors from 'cors';
 
 import cripto from './criptografia.js';
 import trataArquivos from './trataArquivos.js';
+import bd from './trataBd.js'
 
 import { v4 as uuidv4 } from 'uuid';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
-import bd from './trataBd.js'
+
 // Define __dirname para ES6
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,7 +43,7 @@ app.get('/testecriasessao', (req, res) => {
   //const { publicKey, sessionId } = bd.criaSessao()
   //const sessoes = bd.obtemSessoes()
 
-  res.json(bd.criaTabelaSessao());
+  res.json(bd.insereSessao());
 
 });
 app.get('/testeobtemsessoes', (req, res) => {
@@ -119,37 +120,50 @@ function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAV
     `${milliseconds}ms`;
 }
 
-// Rota para obter um usuário específico pelo ID (READ)
-app.get('/tokendesessao', (req, res) => {
-  const { publicKey, privateKey } = cripto.gerarParDeChaves();
-  const sessionId = uuidv4(); // Gera identificador único para a sessão
-  const sessionKeys = { sessionId, publicKey, privateKey, timestamp: Date.now() }; // Para armazenar pares de chaves para sessões específicas
-  trataArquivos.criaArquivoDeSessoes(sessionKeys)
-  const listaDeSessoes = trataArquivos.leArquivoDeSessoes()
+app.get('/testarConexao',async (req, res) => {
+  await bd.insereSessao()
+  res.json(await bd.obtemSessoes())
+})
 
-  const sessoesValidas = listaDeSessoes.filter((sessao) => {
-    // Calcula o tempo de vida em milissegundos
-    const tempoDeVidaMs = Date.now() - sessao.timestamp;
-    console.log(`Tempo de vida da sessão ${Date.now()} - ${sessao.timestamp} = ${tempoDeVidaMs}`)
+// Cria uma nova sessão no banco de dados e retorna o sessionId e a publicKey
+app.get('/tokendesessao', async (req, res) => { 
+  const sessao = await bd.insereSessao()
+  console.log(sessao)
+   res.json( sessao)
+})
 
-    // Verifica se o tempo de vida é menor que 5 minutos (300000 ms)
-    return tempoDeVidaMs < 5 * 60 * 1000; // 5 minutos em milissegundos
-  });
+// Versão em arquivo json
+// // Rota para obter um usuário específico pelo ID (READ)
+// app.get('/tokendesessao', (req, res) => {
+//   const { publicKey, privateKey } = cripto.gerarParDeChaves();
+//   const sessionId = uuidv4(); // Gera identificador único para a sessão
+//   const sessionKeys = { sessionId, publicKey, privateKey, timestamp: Date.now() }; // Para armazenar pares de chaves para sessões específicas
+//   trataArquivos.criaArquivoDeSessoes(sessionKeys)
+//   const listaDeSessoes = trataArquivos.leArquivoDeSessoes()
 
-  // // Estrutura de debug
-  // console.log("Sessões válidas")
-  // sessoesValidas.forEach((sessao) => {
-  //   console.log(`Session ID: ${sessao.sessionId} -> ${formatMilliseconds(Date.now() - sessao.timestamp)}`);
-  //   // console.log(`Public Key: ${sessao.publicKey}`);
-  //   // console.log(`Private Key: ${sessao.privateKey}`);
-  //   // console.log(`Timestamp: ${sessao.timestamp}`);
-  // });
+//   const sessoesValidas = listaDeSessoes.filter((sessao) => {
+//     // Calcula o tempo de vida em milissegundos
+//     const tempoDeVidaMs = Date.now() - sessao.timestamp;
+//     console.log(`Tempo de vida da sessão ${Date.now()} - ${sessao.timestamp} = ${tempoDeVidaMs}`)
 
-  trataArquivos.atualizaArquivoDeSessoes(sessoesValidas)
+//     // Verifica se o tempo de vida é menor que 5 minutos (300000 ms)
+//     return tempoDeVidaMs < 5 * 60 * 1000; // 5 minutos em milissegundos
+//   });
 
-  // Envia a chave pública e o ID da sessão ao cliente
-  res.json({ publicKey, sessionId });
-});
+//   // // Estrutura de debug
+//   // console.log("Sessões válidas")
+//   // sessoesValidas.forEach((sessao) => {
+//   //   console.log(`Session ID: ${sessao.sessionId} -> ${formatMilliseconds(Date.now() - sessao.timestamp)}`);
+//   //   // console.log(`Public Key: ${sessao.publicKey}`);
+//   //   // console.log(`Private Key: ${sessao.privateKey}`);
+//   //   // console.log(`Timestamp: ${sessao.timestamp}`);
+//   // });
+
+//   trataArquivos.atualizaArquivoDeSessoes(sessoesValidas)
+
+//   // Envia a chave pública e o ID da sessão ao cliente
+//   res.json({ publicKey, sessionId });
+// });
 
 
 // Rota para criar um novo usuário (CREATE)
@@ -241,10 +255,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.get('/testarConexao',async (req, res) => {
-  await bd.insereSessao()
-  res.json(await bd.obtemSessoes())
-})
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////
