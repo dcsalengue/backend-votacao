@@ -38,11 +38,9 @@ class Api {
             "cpf": `${cpf}`,
             "senha": `${hashSenha}`
         }
-
         // Criptografando os dados
         const encryptedData = await criptografia.encryptUserData(this.publicKeySession, jsonCadastro);
 
-        console.log(this.sessionId)
         try {
             const response = await axios.post(`${URL_BASE}/usuarios`, {
                 data: encryptedData,

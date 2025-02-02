@@ -52,9 +52,6 @@ botaCadastrar.addEventListener('click', async function (event) {
         alert('Senhas precisam ser idênticas.');
         return;
     }
-    // Validar email no formato texto@texto.texto (deve haver uma string antes e uma depois do @ e deve haver pelo menos 1 ponto
-
-    console.log("CPF válido, senha confirmada");
 
     try {
         await api.requisitarTokenDeSessao();

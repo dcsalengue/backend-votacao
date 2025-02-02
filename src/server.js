@@ -120,16 +120,15 @@ function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAV
     `${milliseconds}ms`;
 }
 
-app.get('/testarConexao',async (req, res) => {
+app.get('/testarConexao', async (req, res) => {
   await bd.insereSessao()
   res.json(await bd.obtemSessoes())
 })
 
 // Cria uma nova sessão no banco de dados e retorna o sessionId e a publicKey
-app.get('/tokendesessao', async (req, res) => { 
+app.get('/tokendesessao', async (req, res) => {
   const sessao = await bd.insereSessao()
-  console.log(sessao)
-   res.json( sessao)
+  res.json(sessao)
 })
 
 // Versão em arquivo json
@@ -166,42 +165,75 @@ app.get('/tokendesessao', async (req, res) => {
 // });
 
 
+// // Rota para criar um novo usuário (CREATE)
+// app.post('/usuarios', async (req, res) => {
+//   try {
+//     const { data, sessionId } = req.body;
+
+//     // Recupera  achave privada da sessão a partir do sessionId
+//     const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
+//     // Verifica se a sessão é válida
+//     if (!privateKey) {
+//       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+//     }
+//     const decryptedData = await cripto.descriptografar(data, privateKey);
+
+//     // Converte os dados descriptografados de volta para JSON
+//     const { nome, email, cpf, senha } = JSON.parse(decryptedData);
+
+//     // // Garante que os usuários estão sendo carregados corretamente
+//     // let users = [];
+//     // if (Array.isArray(trataArquivos.arquivoUsuarios)) {
+//     //   users = trataArquivos.arquivoUsuarios;
+//     // } else if (typeof trataArquivos.arquivoUsuarios === 'string') {
+//     //   users = JSON.parse(trataArquivos.arquivoUsuarios);
+//     // }
+
+//     // Obtem o array de usuarios a partir do arquivo usuarios.json    
+//     const users = trataArquivos.refreshUsuarios();
+
+//     // Verifica se o CPF já existe
+//     if (users.find(u => u.cpf === cpf)) {
+//       return res.status(400).json({ error: 'Usuário com este CPF já existe!' });
+//     }
+
+//     // Adiciona o novo usuário e atualiza o arquivo JSON
+//     const newUser = { nome, email, cpf, senha };
+//     trataArquivos.updateJsonFile(newUser);
+//     trataArquivos.refreshUsuarios();
+
+
+//     res.status(201).json({ message: 'Usuário criado com sucesso!', usuario: newUser });
+//   } catch (error) {
+//     console.error('Erro ao criar usuário:', error);
+//     res.status(500).json({ error: 'Erro ao criar usuário. Verifique os dados enviados.' });
+//   }
+// });
+
+
 // Rota para criar um novo usuário (CREATE)
 app.post('/usuarios', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    // Recupera  achave privada da sessão a partir do sessionId
-    const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
+    console.log(sessionId)
+    // Recupera  a chave privada da sessão a partir do sessionId
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
+
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
     }
     const decryptedData = await cripto.descriptografar(data, privateKey);
 
-    // Converte os dados descriptografados de volta para JSON
-    const { nome, email, cpf, senha } = JSON.parse(decryptedData);
-
-    // // Garante que os usuários estão sendo carregados corretamente
-    // let users = [];
-    // if (Array.isArray(trataArquivos.arquivoUsuarios)) {
-    //   users = trataArquivos.arquivoUsuarios;
-    // } else if (typeof trataArquivos.arquivoUsuarios === 'string') {
-    //   users = JSON.parse(trataArquivos.arquivoUsuarios);
-    // }
-
-    // Obtem o array de usuarios a partir do arquivo usuarios.json    
-    const users = trataArquivos.refreshUsuarios();
-
-    // Verifica se o CPF já existe
-    if (users.find(u => u.cpf === cpf)) {
+    const newUser = JSON.parse(decryptedData);
+    // Se o cpf já existir não cria o usuário
+    if (await bd.verificaCpfExiste(newUser.cpf))
       return res.status(400).json({ error: 'Usuário com este CPF já existe!' });
-    }
 
     // Adiciona o novo usuário e atualiza o arquivo JSON
-    const newUser = { nome, email, cpf, senha };
-    trataArquivos.updateJsonFile(newUser);
-    trataArquivos.refreshUsuarios();
+
+    await bd.insereUsuario(newUser)
 
     res.status(201).json({ message: 'Usuário criado com sucesso!', usuario: newUser });
   } catch (error) {
@@ -210,12 +242,57 @@ app.post('/usuarios', async (req, res) => {
   }
 });
 
+// // Rota para criar um novo usuário (CREATE)
+// app.post('/login', async (req, res) => {
+//   try {
+//     const { data, sessionId } = req.body;
+
+//     const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
+//     // Verifica se a sessão é válida
+//     if (!privateKey) {
+//       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+//     }
+
+//     // Decriptografa os dados de login usando a chave privada da sessão
+//     const decryptedData = await cripto.descriptografar(data, privateKey);
+
+//     // Converte os dados descriptografados de volta para JSON
+//     const { cpf, senha } = JSON.parse(decryptedData);
+
+//     // Obtem o array de usuarios a partir do arquivo usuarios.json    
+//     const users = trataArquivos.refreshUsuarios();
+
+//     // Tenta encontrar o usuário
+//     const user = users.find(u => u.cpf === cpf);
+
+//     // Verifica se o CPF já existe
+//     if (user) {
+//       console.log(`CPF está cadastrado`);
+//       if (user.senha === senha) {
+//         console.log(`Login efetuado! ${user.nome}`)
+//         res.status(200).send(`Login efetuado! ${user.nome}`);
+//       } else {
+//         console.log(`Senha incorreta!`)
+//         return res.status(400).json({ error: 'Senha incorreta!' });
+//       }
+//     } else {
+//       console.log(`CPF não cadastrado!`)
+//       return res.status(400).json({ error: 'CPF não cadastrado!' });
+//     }
+
+
+//   } catch (error) {
+//     console.error('Erro ao logar usuário:', error);
+//     res.status(500).json({ error: 'Erro ao logar usuário. Verifique os dados enviados.' });
+//   }
+// });
+
 // Rota para criar um novo usuário (CREATE)
 app.post('/login', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    const privateKey = trataArquivos.obtemPrivateKeyDeSessao(sessionId)
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
@@ -227,12 +304,9 @@ app.post('/login', async (req, res) => {
     // Converte os dados descriptografados de volta para JSON
     const { cpf, senha } = JSON.parse(decryptedData);
 
-    // Obtem o array de usuarios a partir do arquivo usuarios.json    
-    const users = trataArquivos.refreshUsuarios();
+    const user = await bd.obtemUsuarioComCpf(cpf)
 
-    // Tenta encontrar o usuário
-    const user = users.find(u => u.cpf === cpf);
-
+    console.log(user)
     // Verifica se o CPF já existe
     if (user) {
       console.log(`CPF está cadastrado`);
@@ -254,7 +328,6 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Erro ao logar usuário. Verifique os dados enviados.' });
   }
 });
-
 
 
 
