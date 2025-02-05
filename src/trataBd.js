@@ -48,7 +48,7 @@ const bd = {
     },
 
     async obtemPrivateKeyDeSessao(sessionId) {
-        try {            
+        try {
             const result = await prisma.$queryRaw`
                 SELECT "privateKey" FROM "sessoes" WHERE "sessionId" =  CAST(${sessionId} AS UUID)
             `;
@@ -67,27 +67,21 @@ const bd = {
         }
     },
 
+
     async verificaCpfExiste(cpf) {
         try {
-            console.log('verificaCpfExiste')
+            console.log('Verificando se o CPF já existe...');
             const result = await prisma.$queryRaw`
                 SELECT "cpf" FROM "usuarios" WHERE "cpf" = ${cpf}
             `;
 
-            if (result.length > 0) {
-                console.log("Public Key encontrada:", result[0].privateKey);
-                return result[0].privateKey;
-            } else {
-                console.log("Nenhuma sessão encontrada para esse ID.");
-                return null;
-            }
+            return result.length > 0; // Retorna true se existir, false se não
         } catch (error) {
-            console.error("Erro ao buscar privateKey:", error);
-        } finally {
-            await prisma.$disconnect();
+            console.error("Erro ao verificar CPF:", error);
+            return false; // Em caso de erro, retorna false para evitar falhas no fluxo
         }
     },
-
+    
     async obtemUsuarioComCpf(cpf) {
         try {
             const result = await prisma.$queryRaw`

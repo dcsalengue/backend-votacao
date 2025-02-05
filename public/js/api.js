@@ -40,30 +40,54 @@ class Api {
         }
         // Criptografando os dados
         const encryptedData = await criptografia.encryptUserData(this.publicKeySession, jsonCadastro);
-
+        let resposta
         try {
             const response = await axios.post(`${URL_BASE}/usuarios`, {
                 data: encryptedData,
                 sessionId: this.sessionId
             });
-            return await response.data
+            resposta = await response.data.message
         } catch (error) {
-            alert(`Erro ao salvar usuarios \r\n${error}`);
-            throw error;
+            if (error.response) {
+                const status = error.response.status;
+                if (status === 409) {
+                    resposta = 'Já existe uma conta cadastrada com este CPF.' ;
+                } else {
+                    resposta = error.response.data;
+                }
+            } else {
+                resposta =  'Erro inesperado ao tentar cadastrar.' ;
+            }
+        }
+        finally {
+            console.log(resposta)
+            return resposta
         }
     }
 
     async loginUsuario(loginUsuario) {
+        let resposta
         const loginEncriptado = await criptografia.encryptUserData(this.publicKeySession, loginUsuario);
         try {
             const response = await axios.post(`${URL_BASE}/login`, {
                 data: loginEncriptado,
                 sessionId: this.sessionId
             });
-            return await response.data
+            resposta = await response.data
+
         } catch (error) {
-            alert(`Erro ao salvar usuarios \r\n${error}`);
-            throw error;
+            if (error.response) {
+                // Captura a resposta do servidor em caso de erro (status 400, 500, etc.)
+                resposta = error.response.data.error;
+            } else {
+                // Captura erro inesperado (ex: falha de rede)
+                resposta = 'Erro inesperado ao tentar logar.';
+            }
+            console.error("Erro no login:", resposta.error);
+        }
+        finally {
+            console.log(resposta)
+            return resposta
         }
     }
 

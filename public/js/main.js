@@ -16,6 +16,9 @@ const botaoLogin = document.getElementById("botao-login")
 
 const listaUsuarios = document.getElementById("lista-usuarios")
 
+const footer = document.getElementById("footer")
+
+
 repeteSenha.onchange = () => {
     if (cadastroSenha.value === repeteSenha.value) {
         cadastroSenha.style.background = "#7bc27b"
@@ -55,11 +58,15 @@ botaCadastrar.addEventListener('click', async function (event) {
 
     try {
         await api.requisitarTokenDeSessao();
-        await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value);
+        //await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value);
+   
     } catch (error) {
         console.error("Erro ao cadastrar usuário:", error);
-        alert("Erro ao cadastrar usuário. Tente novamente.");
+        alert("Não foi possível conectar ao servidor.");
     }
+
+    footer.innerHTML = `${await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value)}`
+    
 });
 
 
@@ -78,12 +85,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 });
 botaoLogin.addEventListener("click", async () => {
+
+    // Validações
+    if (!loginCpf.checkValidity()) {
+        alert('Por favor, insira um CPF válido no formato 000.000.000-00.');
+        return;
+    } else if (!cpf.validarCPF(loginCpf.value)) {
+        alert('CPF inválido');
+        return;
+    }
+
     const publicKeyPem = await api.requisitarTokenDeSessao()
 
     const hashSenha = await criptografia.hash(loginSenha.value)
     const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
-    api.loginUsuario(usuario)
+    // Mostra mensagem de login
+    footer.innerHTML = `${await api.loginUsuario(usuario)}`
 
     // Requisita token de sessão (get /tokendesessao)
     // Servidor gera um par de chaves pública e privada e coloca em uma lista de sessões ativas
