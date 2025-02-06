@@ -165,6 +165,18 @@ app.post('/usuarios', async (req, res) => {
 });
 
 
+app.post('/pagina', async (req, res) => {
+
+  const { sessionId } = req.body;
+  const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+
+    // Verifica se a sessão é válida
+    if (!privateKey) {
+      return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+    }
+
+  res.sendFile(path.join(__dirname, "superuser.html"));
+})
 
 // Rota para criar um novo usuário (CREATE)
 app.post('/login', async (req, res) => {
@@ -192,6 +204,7 @@ app.post('/login', async (req, res) => {
       if (user.senha === senha) {
         console.log(`Login efetuado! ${user.nome}`)
         res.status(200).send(`Login efetuado! ${user.nome}`);
+        
       } else {
         console.log(`Senha incorreta!`)
         return res.status(401).json({ error: 'Senha incorreta!' });

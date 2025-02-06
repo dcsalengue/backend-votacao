@@ -17,6 +17,15 @@ const botaoLogin = document.getElementById("botao-login")
 const listaUsuarios = document.getElementById("lista-usuarios")
 
 const footer = document.getElementById("footer")
+const body = document.getElementById("body")
+function getCookie(nome) {
+    const cookies = document.cookie.split('; ');
+    for (let i = 0; i < cookies.length; i++) {
+        let [chave, valor] = cookies[i].split('=');
+        if (chave === nome) return valor;
+    }
+    return null; // Retorna null se o cookie não existir
+}
 
 
 repeteSenha.onchange = () => {
@@ -59,29 +68,31 @@ botaCadastrar.addEventListener('click', async function (event) {
     try {
         await api.requisitarTokenDeSessao();
         //await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value);
-   
+
     } catch (error) {
         console.error("Erro ao cadastrar usuário:", error);
         alert("Não foi possível conectar ao servidor.");
     }
 
     footer.innerHTML = `${await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value)}`
-    
+
 });
 
 
 // Lista usuários ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const usuarios = JSON.parse(await api.listarUsuarios())     
-        console.log(usuarios)
-        usuarios.forEach(usuario => {
-            listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
-        });   
+        // const usuarios = JSON.parse(await api.listarUsuarios())     
+        // console.log(usuarios)
+        // usuarios.forEach(usuario => {
+        //     listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
+        // }); 
+        console.log(document.cookie);
+        body.innerHTML = `${await api.obtemPaginaDeLogin(getCookie("sessionId"))}`
     } catch (error) {
-     console.log(error)   
+        console.log(error)
     }
-    
+
 
 });
 botaoLogin.addEventListener("click", async () => {
@@ -102,20 +113,13 @@ botaoLogin.addEventListener("click", async () => {
 
     // Mostra mensagem de login
     footer.innerHTML = `${await api.loginUsuario(usuario)}`
-
-    // Requisita token de sessão (get /tokendesessao)
-    // Servidor gera um par de chaves pública e privada e coloca em uma lista de sessões ativas
-    // Servidor envia a chave pública 
-    // Informação digitada de senha é transformada em sha256
-    // A informação de login e senha são criptografados com a chave pública
-    // Envia hash de login e senha (post /login)
-    // Servidor retorna nome de usuário 
+    body.innerHTML = `${await api.obtemPaginaDeLogin(api.sessionId)}`
 
 });
 
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
-   
+
     console.log(await api.refreshSessao())
     // await api.requisitarTokenDeSessao()
     // console.log(`${api.publicKeySession} | ${api.sessionId}`)

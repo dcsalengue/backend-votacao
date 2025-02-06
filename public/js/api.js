@@ -51,12 +51,12 @@ class Api {
             if (error.response) {
                 const status = error.response.status;
                 if (status === 409) {
-                    resposta = 'Já existe uma conta cadastrada com este CPF.' ;
+                    resposta = 'Já existe uma conta cadastrada com este CPF.';
                 } else {
                     resposta = error.response.data;
                 }
             } else {
-                resposta =  'Erro inesperado ao tentar cadastrar.' ;
+                resposta = 'Erro inesperado ao tentar cadastrar.';
             }
         }
         finally {
@@ -64,7 +64,7 @@ class Api {
             return resposta
         }
     }
-    async refreshSessao(){
+    async refreshSessao() {
         try {
             const response = await axios.post(`${URL_BASE}/refreshSessao`, {
                 sessionId: this.sessionId
@@ -84,7 +84,7 @@ class Api {
         finally {
             console.log(resposta)
             return resposta
-        }  
+        }
     }
 
     async loginUsuario(loginUsuario) {
@@ -97,6 +97,11 @@ class Api {
             });
             resposta = await response.data
 
+            // Cookie para manter sessão viva
+            const data = new Date();
+            data.setTime(data.getTime() + (1 * 60 * 60 * 1000)); // 1 hora (60 minutos * 60 segundos * 1000 ms)
+            const expires = "expires=" + data.toUTCString();
+            document.cookie = `sessionId=${this.sessionId};${expires};path=/`
         } catch (error) {
             if (error.response) {
                 // Captura a resposta do servidor em caso de erro (status 400, 500, etc.)
@@ -112,6 +117,22 @@ class Api {
             return resposta
         }
     }
+
+    async obtemPaginaDeLogin(sessionId) {
+        try {
+            const response = await axios.post(`${URL_BASE}/pagina`, {
+                sessionId: sessionId
+            });
+
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessão \r\n${error}`);
+            throw error;
+        }
+    }
+
 
     async requisitarTokenDeSessao() {
         try {

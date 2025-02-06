@@ -14,7 +14,7 @@
     <title>Votação</title>
 </head>
 
-<body class="h-screen w-screen flex flex-col items-center gap-4">
+<body id="body" class="h-screen w-screen flex flex-col items-center gap-4">
     <section id="section-cadastro"
         class="flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
         <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
@@ -60,8 +60,21 @@
         <button id="botao-lista-usuarios" type="button">Lista usuários</button>
     </section>
 
-    <footer id="footer" class="flex flex-wrap justify-center gap-4">
-
+    <footer id="footer" class="flex flex-wrap justify-center gap-2">
+        <s class="text-indigo-800 leading-none text-left">Setar cookies, com a sessão, para manter ativa no front-end enquanto o servidor permitir</s>
+        <s class="text-indigo-800 leading-none text-left"></s>Ao fazer login retornar página com contexto, dependendo do tipo de usuário</s>
+        O superusuario pode listar todos os usuários<br>
+        O superusuario pode excluir um usuário<br>
+        O superusuario pode fazer refresh das sessões, excluindo as antigas<br>
+        O superusuário pode resetar a senha de outro usuário<br>
+        O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao supersusário) <br>
+        
+        O usuário gerente pode criar uma eleição, definindo candidatos e eleitores (que estejam cadastrados)<br>
+        Uma eleição  deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>
+        Usuários devem poder trocar a senha.
+        Usuários podem esquecer a senha e receber por email um link para alterar a senha esse link deve conter uma sessão para acessar a alteração de senha do usuário (UPDATE modifiedAt e senhaa partir do cpf )
+        Usuários podem receber uma lista das eleições as quais estão cadastrados.
+        Usuários podem votar em candidatos da eleição
     </footer>
 </body>
 
