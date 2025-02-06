@@ -165,6 +165,7 @@ app.post('/usuarios', async (req, res) => {
 });
 
 
+
 // Rota para criar um novo usuário (CREATE)
 app.post('/login', async (req, res) => {
   try {
@@ -207,7 +208,18 @@ app.post('/login', async (req, res) => {
   }
 });
 
-
+app.post('/refreshSessao', async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    if(await bd.refreshSessao(sessionId) == 0)
+      return res.status(404).json({ error: `sessão expirada` });
+    return res.status(200).send(`Refresh da sessão ${sessionId}`);
+  } catch (error) {
+    console.log(error)
+    return res.status(404).json({ error: `${error}` });
+    
+  }
+})
 
 /////////////////////////////////////////////////////////////////////////////////////
 app.post('/teste', (req, res) => {

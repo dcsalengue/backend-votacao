@@ -116,7 +116,7 @@ botaoLogin.addEventListener("click", async () => {
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
    
-    console.log(await api.requisitarTokenDeSessao())
+    console.log(await api.refreshSessao())
     // await api.requisitarTokenDeSessao()
     // console.log(`${api.publicKeySession} | ${api.sessionId}`)
 })

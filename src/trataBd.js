@@ -10,20 +10,30 @@ const bd = {
 
     async insereSessao() {
 
+
+        await this.excluiSessoesAntigas() 
+
         const { publicKey, privateKey } = cripto.gerarParDeChaves();
         const sessionId = uuidv4();
 
         try {
-            // Insere dados no bd usando prisma
-            const novaSessao = await prisma.sessoes.create({
-                data: {
-                    sessionId: sessionId,
-                    privateKey: privateKey,
-                    publicKey: publicKey,
-                    createdAt: new Date(),
-                    modifiedAt: new Date(),
-                },
-            });
+
+            await prisma.$executeRaw`
+            INSERT INTO "sessoes" 
+                (
+                "sessionId", 
+                "privateKey", 
+                "publicKey", 
+                "createdAt", 
+                "modifiedAt")
+            VALUES (
+                ${sessionId}::uuid, 
+                ${privateKey}, 
+                ${publicKey}, 
+                NOW(), 
+                NOW())
+        `;
+
 
             console.log("Sessão criada!");
             return ({ sessionId, publicKey })
@@ -36,6 +46,7 @@ const bd = {
 
     async obtemSessoes() {
         try {
+            
             const sessoes = await prisma.sessoes.findMany();
             console.log("Sessões encontradas:", sessoes);
             return sessoes
@@ -47,7 +58,40 @@ const bd = {
         }
     },
 
+    async excluiSessoesAntigas() {
+        try {
+            const result = await prisma.$executeRaw`
+                DELETE FROM "sessoes" 
+                WHERE "modifiedAt" < NOW() - INTERVAL '5 minutes'
+            `;
+            console.log(`Sessões excluídas: ${result}`);
+        } catch (error) {
+            console.error("Erro ao excluir sessões antigas:", error);
+        }
+
+    },
+
+    async refreshSessao(sessionId) {
+        try {
+            await this.excluiSessoesAntigas() // 
+            const result = await prisma.$executeRaw`
+                UPDATE "sessoes" 
+                SET "modifiedAt" = NOW()
+                WHERE "sessionId" =  CAST(${sessionId} AS UUID)
+            `;
+            console.log(`Refresh da sessão ${sessionId}: ${result==0?"refresh efetuado":"sessão expirada"}`);
+            return result
+            
+        } catch (error) {
+            console.error(`Sessão não encontrada ou expirada:${error}`);
+        }
+    },
+
     async obtemPrivateKeyDeSessao(sessionId) {
+
+        // Exclui as sessões com mais de 5 minutos de vida
+        await this.excluiSessoesAntigas();
+        
         try {
             const result = await prisma.$queryRaw`
                 SELECT "privateKey" FROM "sessoes" WHERE "sessionId" =  CAST(${sessionId} AS UUID)
@@ -55,6 +99,9 @@ const bd = {
 
             if (result.length > 0) {
                 console.log("Private Key encontrada");
+                // Se a sessão ainda existir marca o modifiedAt com o now
+
+               await this.refreshSessao(sessionId)
                 return result[0].privateKey;
             } else {
                 console.log("Nenhuma sessão encontrada para esse ID.");
@@ -81,7 +128,7 @@ const bd = {
             return false; // Em caso de erro, retorna false para evitar falhas no fluxo
         }
     },
-    
+
     async obtemUsuarioComCpf(cpf) {
         try {
             const result = await prisma.$queryRaw`
@@ -109,22 +156,31 @@ const bd = {
 
         const { nome, email, cpf, senha } = newUser
         const sessionId = uuidv4();
+            try {
 
-        try {
-            // Insere dados no bd usando prisma
-            const novoUsuario = await prisma.usuarios.create({
-                data: {
-                    nome: nome,
-                    email: email,
-                    cpf: cpf,
-                    senha: senha,
-                    permissao: 0, // Criado com permissão mínima
-                    privateKey: privateKey,
-                    publicKey: publicKey,
-                    createdAt: new Date(),
-                    modifiedAt: new Date(),
-                },
-            });
+                await prisma.$executeRaw`
+                INSERT INTO "usuarios" 
+                    (
+                    "nome", 
+                    "email", 
+                    "cpf",
+                    "senha", 
+                    "permissao", 
+                    "privateKey",
+                    "publicKey",
+                    "createdAt",
+                    "modifiedAt")
+                VALUES (
+                    ${nome}, 
+                    ${email}, 
+                    ${cpf}, 
+                    ${senha}, 
+                    0, 
+                    ${privateKey}, 
+                    ${publicKey}, 
+                    NOW(), 
+                    NOW())
+            `;
 
             console.log("Usuário criado:", nome);
             return ("Usuário criado:", nome)

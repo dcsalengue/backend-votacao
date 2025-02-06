@@ -64,6 +64,28 @@ class Api {
             return resposta
         }
     }
+    async refreshSessao(){
+        try {
+            const response = await axios.post(`${URL_BASE}/refreshSessao`, {
+                sessionId: this.sessionId
+            });
+            resposta = await response.data
+
+        } catch (error) {
+            if (error.response) {
+                // Captura a resposta do servidor em caso de erro (status 400, 500, etc.)
+                resposta = error.response.data.error;
+            } else {
+                // Captura erro inesperado (ex: falha de rede)
+                resposta = 'Erro inesperado ao tentar refreshSessao.';
+            }
+            console.error("Erro no refreshSessao:", resposta.error);
+        }
+        finally {
+            console.log(resposta)
+            return resposta
+        }  
+    }
 
     async loginUsuario(loginUsuario) {
         let resposta
