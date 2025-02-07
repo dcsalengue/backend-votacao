@@ -13,6 +13,7 @@ model sessoes {
   privateKey String   @unique
   createdAt  DateTime @db.Timestamp(6)
   modifiedAt DateTime @db.Timestamp(6)
+  cpf        String   @default("000.000.000-00") @db.VarChar(14)
 }
 
 model usuarios {

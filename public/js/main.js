@@ -18,6 +18,8 @@ const listaUsuarios = document.getElementById("lista-usuarios")
 
 const footer = document.getElementById("footer")
 const body = document.getElementById("body")
+const main = document.getElementById("main")
+
 function getCookie(nome) {
     const cookies = document.cookie.split('; ');
     for (let i = 0; i < cookies.length; i++) {
@@ -88,7 +90,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         //     listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
         // }); 
         console.log(document.cookie);
-        body.innerHTML = `${await api.obtemPaginaDeLogin(getCookie("sessionId"))}`
+        const resposta = await api.obtemPaginaDeLogin(getCookie("sessionId"))
+        main.innerHTML = resposta.data
+        console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
     } catch (error) {
         console.log(error)
     }
@@ -106,14 +110,19 @@ botaoLogin.addEventListener("click", async () => {
         return;
     }
 
-    const publicKeyPem = await api.requisitarTokenDeSessao()
+    const publicKeyPem = await api.requisitarTokenDeSessao(loginCpf.value)
 
     const hashSenha = await criptografia.hash(loginSenha.value)
     const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
     // Mostra mensagem de login
     footer.innerHTML = `${await api.loginUsuario(usuario)}`
-    body.innerHTML = `${await api.obtemPaginaDeLogin(api.sessionId)}`
+
+    const resposta = await api.obtemPaginaDeLogin(api.sessionId)
+    console.log(resposta)
+    main.innerHTML = resposta.data
+    console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
+
 
 });
 

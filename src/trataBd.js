@@ -8,10 +8,12 @@ const prisma = new PrismaClient();
 
 const bd = {
 
-    async insereSessao() {
+    async insereSessao(cpf) {
 
 
-        await this.excluiSessoesAntigas() 
+        if (!cpf)
+            cpf = "000.000.000-00"
+        await this.excluiSessoesAntigas()
 
         const { publicKey, privateKey } = cripto.gerarParDeChaves();
         const sessionId = uuidv4();
@@ -22,12 +24,15 @@ const bd = {
             INSERT INTO "sessoes" 
                 (
                 "sessionId", 
+                "cpf",
                 "privateKey", 
-                "publicKey", 
+                "publicKey",
                 "createdAt", 
-                "modifiedAt")
+                "modifiedAt"
+                )
             VALUES (
                 ${sessionId}::uuid, 
+                ${cpf},
                 ${privateKey}, 
                 ${publicKey}, 
                 NOW(), 
@@ -43,10 +48,32 @@ const bd = {
             await prisma.$disconnect();
         }
     },
+    async obtemPermissaoUsuarioSessao(sessionId) {
+        try {
+            const result = await prisma.$queryRaw`
+            SELECT u."nome", u."permissao" 
+            FROM "sessoes" s
+            JOIN "usuarios" u 
+            ON s."cpf" = u."cpf"
+            WHERE s."sessionId" = CAST(${sessionId} AS UUID)
+        `;
+
+
+            if (result.length > 0) {
+                return result[0];
+            } else {
+                console.log("Nenhum usuário encontrado para essa sessão.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar permissões:", error);
+            return null;
+        }
+    },
 
     async obtemSessoes() {
         try {
-            
+
             const sessoes = await prisma.sessoes.findMany();
             console.log("Sessões encontradas:", sessoes);
             return sessoes
@@ -79,9 +106,9 @@ const bd = {
                 SET "modifiedAt" = NOW()
                 WHERE "sessionId" =  CAST(${sessionId} AS UUID)
             `;
-            console.log(`Refresh da sessão ${sessionId}: ${result==0?"refresh efetuado":"sessão expirada"}`);
+            console.log(`Refresh da sessão ${sessionId}: ${result == 0 ? "refresh efetuado" : "sessão expirada"}`);
             return result
-            
+
         } catch (error) {
             console.error(`Sessão não encontrada ou expirada:${error}`);
         }
@@ -91,7 +118,7 @@ const bd = {
 
         // Exclui as sessões com mais de 5 minutos de vida
         await this.excluiSessoesAntigas();
-        
+
         try {
             const result = await prisma.$queryRaw`
                 SELECT "privateKey" FROM "sessoes" WHERE "sessionId" =  CAST(${sessionId} AS UUID)
@@ -101,7 +128,7 @@ const bd = {
                 console.log("Private Key encontrada");
                 // Se a sessão ainda existir marca o modifiedAt com o now
 
-               await this.refreshSessao(sessionId)
+                await this.refreshSessao(sessionId)
                 return result[0].privateKey;
             } else {
                 console.log("Nenhuma sessão encontrada para esse ID.");
@@ -156,9 +183,9 @@ const bd = {
 
         const { nome, email, cpf, senha } = newUser
         const sessionId = uuidv4();
-            try {
+        try {
 
-                await prisma.$executeRaw`
+            await prisma.$executeRaw`
                 INSERT INTO "usuarios" 
                     (
                     "nome", 
@@ -175,7 +202,7 @@ const bd = {
                     ${email}, 
                     ${cpf}, 
                     ${senha}, 
-                    0, 
+                    2, 
                     ${privateKey}, 
                     ${publicKey}, 
                     NOW(), 

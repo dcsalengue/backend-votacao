@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "sessoes" ADD COLUMN     "cpf" VARCHAR(14) NOT NULL DEFAULT '000.000.000-00';

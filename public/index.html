@@ -14,65 +14,77 @@
     <title>Votação</title>
 </head>
 
-<body id="body" class="h-screen w-screen flex flex-col items-center gap-4">
-    <section id="section-cadastro"
-        class="flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
-        <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
-            <input id="cadastro__nome" name="cadastro__nome" type="text" placeholder="Nome">
-            <input type="text" placeholder="email" id="cadastro__email" name="cadastro__usuario">
-            <input type="text" id="cadastro__cpf" name="cadastro__cpf" maxlength="14" placeholder="000.000.000-00"
-                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
-            <input type="hidden" id="hash__senha" name="hash__senha">
-            <input type="password" placeholder="Senha" id="cadastro__senha" valida=false>
-            <input type="password" placeholder="Repetir senha" id="repete-senha">
+<body id="body" class="h-screen w-full flex flex-col items-center gap-4">
+    <header class="h-24 w-full flex justify-end items-center gap-4 bg-indigo-100 text-indigo-800 p-2">
+        <a href="">Cadastro</a>
+        <a href="">Login</a>
+    </header>
+    <main id="main">
+        <section id="section-cadastro"
+            class="flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
+            <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
+                <input id="cadastro__nome" name="cadastro__nome" type="text" placeholder="Nome">
+                <input type="text" placeholder="email" id="cadastro__email" name="cadastro__usuario">
+                <input type="text" id="cadastro__cpf" name="cadastro__cpf" maxlength="14" placeholder="000.000.000-00"
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+                <input type="hidden" id="hash__senha" name="hash__senha">
+                <input type="password" placeholder="Senha" id="cadastro__senha" valida=false>
+                <input type="password" placeholder="Repetir senha" id="repete-senha">
 
-            <button id="botao-cadastrar" type="button"
+                <button id="botao-cadastrar" type="button"
+                    class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                    Cadastrar
+                </button>
+            </form>
+
+        </section>
+
+
+        <section id="section-login"
+            class="flex flex-col  justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
+            <div class="flex flex-col   justify-center gap-4">
+                <input type="text" id="login__cpf" name="login__cpf" maxlength="14" placeholder="000.000.000-00"
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
+                <input type="password" placeholder="senha" id="login-senha">
+            </div>
+            <button id="botao-login" type="button"
                 class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
-                Cadastrar
+                Login
             </button>
-        </form>
-
-    </section>
+        </section>
 
 
-    <section id="section-login"
-        class="flex flex-col  justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
-        <div class="flex flex-col   justify-center gap-4">
-            <input type="text" id="login__cpf" name="login__cpf" maxlength="14" placeholder="000.000.000-00"
-                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
-            <input type="password" placeholder="senha" id="login-senha">
-        </div>
-        <button id="botao-login" type="button"
-            class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
-            Login
-        </button>
-    </section>
+        <section id="section-usuarios">
+            <button id="botao-testes" type="button"
+                class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                Teste
+            </button>
+            <ul id="lista-usuarios" hidden>
 
-
-    <section id="section-usuarios">
-        <button id="botao-testes" type="button"
-            class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
-            Teste
-        </button>
-        <ul id="lista-usuarios" hidden>
-
-        </ul>
-        <button id="botao-lista-usuarios" type="button">Lista usuários</button>
-    </section>
-
-    <footer id="footer" class="flex flex-wrap justify-center gap-2">
-        <s class="text-indigo-800 leading-none text-left">Setar cookies, com a sessão, para manter ativa no front-end enquanto o servidor permitir</s>
-        <s class="text-indigo-800 leading-none text-left"></s>Ao fazer login retornar página com contexto, dependendo do tipo de usuário</s>
+            </ul>
+            <button id="botao-lista-usuarios" type="button">Lista usuários</button>
+        </section>
+    </main>
+    <footer class="w-full" id="footer" class="flex flex-col  justify-center gap-2">
+        <s class="text-indigo-800 leading-none text-left">Setar cookies, com a sessão, para manter ativa no front-end
+            enquanto o servidor permitir</s><br>
+        <s class="text-indigo-800 leading-none text-left">Ao fazer login retornar página com contexto, dependendo do
+            tipo de usuário</s><br>
+        <s class="text-indigo-800 leading-none text-left">Precisa incluir o cpf na tabela de sessão para poder definir
+            qual a permissão do usuário que solicitou a sessão</s><br>
+            Botão de sair, para excluir o cookie e deletar a sessão no servidor<br>
         O superusuario pode listar todos os usuários<br>
         O superusuario pode excluir um usuário<br>
         O superusuario pode fazer refresh das sessões, excluindo as antigas<br>
         O superusuário pode resetar a senha de outro usuário<br>
-        O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao supersusário) <br>
-        
+        O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
+        supersusário) <br>
+
         O usuário gerente pode criar uma eleição, definindo candidatos e eleitores (que estejam cadastrados)<br>
-        Uma eleição  deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>
+        Uma eleição deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>
         Usuários devem poder trocar a senha.
-        Usuários podem esquecer a senha e receber por email um link para alterar a senha esse link deve conter uma sessão para acessar a alteração de senha do usuário (UPDATE modifiedAt e senhaa partir do cpf )
+        Usuários podem esquecer a senha e receber por email um link para alterar a senha esse link deve conter uma
+        sessão para acessar a alteração de senha do usuário (UPDATE modifiedAt e senhaa partir do cpf )
         Usuários podem receber uma lista das eleições as quais estão cadastrados.
         Usuários podem votar em candidatos da eleição
     </footer>

@@ -118,6 +118,21 @@ class Api {
         }
     }
 
+    // async obtemPaginaDeLogin(sessionId) {
+    //     try {
+    //         const response = await axios.post(`${URL_BASE}/pagina`, {
+    //             sessionId: sessionId
+    //         });
+
+    //         // Obtendo os dados do corpo da resposta (body)
+    //         return (response.data);
+
+    //     } catch (error) {
+    //         alert(`Erro ao requisitar token de sessão \r\n${error}`);
+    //         throw error;
+    //     }
+    // }
+
     async obtemPaginaDeLogin(sessionId) {
         try {
             const response = await axios.post(`${URL_BASE}/pagina`, {
@@ -125,7 +140,15 @@ class Api {
             });
 
             // Obtendo os dados do corpo da resposta (body)
-            return (response.data);
+            const data = response.data;
+
+            // Obtendo os cabeçalhos da resposta
+            const nome = response.headers['x-user-name'];
+            const permissao = response.headers['x-user-permission'];
+
+            console.log(`Nome: ${nome}, Permissão: ${permissao}`);
+
+            return { data, nome, permissao };
 
         } catch (error) {
             alert(`Erro ao requisitar token de sessão \r\n${error}`);
@@ -133,10 +156,9 @@ class Api {
         }
     }
 
-
-    async requisitarTokenDeSessao() {
+    async requisitarTokenDeSessao(cpf) {
         try {
-            const response = await axios.get(`${URL_BASE}/tokendesessao`, {
+            const response = await axios.get(`${URL_BASE}/tokendesessao?cpf=${cpf}`, {
                 withCredentials: true,  // Isso garante que os cookies e cabeçalhos personalizados sejam enviados
             });
             ({ publicKey: this.publicKeySession, sessionId: this.sessionId } = response.data);
