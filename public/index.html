@@ -14,7 +14,10 @@
     <title>Votação</title>
 </head>
 
-<body id="body" class="h-screen w-full flex flex-col items-center gap-4">
+<body id="body" class="relative h-screen w-full flex flex-col items-center gap-4">
+    <div id="overlay" class="flex items-center justify-center absolute top-0 left-0 h-screen w-screen  z-10 bg-black/60 border border-gray-300 p-2 hidden">
+      <di class="text-black text-4xl text-blue-600 animate-spin"> ⏳</div> 
+    </div>
     <header class="h-24 w-full flex justify-end items-center gap-4 bg-indigo-100 text-indigo-800 p-2">
 
         <nav>
@@ -26,7 +29,7 @@
         </nav>
 
     </header>
-    <main id="main">
+    <main id="main"  >
         <section id="section-cadastro"
             class="hidden flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
             <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
@@ -48,7 +51,7 @@
 
 
         <section id="section-login"
-            class="flex flex-col  justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
+            class="z-0 flex flex-col  justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
             <div class="flex flex-col   justify-center gap-4">
                 <input type="text" id="login__cpf" name="login__cpf" maxlength="14" placeholder="000.000.000-00"
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>

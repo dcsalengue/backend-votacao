@@ -1,7 +1,7 @@
 import criptografia from "./cripto.js";
 import cpf from "./cpf.js";
 import api from "./api.js";
-
+const overlay = document.getElementById('overlay');
 const cadastroNome = document.getElementById('cadastro__nome');
 const cadastroEmail = document.getElementById('cadastro__email');
 const cadastroCpf = document.getElementById('cadastro__cpf');
@@ -23,6 +23,29 @@ const navCadastroSair = document.getElementById("nav-cadastro-sair")
 
 const sectionCadastro = document.getElementById("section-cadastro")
 const sectionLogin = document.getElementById("section-login")
+
+
+function setOverlay() {
+    if (!overlay.classList.contains("hidden")) {
+        overlay.classList.add("hidden")
+    }
+}
+
+function clearOverlay() {
+
+    if (overlay.classList.contains("hidden")) {
+        overlay.classList.remove("hidden")
+    }
+}
+
+async function toggleOverlay() {
+    if (overlay.classList.contains("hidden")) {
+        overlay.classList.remove("hidden")
+    } else {
+        overlay.classList.add("hidden")
+    }
+
+}
 
 function getCookie(nome) {
     const cookies = document.cookie.split('; ');
@@ -72,15 +95,21 @@ botaCadastrar.addEventListener('click', async function (event) {
     }
 
     try {
+        await toggleOverlay()
         await api.requisitarTokenDeSessao();
         //await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value);
-
+        footer.innerHTML = `${await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value)}`
+        await modificaBotaoSessao()
+        await api.sairDaSessao()
+        deleteCookie("sessionId");
     } catch (error) {
         console.error("Erro ao cadastrar usuário:", error);
         alert("Não foi possível conectar ao servidor.");
     }
 
-    footer.innerHTML = `${await api.cadastrarUsuario(cadastroNome.value, cadastroEmail.value, cadastroCpf.value, cadastroSenha.value)}`
+    finally {
+        await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
+    }
 
 });
 
@@ -93,17 +122,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         // usuarios.forEach(usuario => {
         //     listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
         // }); 
+        await toggleOverlay()// Exibe a ampulheta ao carregar a página
         const sessionId = getCookie("sessionId")
         console.log(document.cookie);
-        if(!sessionId)
+        if (!sessionId)
             return
         const resposta = await api.obtemPaginaDeLogin(sessionId)
         main.innerHTML = resposta.data
         console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
+        await modificaBotaoSessao()
+        await api.sairDaSessao()
+        deleteCookie("sessionId");
+        location.reload(true);
+
     } catch (error) {
         console.log(error)
     }
-
+    finally {
+        await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
+    }
 
 });
 botaoLogin.addEventListener("click", async () => {
@@ -116,23 +153,34 @@ botaoLogin.addEventListener("click", async () => {
         alert('CPF inválido');
         return;
     }
+    try {
 
-    const publicKeyPem = await api.requisitarTokenDeSessao(loginCpf.value)
+        await toggleOverlay()
+        const publicKeyPem = await api.requisitarTokenDeSessao(loginCpf.value)
 
-    const hashSenha = await criptografia.hash(loginSenha.value)
-    const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
+        const hashSenha = await criptografia.hash(loginSenha.value)
+        const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
-    // Mostra mensagem de login
-    footer.innerHTML = `${await api.loginUsuario(usuario)}`
+        // Mostra mensagem de login
+        footer.innerHTML = `${await api.loginUsuario(usuario)}`
 
-    const resposta = await api.obtemPaginaDeLogin(api.sessionId)
-    console.log(resposta)
-    main.innerHTML = resposta.data
-    console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
+        const resposta = await api.obtemPaginaDeLogin(api.sessionId)
+        console.log(resposta)
+        main.innerHTML = resposta.data
+        console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
+        await modificaBotaoSessao()
+    } catch (error) {
+        console.log(error)
+        await api.sairDaSessao()        
+        await modificaBotaoSessao()
+        deleteCookie("sessionId");
 
+
+    } finally {
+        await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
+    }
 
 });
-
 
 
 const btTeste = document.getElementById("botao-testes")
@@ -158,23 +206,24 @@ navCadastroSair.addEventListener("click", async () => {
         sectionCadastro.style.display = "none"
         sectionLogin.style.display = "flex"
         navCadastroSair.textContent = "Cadastro"
-    }else {
+    } else {
         // Sair da sessão, excluir cookie, excluir sessionId no servidor
+        await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
         await api.sairDaSessao()
         deleteCookie("sessionId");
         location.reload(true);
-        //await modificaBotaoSessao()
     }
 })
 
 const modificaBotaoSessao = async () => {
-    console.log(api.sessionId)
+    // console.log(api.sessionId)
     const sessaoValida = await api.verificaValidadeTokenDeSessao()
     if (sessaoValida) {
         navCadastroSair.textContent = "Sair"
         navCadastroSair.setAttribute("modo", "sair"); // Atualiza o atributo
-    } else if ( navCadastroSair.getAttribute("modo") == "sair" ) {
-        navCadastroSair.setAttribute("modo", "cadastro"); 
+    } else if (navCadastroSair.getAttribute("modo") == "sair") {
+        await toggleOverlay()
+        navCadastroSair.setAttribute("modo", "cadastro");
         navCadastroSair.textContent = "Cadastro"
         sectionLogin.style.display = "flex"
         deleteCookie("sessionId");
@@ -185,8 +234,8 @@ const modificaBotaoSessao = async () => {
     timerVerificaValidadeToken()
 }
 
-const timerVerificaValidadeToken = () => {
-    setTimeout(modificaBotaoSessao, 5000)
+const timerVerificaValidadeToken = async () => {
+    setTimeout(await modificaBotaoSessao, 5000)
 }
 timerVerificaValidadeToken()
 /*
