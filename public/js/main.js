@@ -19,6 +19,10 @@ const listaUsuarios = document.getElementById("lista-usuarios")
 const footer = document.getElementById("footer")
 const body = document.getElementById("body")
 const main = document.getElementById("main")
+const navCadastroSair = document.getElementById("nav-cadastro-sair")
+
+const sectionCadastro = document.getElementById("section-cadastro")
+const sectionLogin = document.getElementById("section-login")
 
 function getCookie(nome) {
     const cookies = document.cookie.split('; ');
@@ -89,8 +93,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         // usuarios.forEach(usuario => {
         //     listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
         // }); 
+        const sessionId = getCookie("sessionId")
         console.log(document.cookie);
-        const resposta = await api.obtemPaginaDeLogin(getCookie("sessionId"))
+        if(!sessionId)
+            return
+        const resposta = await api.obtemPaginaDeLogin(sessionId)
         main.innerHTML = resposta.data
         console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
     } catch (error) {
@@ -126,15 +133,62 @@ botaoLogin.addEventListener("click", async () => {
 
 });
 
+
+
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
-
-    console.log(await api.refreshSessao())
+    console.log("btTeste")
+    console.log(await api.verificaValidadeTokenDeSessao())
     // await api.requisitarTokenDeSessao()
     // console.log(`${api.publicKeySession} | ${api.sessionId}`)
 })
+function deleteCookie(nome) {
+    document.cookie = nome + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+navCadastroSair.addEventListener("click", async () => {
+    let modo = navCadastroSair.getAttribute("modo");
+    console.log(navCadastroSair.textContent.trim())
+    if (modo == "cadastro") {
+        navCadastroSair.setAttribute("modo", "login"); // Atualiza o atributo
+        sectionCadastro.style.display = "flex"
+        sectionLogin.style.display = "none"
+        navCadastroSair.textContent = "Login"
+    } else if (modo == "login") {
+        navCadastroSair.setAttribute("modo", "cadastro"); // Atualiza o atributo
+        sectionCadastro.style.display = "none"
+        sectionLogin.style.display = "flex"
+        navCadastroSair.textContent = "Cadastro"
+    }else {
+        // Sair da sessão, excluir cookie, excluir sessionId no servidor
+        await api.sairDaSessao()
+        deleteCookie("sessionId");
+        location.reload(true);
+        //await modificaBotaoSessao()
+    }
+})
 
+const modificaBotaoSessao = async () => {
+    console.log(api.sessionId)
+    const sessaoValida = await api.verificaValidadeTokenDeSessao()
+    if (sessaoValida) {
+        navCadastroSair.textContent = "Sair"
+        navCadastroSair.setAttribute("modo", "sair"); // Atualiza o atributo
+    } else if ( navCadastroSair.getAttribute("modo") == "sair" ) {
+        navCadastroSair.setAttribute("modo", "cadastro"); 
+        navCadastroSair.textContent = "Cadastro"
+        sectionLogin.style.display = "flex"
+        deleteCookie("sessionId");
+        location.reload(true);
+    }
 
+    console.log(`sessaoValida: ${sessaoValida}`)
+    timerVerificaValidadeToken()
+}
+
+const timerVerificaValidadeToken = () => {
+    setTimeout(modificaBotaoSessao, 5000)
+}
+timerVerificaValidadeToken()
 /*
 Tabelas:
 

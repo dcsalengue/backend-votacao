@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ok } from 'assert';
 
 // Define __dirname para ES6
 const __filename = fileURLToPath(import.meta.url);
@@ -124,13 +125,20 @@ function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAV
 
 // Cria uma nova sessão no banco de dados e retorna o sessionId e a publicKey
 app.get('/tokendesessao', async (req, res) => {
-  const cpf = req.query.cpf; // Captura o valor do parâmetro "user"
+  const cpf = req.query.cpf; // Captura o valor do parâmetro "cpf"
 
   if (!cpf) {
     cpf = '000.000.000-00'
   }
   const sessao = await bd.insereSessao(cpf)
   res.json(sessao)
+})
+
+// Verifica se a sessão ainda é válida, inicialmente exclui as expiradas
+app.get('/verificaValidadeToken', async (req, res) => {
+  const sessionId = req.query.sessionId; // Captura o valor do parâmetro "sessionId"
+  const result = await bd.verificaSessaoExiste(sessionId)
+  res.json({ sessaoExiste: `${result}` })
 })
 
 
@@ -166,6 +174,15 @@ app.post('/usuarios', async (req, res) => {
   }
 });
 
+app.post('/sair', async (req, res) => {
+  const { sessionId } = req.body;
+  try {
+    await bd.excluirSessao(sessionId)
+    res.send('ok')
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 app.post('/pagina', async (req, res) => {
   const { sessionId } = req.body;

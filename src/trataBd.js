@@ -98,9 +98,27 @@ const bd = {
 
     },
 
+    async verificaSessaoExiste(sessionId) {
+        try {
+            await this.excluiSessoesAntigas()
+            const result = await prisma.$executeRaw`
+                SELECT "sessionId" 
+                FROM "sessoes" 
+                WHERE "sessionId" =  CAST(${sessionId} AS UUID)
+            `;
+            console.log(`verificaSessaoExiste ${result}`);
+            return result > 0 ? true : false
+
+        } catch (error) {
+            console.error(`Sessão não encontrada ou expirada:${error}`);
+        }
+
+
+    },
+
     async refreshSessao(sessionId) {
         try {
-            await this.excluiSessoesAntigas() // 
+            await this.excluiSessoesAntigas()
             const result = await prisma.$executeRaw`
                 UPDATE "sessoes" 
                 SET "modifiedAt" = NOW()
@@ -114,15 +132,34 @@ const bd = {
         }
     },
 
+    async excluirSessao(sessionId) {
+        try {
+            console.log(`excluirSessao(${sessionId}`)
+            const result = await prisma.$executeRaw`
+                DELETE FROM "sessoes" 
+                WHERE "sessionId" =  CAST(${sessionId} AS UUID)
+            `;
+            console.log(`Sessão  ${sessionId} excluídas: ${result}`);
+        } catch (error) {
+            console.error("Erro ao excluir sessões antigas:", error);
+        }
+    },
+
     async obtemPrivateKeyDeSessao(sessionId) {
 
         // Exclui as sessões com mais de 5 minutos de vida
         await this.excluiSessoesAntigas();
-
         try {
+            if (!sessionId) {
+                console.log("Session ID inválido");
+                return null;
+            }
+            console.log(`mPrivateKeyDeSessao ${sessionId}`)
             const result = await prisma.$queryRaw`
-                SELECT "privateKey" FROM "sessoes" WHERE "sessionId" =  CAST(${sessionId} AS UUID)
-            `;
+                    SELECT "privateKey" 
+                    FROM "sessoes"
+                    WHERE "sessionId" =  CAST(${sessionId} AS UUID)
+                `;
 
             if (result.length > 0) {
                 console.log("Private Key encontrada");
@@ -134,6 +171,7 @@ const bd = {
                 console.log("Nenhuma sessão encontrada para esse ID.");
                 return null;
             }
+
         } catch (error) {
             console.error("Erro ao buscar privateKey:", error);
         } finally {

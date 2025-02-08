@@ -64,6 +64,31 @@ class Api {
             return resposta
         }
     }
+
+    async sairDaSessao() {
+        let resposta
+        try {
+            const response = await axios.post(`${URL_BASE}/sair`, {
+                sessionId: this.sessionId
+            });
+            resposta = await response.data
+
+        } catch (error) {
+            if (error.response) {
+                // Captura a resposta do servidor em caso de erro (status 400, 500, etc.)
+                resposta = error.response.data.error;
+            } else {
+                // Captura erro inesperado (ex: falha de rede)
+                resposta = 'Erro inesperado ao tentar excluir sessão.';
+            }
+            console.error("Erro ao excluir sessão:", resposta.error);
+        }
+        finally {
+            console.log(resposta)
+            return resposta
+        }
+    }
+
     async refreshSessao() {
         try {
             const response = await axios.post(`${URL_BASE}/refreshSessao`, {
@@ -138,7 +163,8 @@ class Api {
             const response = await axios.post(`${URL_BASE}/pagina`, {
                 sessionId: sessionId
             });
-
+console.log(sessionId)
+            this.sessionId = sessionId;
             // Obtendo os dados do corpo da resposta (body)
             const data = response.data;
 
@@ -165,6 +191,26 @@ class Api {
 
             // Obtendo os dados do corpo da resposta (body)
             return (`sessionId: ${this.sessionId} | publicKey: ${this.publicKeySession} `);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessão \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async verificaValidadeTokenDeSessao() {
+        try {
+            console.log(`verificaValidadeTokenDeSessao(${this.sessionId})`)
+            if(!this.sessionId)
+                return
+            const response = await axios.get(`${URL_BASE}/verificaValidadeToken?sessionId=${this.sessionId}`, {
+                withCredentials: true,  // Isso garante que os cookies e cabeçalhos personalizados sejam enviados
+            });
+             console.log(response.data);
+             if(response.data.sessaoExiste == 'false')
+                this.sessionId = null       
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data.sessaoExiste);
 
         } catch (error) {
             alert(`Erro ao requisitar token de sessão \r\n${error}`);
