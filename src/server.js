@@ -246,10 +246,12 @@ app.post('/login', async (req, res) => {
         res.status(200).send(`Login efetuado! ${user.nome}`);
 
       } else {
+        await bd.excluirSessao(sessionId)
         console.log(`Senha incorreta!`)
         return res.status(401).json({ error: 'Senha incorreta!' });
       }
     } else {
+      await bd.excluirSessao(sessionId)
       console.log(`CPF não cadastrado!`)
       return res.status(404).json({ error: 'CPF não cadastrado!' });
     }

@@ -114,6 +114,7 @@ class Api {
 
     async loginUsuario(loginUsuario) {
         let resposta
+        let pagina = null
         const loginEncriptado = await criptografia.encryptUserData(this.publicKeySession, loginUsuario);
         try {
             const response = await axios.post(`${URL_BASE}/login`, {
@@ -121,12 +122,15 @@ class Api {
                 sessionId: this.sessionId
             });
             resposta = await response.data
-
-            // Cookie para manter sessão viva
-            const data = new Date();
-            data.setTime(data.getTime() + (1 * 60 * 60 * 1000)); // 1 hora (60 minutos * 60 segundos * 1000 ms)
-            const expires = "expires=" + data.toUTCString();
-            document.cookie = `sessionId=${this.sessionId};${expires};path=/`
+            if (response.status === 200) {
+                // Cookie para manter sessão viva
+                const data = new Date();
+                data.setTime(data.getTime() + (1 * 60 * 60 * 1000)); // 1 hora (60 minutos * 60 segundos * 1000 ms)
+                const expires = "expires=" + data.toUTCString();
+                document.cookie = `sessionId=${this.sessionId};${expires};path=/`
+                pagina = await this.obtemPaginaDeLogin(this.sessionId)
+            console.log(pagina)
+            }
         } catch (error) {
             if (error.response) {
                 // Captura a resposta do servidor em caso de erro (status 400, 500, etc.)
@@ -138,8 +142,9 @@ class Api {
             console.error("Erro no login:", resposta.error);
         }
         finally {
-            console.log(resposta)
-            return resposta
+            console.log(`${resposta}`)
+            console.log(`${pagina}`)
+            return {resposta, pagina}
         }
     }
 
@@ -163,7 +168,7 @@ class Api {
             const response = await axios.post(`${URL_BASE}/pagina`, {
                 sessionId: sessionId
             });
-console.log(sessionId)
+            console.log(sessionId)
             this.sessionId = sessionId;
             // Obtendo os dados do corpo da resposta (body)
             const data = response.data;
@@ -201,14 +206,14 @@ console.log(sessionId)
     async verificaValidadeTokenDeSessao() {
         try {
             console.log(`verificaValidadeTokenDeSessao(${this.sessionId})`)
-            if(!this.sessionId)
+            if (!this.sessionId)
                 return
             const response = await axios.get(`${URL_BASE}/verificaValidadeToken?sessionId=${this.sessionId}`, {
                 withCredentials: true,  // Isso garante que os cookies e cabeçalhos personalizados sejam enviados
             });
-             console.log(response.data);
-             if(response.data.sessaoExiste == 'false')
-                this.sessionId = null       
+            console.log(response.data);
+            if (response.data.sessaoExiste == 'false')
+                this.sessionId = null
             // Obtendo os dados do corpo da resposta (body)
             return (response.data.sessaoExiste);
 

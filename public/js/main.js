@@ -161,22 +161,27 @@ botaoLogin.addEventListener("click", async () => {
         const hashSenha = await criptografia.hash(loginSenha.value)
         const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
+        const resposta = await api.loginUsuario(usuario)
         // Mostra mensagem de login
-        footer.innerHTML = `${await api.loginUsuario(usuario)}`
+        footer.innerHTML = `${resposta.resposta}`
 
-        const resposta = await api.obtemPaginaDeLogin(api.sessionId)
-        console.log(resposta)
-        main.innerHTML = resposta.data
-        console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
-        await modificaBotaoSessao()
+        //const resposta = await api.obtemPaginaDeLogin(api.sessionId)
+        //console.log(resposta)
+        if (resposta?.pagina) {
+            main.innerHTML = resposta.pagina.data
+            console.log(`Nome: ${resposta.pagina.nome}, Permissão: ${resposta.pagina.permissao}`);
+            
+        }
+        
     } catch (error) {
         console.log(error)
-        await api.sairDaSessao()        
+        await api.sairDaSessao()
         await modificaBotaoSessao()
         deleteCookie("sessionId");
 
 
     } finally {
+        await modificaBotaoSessao()
         await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
     }
 
@@ -235,7 +240,7 @@ const modificaBotaoSessao = async () => {
 }
 
 const timerVerificaValidadeToken = async () => {
-    setTimeout(await modificaBotaoSessao, 5000)
+    setTimeout( modificaBotaoSessao, 5000)
 }
 timerVerificaValidadeToken()
 /*
