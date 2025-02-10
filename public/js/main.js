@@ -166,9 +166,13 @@ botaoLogin.addEventListener("click", async () => {
         footer.innerHTML = `${resposta.resposta}`
 
         //const resposta = await api.obtemPaginaDeLogin(api.sessionId)
-        //console.log(resposta)
+        console.log(resposta)
         if (resposta?.pagina) {
             main.innerHTML = resposta.pagina.data
+            const btTestesPermissao0 = document.getElementById('botao-testes')
+            btTestesPermissao0.addEventListener('click', ()=>{
+                console.log('btTestesPermissao0 clicado')
+            })
             console.log(`Nome: ${resposta.pagina.nome}, Permissão: ${resposta.pagina.permissao}`);
             
         }
@@ -235,7 +239,7 @@ const modificaBotaoSessao = async () => {
         location.reload(true);
     }
 
-    console.log(`sessaoValida: ${sessaoValida}`)
+    // console.log(`sessaoValida: ${sessaoValida}`)
     timerVerificaValidadeToken()
 }
 

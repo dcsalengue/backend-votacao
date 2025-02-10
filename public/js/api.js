@@ -205,7 +205,7 @@ class Api {
 
     async verificaValidadeTokenDeSessao() {
         try {
-            console.log(`verificaValidadeTokenDeSessao(${this.sessionId})`)
+            // console.log(`verificaValidadeTokenDeSessao(${this.sessionId})`)
             if (!this.sessionId)
                 return
             const response = await axios.get(`${URL_BASE}/verificaValidadeToken?sessionId=${this.sessionId}`, {

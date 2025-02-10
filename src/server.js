@@ -184,6 +184,8 @@ app.post('/sair', async (req, res) => {
   }
 })
 
+
+
 app.post('/pagina', async (req, res) => {
   const { sessionId } = req.body;
 
@@ -206,12 +208,43 @@ app.post('/pagina', async (req, res) => {
     const { nome, permissao } = userData;
 
     console.log(`Usuário ${nome} com permissão ${permissao}`);
+    let conteudoPagina
+    if (permissao == 0) {
+      const usuarios = await bd.obtemUsuarios()
+      conteudoPagina = `
+          <section id="login-permissao_0">
+        O superusuario pode listar todos os usuários<br>
+        O superusuario pode excluir um usuário<br>
+        O superusuario pode fazer refresh das sessões, excluindo as antigas<br>
+        O superusuário pode resetar a senha de outro usuário<br>
+        O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
+        supersusário) <br>
+        <ul id="lista-usuarios">
+        `
+      usuarios.forEach(usuario => {
+        let linha = `<li>${usuario.nome}</li> <li>${usuario.cpf}</li>`
+        conteudoPagina += linha
+
+      });
+
+      conteudoPagina +=
+        `
+        </ul>
+        <button id="botao-testes" type="button"
+                class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                Teste
+            </button>
+    </section>
+      `
+    }
+
 
     res.set({
       'X-User-Name': nome,
       'X-User-Permission': permissao
     });
-    res.sendFile(path.join(__dirname, `permissao${permissao}.html`));
+    // res.sendFile(path.join(__dirname, `permissao${permissao}.html`));
+    res.send(conteudoPagina)
   } catch (error) {
     console.error("Erro no endpoint /pagina:", error);
     res.status(500).json({ error: "Erro interno do servidor" });
