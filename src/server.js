@@ -219,17 +219,18 @@ app.post('/pagina', async (req, res) => {
         O superusuário pode resetar a senha de outro usuário<br>
         O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
         supersusário) <br>
-        <ul id="lista-usuarios">
+        <label for="lista-usuarios">Nome dos usuários:</label>
+        <select name="lista-usuarios" id="lista-usuarios">
         `
       usuarios.forEach(usuario => {
-        let linha = `<li>${usuario.nome}</li> <li>${usuario.cpf}</li>`
+        let linha = `<option value="${usuario.cpf}">${usuario.nome}</option >`
         conteudoPagina += linha
 
       });
 
       conteudoPagina +=
         `
-        </ul>
+        </select>
         <button id="botao-testes" type="button"
                 class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
                 Teste
