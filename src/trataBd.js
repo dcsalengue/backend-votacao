@@ -269,6 +269,27 @@ const bd = {
         }
     },
 
+    async buscaDadosUsuario(cpf){
+        try {
+            const result = await prisma.$queryRaw`
+                SELECT nome, email, permissao FROM "usuarios" WHERE "cpf" = ${cpf}
+            `;
+
+            if (result.length > 0) {
+                console.log(result);
+                return result[0];
+            } else {
+                console.log("Nenhuma sessão encontrada para esse ID.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar privateKey:", error);
+        } finally {
+            await prisma.$disconnect();
+        }
+        return {retorna:`${cpf}`}
+    }
+
 
 };
 

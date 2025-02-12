@@ -65,6 +65,29 @@ app.get('/usuarios', (req, res) => {
   res.json(trataArquivos.arquivoUsuarios);
 });
 
+app.get('/usuario', async (req, res) => {
+  const cpf = req.headers['cpf']; // Exemplo: Token de autenticação
+  const sessionId = req.headers['session-id']; // Exemplo: Informações do navegador
+  console.log(`${sessionId} , ${cpf}`)
+  // Verifica se sessionId existe e se é de usuário com permissão 0
+  // Obtém permissões do usuário
+  const userData = await bd.obtemPermissaoUsuarioSessao(sessionId);
+
+  if (!userData) {
+    return res.status(403).json({ error: "Não autorizado." });
+  }
+
+  // Extrai nome e permissão, garantindo que existem
+  const { nome, permissao } = userData;
+
+  console.log(`Usuário ${nome} com permissão ${permissao}`);
+  let conteudoPagina
+  if (permissao !== 0) {
+    return res.status(403).json({ error: "Não autorizado." });
+
+  }
+  res.json(await bd.buscaDadosUsuario(cpf));
+})
 
 // Rota para obter um usuário específico pelo ID (READ)
 app.get('/usuarios/:cpf', (req, res) => {
@@ -213,14 +236,16 @@ app.post('/pagina', async (req, res) => {
       const usuarios = await bd.obtemUsuarios()
       conteudoPagina = `
           <section id="login-permissao_0">
-        O superusuario pode listar todos os usuários<br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
+        Selecionar o usuário e obter todas as informações<br>
         O superusuario pode excluir um usuário<br>
         O superusuario pode fazer refresh das sessões, excluindo as antigas<br>
         O superusuário pode resetar a senha de outro usuário<br>
         O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
-        supersusário) <br>
+        superusuário) <br>
         <label for="lista-usuarios">Nome dos usuários:</label>
         <select name="lista-usuarios" id="lista-usuarios">
+
         `
       usuarios.forEach(usuario => {
         let linha = `<option value="${usuario.cpf}">${usuario.nome}</option >`
@@ -236,6 +261,18 @@ app.post('/pagina', async (req, res) => {
                 Teste
             </button>
     </section>
+
+    <script>
+    const selecionaUsuario = document.getElementById("lista-usuarios")
+    selecionaUsuario.addEventListener("change", function () {
+    mostrarValor(select.options[selecionaUsuario.selectedIndex].value) 
+    console.log("Novo valor selecionado:", this.value);
+});
+    function mostrarValor(cpf) {
+        alert("Valor: " + cpf);
+    }
+    </script>
+
       `
     }
 
@@ -348,3 +385,5 @@ app.get('/testarConexao', async (req, res) => {
   res.json(await bd.obtemSessoes())
 })
 export default app;
+
+

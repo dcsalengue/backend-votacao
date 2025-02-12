@@ -23,7 +23,7 @@ const navCadastroSair = document.getElementById("nav-cadastro-sair")
 
 const sectionCadastro = document.getElementById("section-cadastro")
 const sectionLogin = document.getElementById("section-login")
-
+const selecionaUsuario = document.getElementById("lista-usuarios")
 
 function setOverlay() {
     if (!overlay.classList.contains("hidden")) {
@@ -124,11 +124,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         // }); 
         await toggleOverlay()// Exibe a ampulheta ao carregar a página
         const sessionId = getCookie("sessionId")
-        console.log(document.cookie);
+        //console.log(document.cookie);
         if (!sessionId)
             return
         const resposta = await api.obtemPaginaDeLogin(sessionId)
         main.innerHTML = resposta.data
+        // Executar scripts manualmente
+        main.querySelectorAll('script').forEach(script => {
+            const novoScript = document.createElement('script');
+            if (script.src) {
+                novoScript.src = script.src; // Para scripts externos
+                novoScript.async = true;
+            } else {
+                novoScript.textContent = script.textContent; // Para scripts inline
+            }
+            document.body.appendChild(novoScript); // Executa o script
+        });
         console.log(`Nome: ${resposta.nome}, Permissão: ${resposta.permissao}`);
         await modificaBotaoSessao()
         await api.sairDaSessao()
@@ -143,6 +154,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 });
+
 botaoLogin.addEventListener("click", async () => {
 
     // Validações
@@ -169,14 +181,60 @@ botaoLogin.addEventListener("click", async () => {
         console.log(resposta)
         if (resposta?.pagina) {
             main.innerHTML = resposta.pagina.data
+
+
+            const listaUsuarios = document.getElementById('lista-usuarios')
+            if (listaUsuarios) {
+                listaUsuarios.addEventListener("change", async () => {
+                    const cpfSelecionado = listaUsuarios.value;
+                    const dadosUsuario = await api.buscaDadosUsuario(cpfSelecionado)
+                    // Requisita ao backend os dados do usuário com o cpf selecionado
+                    if (dadosUsuario) {
+
+                        console.log(`${dadosUsuario.nome}, ${dadosUsuario.email}, ${dadosUsuario.permissao}`);
+                        const sessaoLoginPermissao0 = document.getElementById("login-permissao_0")
+                        if (sessaoLoginPermissao0) {
+                            // Remove todas as divs dentro de `sessaoLoginPermissao0`
+                            Array.from(sessaoLoginPermissao0.getElementsByTagName("div")).forEach(div => div.remove());
+                        }
+                        const divsUsuario = document.createElement('div');
+                        divsUsuario.innerHTML = `
+                        <p>CPF do usuário: ${cpfSelecionado}</p>
+                        <input id="usuario__nome" name="usuario__nome" type="text" placeholder="Nome">
+                        <input type="text" placeholder="email" id="usuario__email" name="usuario__usuario">
+                        <input type="text" placeholder="permissao" id="usuario__permissao" name="usuario__permissao">
+
+
+                    `
+                        // Aguarde a inserção e defina os valores nos inputs
+                        setTimeout(() => {
+
+                            // Aguarde a inserção e defina os valores nos inputs
+                            const usuarioNome = document.getElementById("usuario__nome")
+                            const usuarioEmail = document.getElementById("usuario__email")
+                            const usuarioPermissao = document.getElementById("usuario__permissao")
+                            usuarioNome.value = dadosUsuario.nome;
+                            usuarioEmail.value = dadosUsuario.email;
+                            usuarioPermissao.value = dadosUsuario.permissao;
+                        }, 0); // Pequeno atraso para garantir que os elementos estejam no DOM
+                        // Botão para submeter alterações (Realizadas nos inputs)
+                        // Botão para excluir usuário
+                        /////// A fazer
+                        //////                   
+
+                        sessaoLoginPermissao0.appendChild(divsUsuario)
+                    }
+                });
+
+            }
             const btTestesPermissao0 = document.getElementById('botao-testes')
-            btTestesPermissao0.addEventListener('click', ()=>{
+            btTestesPermissao0.addEventListener('click', () => {
                 console.log('btTestesPermissao0 clicado')
             })
             console.log(`Nome: ${resposta.pagina.nome}, Permissão: ${resposta.pagina.permissao}`);
-            
+
         }
-        
+
     } catch (error) {
         console.log(error)
         await api.sairDaSessao()
@@ -224,6 +282,16 @@ navCadastroSair.addEventListener("click", async () => {
     }
 })
 
+
+selecionaUsuario.addEventListener("change", function () {
+    mostrarValor(select.options[selecionaUsuario.selectedIndex].value)
+    console.log("Novo valor selecionado:", this.value);
+});
+
+function mostrarValor(cpf) {
+    alert(`Valor: ${cpf}`);
+}
+
 const modificaBotaoSessao = async () => {
     // console.log(api.sessionId)
     const sessaoValida = await api.verificaValidadeTokenDeSessao()
@@ -244,7 +312,7 @@ const modificaBotaoSessao = async () => {
 }
 
 const timerVerificaValidadeToken = async () => {
-    setTimeout( modificaBotaoSessao, 5000)
+    setTimeout(modificaBotaoSessao, 5000)
 }
 timerVerificaValidadeToken()
 /*

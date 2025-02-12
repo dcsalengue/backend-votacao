@@ -129,7 +129,7 @@ class Api {
                 const expires = "expires=" + data.toUTCString();
                 document.cookie = `sessionId=${this.sessionId};${expires};path=/`
                 pagina = await this.obtemPaginaDeLogin(this.sessionId)
-            console.log(pagina)
+                console.log(pagina)
             }
         } catch (error) {
             if (error.response) {
@@ -144,7 +144,7 @@ class Api {
         finally {
             console.log(`${resposta}`)
             console.log(`${pagina}`)
-            return {resposta, pagina}
+            return { resposta, pagina }
         }
     }
 
@@ -180,6 +180,26 @@ class Api {
             console.log(`Nome: ${nome}, Permissão: ${permissao}`);
 
             return { data, nome, permissao };
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessão \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async buscaDadosUsuario(cpf) {
+        try {
+            console.log(`buscaDadosUsuario: ${cpf} `)
+            const response = await axios.get(`${URL_BASE}/usuario`, {
+                headers: {
+                    'cpf': `${cpf}`,
+                    'session-id': `${this.sessionId}`
+                }
+            });
+            //({ publicKey: this.publicKeySession, sessionId: this.sessionId } = response.data);
+
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
 
         } catch (error) {
             alert(`Erro ao requisitar token de sessão \r\n${error}`);
