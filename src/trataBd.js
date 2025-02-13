@@ -291,7 +291,7 @@ const bd = {
     },
 
     async updatePermissao(cpf, nome, email, permissao) {
-        console.log(`ln294: CPF: ${cpf}|015.145.440-08`)
+        console.log(`ln294: CPF: ${cpf}`)
         const testeVerificaUsuario = await this.buscaDadosUsuario(cpf)//("015.145.440-08")
         console.log(`updatePermissao ln295 ${JSON.stringify(testeVerificaUsuario)}`)
         try {

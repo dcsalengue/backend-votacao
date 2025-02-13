@@ -315,7 +315,11 @@ class Api {
                 const status = error.response.status;
                 if (status === 409) {
                     resposta = 'Já existe uma conta cadastrada com este CPF.';
-                } else {
+                } else if (status === 403) {
+                    resposta = 'Somente o su pode alterar a prermissão dos usuários e a permissão máxima não é permitida.';
+                }
+                
+                else {
                     resposta = error.response.data;
                 }
             } else {

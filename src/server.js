@@ -117,6 +117,14 @@ app.get('/usuarios/:cpf', (req, res) => {
 app.put('/updatepermissao', async (req, res) => {
   try {
     const { data, sessionId } = req.body;
+
+    // Verifica se a sessão é de permissão máxima
+    const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId)
+    console.log( `permissao ${JSON.stringify(permissaoSessao)}`)
+    if (permissaoSessao.permissao != 0) {
+      return res.status(403).json({ error: 'Não autorizado.' });
+    }
+
     const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -128,7 +136,10 @@ app.put('/updatepermissao', async (req, res) => {
 
     // Converte os dados descriptografados de volta para JSON
     const { cpf, nome, email, permissao } = JSON.parse(decryptedData);
+    console.log(`server ln 139: ${cpf} ${nome} ${email} ${permissao}`)
 
+    if(permissao == '0')
+      return res.status(403).json({ error: 'Não autorizado, permissão máxima não permitida .' });
 
     await bd.updatePermissao(cpf, nome, email, permissao)
 

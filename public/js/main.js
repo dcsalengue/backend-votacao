@@ -227,6 +227,15 @@ async function montaDadosUsuario(listaUsuarios) {
 
             const botaoUpdate = document.createElement('button');
             botaoUpdate.textContent = "Atualizar"
+            botaoUpdate.classList.add(
+                "text-indigo-800", 
+                "p-1",  
+                "border", "border-solid", "border-transparent", 
+                "rounded-md", 
+                "hover:border-indigo-800", 
+                "hover:bg-cyan-800", 
+                "hover:text-indigo-100"
+            );
             botaoUpdate.addEventListener("click", async () => {
                 const dadoAlteradoNome = (nomeUsuario.value != dadosUsuario.nome)
                 const dadoAlteradoEmail = (emailUsuario.value != dadosUsuario.email)
