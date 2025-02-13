@@ -244,9 +244,10 @@ async function montaDadosUsuario(listaUsuarios) {
                 
                 console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
                 console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
-                
+                console.log(`${cpfUsuario.textContent}`)
                 if ((dadoAlteradoNome + dadoAlteradoEmail + dadosAlteradosPermissao))
                     await api.updateUsuarioPermissao(
+                        cpfSelecionado,
                         nomeUsuario.value,
                         emailUsuario.value,
                         permissaoAlterada

@@ -288,8 +288,44 @@ class Api {
         }
     }
 
-    async updateUsuarioPermissao(nome, email, permissao){
+    
+    async updateUsuarioPermissao(cpf, nome, email, permissao) {
         console.log(`nome: ${nome} email: ${email} permissao: ${permissao}`)
+        let jsonCadastro =
+        {
+            "cpf": `${cpf}`,
+            "nome": `${nome}`,
+            "email": `${email}`,
+            "permissao": `${permissao}`,
+        }
+
+        console.log(`${cpf} ${permissao}`)
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(this.publicKeySession, jsonCadastro);
+        let resposta
+        try {
+            const response = await axios.put(`${URL_BASE}/updatepermissao`, {
+                data: encryptedData,
+                sessionId: this.sessionId          
+                   
+            });
+            resposta = await response.data.message
+        } catch (error) {
+            if (error.response) {
+                const status = error.response.status;
+                if (status === 409) {
+                    resposta = 'Já existe uma conta cadastrada com este CPF.';
+                } else {
+                    resposta = error.response.data;
+                }
+            } else {
+                resposta = 'Erro inesperado ao tentar cadastrar.';
+            }
+        }
+        finally {
+            console.log(resposta)
+            return resposta
+        }
     }
 }
 // Exporta uma instância da API para uso

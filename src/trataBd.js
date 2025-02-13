@@ -269,7 +269,7 @@ const bd = {
         }
     },
 
-    async buscaDadosUsuario(cpf){
+    async buscaDadosUsuario(cpf) {
         try {
             const result = await prisma.$queryRaw`
                 SELECT nome, email, permissao FROM "usuarios" WHERE "cpf" = ${cpf}
@@ -287,9 +287,37 @@ const bd = {
         } finally {
             await prisma.$disconnect();
         }
-        return {retorna:`${cpf}`}
-    }
+        return { retorna: `${cpf}` }
+    },
 
+    async updatePermissao(cpf, nome, email, permissao) {
+        console.log(`ln294: CPF: ${cpf}|015.145.440-08`)
+        const testeVerificaUsuario = await this.buscaDadosUsuario(cpf)//("015.145.440-08")
+        console.log(`updatePermissao ln295 ${JSON.stringify(testeVerificaUsuario)}`)
+        try {
+           
+            
+
+            await this.excluiSessoesAntigas();
+            const permissaoInt = parseInt(permissao, 10); // Converte para número
+            console.log(`updatePermissao ${cpf} [${permissaoInt}]`)
+            const result = await prisma.$executeRaw`
+                UPDATE "usuarios" 
+                SET "modifiedAt" = NOW(), 
+                    "nome" = ${nome}, 
+                    "email" = ${email}, 
+                    "permissao" = ${permissaoInt}
+                WHERE "cpf" = ${cpf} 
+            `;
+
+            console.log(`dados atualizados: ${result}`);
+            return result;
+
+        } catch (error) {
+            console.error(`Erro ao atualizar usuário: ${error}`);
+            throw error;
+        }
+    }
 
 };
 

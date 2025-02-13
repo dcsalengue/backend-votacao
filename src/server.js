@@ -101,20 +101,41 @@ app.get('/usuarios/:cpf', (req, res) => {
   res.json(usuario);
 });
 
-// Rota para atualizar um usuário pelo ID (UPDATE)
-app.put('/usuarios/:cpf', (req, res) => {
+// Rota para obter um usuário específico pelo ID (READ)
+app.get('/usuarios/:cpf', (req, res) => {
   const { cpf } = req.params;
-  const { nome, usuario, senha } = req.body;
+  const usuario = trataArquivos.arquivoUsuarios.find(usuario => usuario.cpf === parseInt(cpf));
 
-  const usuarioIndex = trataArquivos.arquivoUsuarios.findIndex(usuario => usuario.cpf === parseInt(cpf));
-
-  if (usuarioIndex === -1) {
+  if (!usuario) {
     return res.status(404).json({ error: 'Usuário não encontrado!' });
   }
 
-  // Atualiza o usuário
-  trataArquivos.arquivoUsuarios[usuarioIndex] = { cpf: parseInt(cpf), nome, usuario, senha };
-  res.json({ message: 'Usuário atualizado com sucesso!', usuario: trataArquivos.arquivoUsuarios[usuarioIndex] });
+  res.json(usuario);
+});
+
+// Rota para atualizar um usuário pelo ID (UPDATE)
+app.put('/updatepermissao', async (req, res) => {
+  try {
+    const { data, sessionId } = req.body;
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
+    // Verifica se a sessão é válida
+    if (!privateKey) {
+      return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+    }
+
+    // Decriptografa os dados de login usando a chave privada da sessão
+    const decryptedData = await cripto.descriptografar(data, privateKey);
+
+    // Converte os dados descriptografados de volta para JSON
+    const { cpf, nome, email, permissao } = JSON.parse(decryptedData);
+
+
+    await bd.updatePermissao(cpf, nome, email, permissao)
+
+    res.json({ message: `${cpf} ${nome} ${email} ${permissao}` });
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 // Rota para excluir um usuário pelo ID (DELETE)
