@@ -287,6 +287,10 @@ class Api {
             throw error;
         }
     }
+
+    async updateUsuarioPermissao(nome, email, permissao){
+        console.log(`nome: ${nome} email: ${email} permissao: ${permissao}`)
+    }
 }
 // Exporta uma instância da API para uso
 const api = new Api();

@@ -175,12 +175,14 @@ async function montaDadosUsuario(listaUsuarios) {
 
             const nomeUsuario = document.createElement('input');
             nomeUsuario.type = "text";
+            nomeUsuario.id = "usuario-nome";
             nomeUsuario.placeholder = 'Nome do usuário'
             nomeUsuario.value = dadosUsuario.nome;
 
 
             const emailUsuario = document.createElement('input');
-            emailUsuario.type = "text";
+            emailUsuario.type = "email";
+            emailUsuario.id = "usuario-email";
             emailUsuario.placeholder = 'Email do usuário'
             emailUsuario.value = dadosUsuario.email;
 
@@ -190,7 +192,7 @@ async function montaDadosUsuario(listaUsuarios) {
             // Opções para o radio button
             const opcoes = ["Permissão 0", "Permissão 1", "Permissão 2"];
 
-        
+
             opcoes.forEach((opcao, index) => {
                 // Criar elemento <input> do tipo radio
                 const radio = document.createElement("input");
@@ -222,7 +224,38 @@ async function montaDadosUsuario(listaUsuarios) {
             divsUsuario.appendChild(nomeUsuario)
             divsUsuario.appendChild(emailUsuario)
             divsUsuario.appendChild(permissaoUsuario)
+
+            const botaoUpdate = document.createElement('button');
+            botaoUpdate.textContent = "Atualizar"
+            botaoUpdate.addEventListener("click", async () => {
+                const dadoAlteradoNome = (nomeUsuario.value != dadosUsuario.nome)
+                const dadoAlteradoEmail = (emailUsuario.value != dadosUsuario.email)
+
+                let permissaoAlterada = 0; // Inicializa como null
+                let dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
+                    if (radio.checked) {
+                        permissaoAlterada = radio.value.split(' ')[1]; // Define a permissão alterada
+                        return radio.value.split(' ')[1] !== dadosUsuario.permissao;
+                    }
+                    return false;
+                });
+                
+                dadosAlteradosPermissao = dadosAlteradosPermissao ? 1 : 0;
+                
+                console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
+                console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
+                
+                if ((dadoAlteradoNome + dadoAlteradoEmail + dadosAlteradosPermissao))
+                    await api.updateUsuarioPermissao(
+                        nomeUsuario.value,
+                        emailUsuario.value,
+                        permissaoAlterada
+                    )
+
+            });
+
             sessaoLoginPermissao0.appendChild(divsUsuario)
+            sessaoLoginPermissao0.appendChild(botaoUpdate)
         }
     });
 
