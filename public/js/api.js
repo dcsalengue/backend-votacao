@@ -288,7 +288,19 @@ class Api {
         }
     }
 
-    
+    async excluiSessoesAntigas() {
+        try {
+            const response = await axios.delete(`${URL_BASE}/limpasessoes`);
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao excluir sessões antigas \r\n${error}`);
+            throw error;
+        }
+    }
+
     async updateUsuarioPermissao(cpf, nome, email, permissao) {
         console.log(`nome: ${nome} email: ${email} permissao: ${permissao}`)
         let jsonCadastro =

@@ -113,6 +113,16 @@ app.get('/usuarios/:cpf', (req, res) => {
   res.json(usuario);
 });
 
+
+app.delete('/limpasessoes', async (req, res) => {
+  try {
+    await bd.excluiSessoesAntigas()
+    res.json({ message: `Sessões antigas excluídas` });
+  } catch (error) {
+    console.log(error)
+  }
+});
+
 // Rota para atualizar um usuário pelo ID (UPDATE)
 app.put('/updatepermissao', async (req, res) => {
   try {
@@ -120,7 +130,7 @@ app.put('/updatepermissao', async (req, res) => {
 
     // Verifica se a sessão é de permissão máxima
     const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId)
-    console.log( `permissao ${JSON.stringify(permissaoSessao)}`)
+    console.log(`permissao ${JSON.stringify(permissaoSessao)}`)
     if (permissaoSessao.permissao != 0) {
       return res.status(403).json({ error: 'Não autorizado.' });
     }
@@ -138,7 +148,7 @@ app.put('/updatepermissao', async (req, res) => {
     const { cpf, nome, email, permissao } = JSON.parse(decryptedData);
     console.log(`server ln 139: ${cpf} ${nome} ${email} ${permissao}`)
 
-    if(permissao == '0')
+    if (permissao == '0')
       return res.status(403).json({ error: 'Não autorizado, permissão máxima não permitida .' });
 
     await bd.updatePermissao(cpf, nome, email, permissao)
@@ -269,12 +279,12 @@ app.post('/pagina', async (req, res) => {
       conteudoPagina = `
           <section id="login-permissao_0">
         <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
-        Selecionar o usuário e obter todas as informações<br>
-        O superusuario pode excluir um usuário<br>
-        O superusuario pode fazer refresh das sessões, excluindo as antigas<br>
+        <s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações<br>
+        O superusuario pode excluir um usuário</s><br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuario pode fazer refresh das sessões, excluindo as antigas</s><br>
         O superusuário pode resetar a senha de outro usuário<br>
-        O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
-        superusuário) <br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
+        superusuário)</s> <br>
         <label for="lista-usuarios">Nome dos usuários:</label>
         <select name="lista-usuarios" id="lista-usuarios">
 

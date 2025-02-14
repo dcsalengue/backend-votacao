@@ -225,15 +225,34 @@ async function montaDadosUsuario(listaUsuarios) {
             divsUsuario.appendChild(emailUsuario)
             divsUsuario.appendChild(permissaoUsuario)
 
+            const divBotoes = document.createElement("div");
+
+            // Botão Limpeza de sessões
+            const botaoLimpaSessoesAntigas = document.createElement('button');
+            botaoLimpaSessoesAntigas.textContent = "Limpar Sessões"
+            botaoLimpaSessoesAntigas.classList.add(
+                "text-indigo-800",
+                "p-1",
+                "border", "border-solid", "border-transparent",
+                "rounded-md",
+                "hover:border-indigo-800",
+                "hover:bg-cyan-800",
+                "hover:text-indigo-100"
+            );
+            botaoLimpaSessoesAntigas.addEventListener("click", async () => {
+                console.log(await api.excluiSessoesAntigas())
+            });
+
+            // Botão de atualizar dados e permissão de usuários
             const botaoUpdate = document.createElement('button');
             botaoUpdate.textContent = "Atualizar"
             botaoUpdate.classList.add(
-                "text-indigo-800", 
-                "p-1",  
-                "border", "border-solid", "border-transparent", 
-                "rounded-md", 
-                "hover:border-indigo-800", 
-                "hover:bg-cyan-800", 
+                "text-indigo-800",
+                "p-1",
+                "border", "border-solid", "border-transparent",
+                "rounded-md",
+                "hover:border-indigo-800",
+                "hover:bg-cyan-800",
                 "hover:text-indigo-100"
             );
             botaoUpdate.addEventListener("click", async () => {
@@ -248,9 +267,9 @@ async function montaDadosUsuario(listaUsuarios) {
                     }
                     return false;
                 });
-                
+
                 dadosAlteradosPermissao = dadosAlteradosPermissao ? 1 : 0;
-                
+
                 console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
                 console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
                 console.log(`${cpfUsuario.textContent}`)
@@ -263,9 +282,10 @@ async function montaDadosUsuario(listaUsuarios) {
                     )
 
             });
-
+            divBotoes.appendChild(botaoUpdate)
+            divBotoes.appendChild(botaoLimpaSessoesAntigas)
             sessaoLoginPermissao0.appendChild(divsUsuario)
-            sessaoLoginPermissao0.appendChild(botaoUpdate)
+            sessaoLoginPermissao0.appendChild(divBotoes)
         }
     });
 
