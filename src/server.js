@@ -179,6 +179,17 @@ app.delete('/usuario', async (req, res) => {
 
 });
 
+// Rota para resetar senha para 1234
+app.put('/resetsenha', async (req, res) => {
+  const cpf = req.headers['cpf'];
+  try {
+    await bd.resetSenhaUsuario(cpf)
+    res.json({ message: `Senha alterada para 1234` });
+  } catch (error) {
+    res.json({ error: 'Problema ao tentar resetar a senha do usuário!' });
+  }
+
+});
 function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAVELMENTE EXISTA ALGUMA BIBLIOTECA PRONTA
   // Calculando as partes de tempo (horas, minutos, segundos, milissegundos)
   const hours = Math.floor(ms / 3600000);

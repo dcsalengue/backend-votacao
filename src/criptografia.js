@@ -2,6 +2,16 @@
 import crypto from 'crypto';
 
 const cripto = {
+    // Funções de criptografia e hash RSA256
+    async hash(string) {
+        const utf8 = new TextEncoder().encode(string);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray
+            .map((bytes) => bytes.toString(16).padStart(2, '0'))
+            .join('');
+        return hashHex;
+    },
     criptografar(mensagem, chavePublica) {
         const bufferMensagem = Buffer.from(mensagem, 'utf-8');
         const mensagemCriptografada = crypto.publicEncrypt(

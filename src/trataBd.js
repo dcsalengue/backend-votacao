@@ -145,99 +145,117 @@ const bd = {
             console.error(`Sessão não encontrada ou expirada:${error}`);
         }
     },
-
-    async excluirSessao(sessionId) {
+   
+    async resetSenhaUsuario(cpf) {
         try {
-            console.log(`excluirSessao(${sessionId}`)
+            await this.excluiSessoesAntigas()
+            const hashSenha = await cripto.hash('1234')
             const result = await prisma.$executeRaw`
+                UPDATE "usuarios" 
+                SET "modifiedAt" = NOW() ,               
+                    "senha" = ${hashSenha}
+                WHERE "cpf" =  ${cpf}  
+            `;
+            console.log(`Reset da senha cpf ${cpf}: ${result == 0 ? "Senha não alterada" : "Senha resetada"}`);
+            return result
+
+        } catch (error) {
+            console.error(`Não encontrou cpf :${error}`);
+        }
+    },
+        
+    async excluirSessao(sessionId) {
+            try {
+                console.log(`excluirSessao(${sessionId}`)
+                const result = await prisma.$executeRaw`
                 DELETE FROM "sessoes" 
                 WHERE "sessionId" =  CAST(${sessionId} AS UUID)
             `;
-            console.log(`Sessão  ${sessionId} excluídas: ${result}`);
-        } catch (error) {
-            console.error("Erro ao excluir sessões antigas:", error);
-        }
-    },
+                console.log(`Sessão  ${sessionId} excluídas: ${result}`);
+            } catch (error) {
+                console.error("Erro ao excluir sessões antigas:", error);
+            }
+        },
 
     async obtemPrivateKeyDeSessao(sessionId) {
 
-        // Exclui as sessões com mais de 5 minutos de vida
-        await this.excluiSessoesAntigas();
-        try {
-            if (!sessionId) {
-                console.log("Session ID inválido");
-                return null;
-            }
-            console.log(`mPrivateKeyDeSessao ${sessionId}`)
-            const result = await prisma.$queryRaw`
+            // Exclui as sessões com mais de 5 minutos de vida
+            await this.excluiSessoesAntigas();
+            try {
+                if (!sessionId) {
+                    console.log("Session ID inválido");
+                    return null;
+                }
+                console.log(`mPrivateKeyDeSessao ${sessionId}`)
+                const result = await prisma.$queryRaw`
                     SELECT "privateKey" 
                     FROM "sessoes"
                     WHERE "sessionId" =  CAST(${sessionId} AS UUID)
                 `;
 
-            if (result.length > 0) {
-                console.log("Private Key encontrada");
-                // Se a sessão ainda existir marca o modifiedAt com o now
+                if (result.length > 0) {
+                    console.log("Private Key encontrada");
+                    // Se a sessão ainda existir marca o modifiedAt com o now
 
-                await this.refreshSessao(sessionId)
-                return result[0].privateKey;
-            } else {
-                console.log("Nenhuma sessão encontrada para esse ID.");
-                return null;
+                    await this.refreshSessao(sessionId)
+                    return result[0].privateKey;
+                } else {
+                    console.log("Nenhuma sessão encontrada para esse ID.");
+                    return null;
+                }
+
+            } catch (error) {
+                console.error("Erro ao buscar privateKey:", error);
+            } finally {
+                await prisma.$disconnect();
             }
-
-        } catch (error) {
-            console.error("Erro ao buscar privateKey:", error);
-        } finally {
-            await prisma.$disconnect();
-        }
-    },
+        },
 
 
     async verificaCpfExiste(cpf) {
-        try {
-            console.log('Verificando se o CPF já existe...');
-            const result = await prisma.$queryRaw`
+            try {
+                console.log('Verificando se o CPF já existe...');
+                const result = await prisma.$queryRaw`
                 SELECT "cpf" FROM "usuarios" WHERE "cpf" = ${cpf}
             `;
 
-            return result.length > 0; // Retorna true se existir, false se não
-        } catch (error) {
-            console.error("Erro ao verificar CPF:", error);
-            return false; // Em caso de erro, retorna false para evitar falhas no fluxo
-        }
-    },
+                return result.length > 0; // Retorna true se existir, false se não
+            } catch (error) {
+                console.error("Erro ao verificar CPF:", error);
+                return false; // Em caso de erro, retorna false para evitar falhas no fluxo
+            }
+        },
 
     async obtemUsuarioComCpf(cpf) {
-        try {
-            const result = await prisma.$queryRaw`
+            try {
+                const result = await prisma.$queryRaw`
                 SELECT * FROM "usuarios" WHERE "cpf" = ${cpf}
             `;
 
-            if (result.length > 0) {
-                console.log("Usuário encontrado:");
-                return result[0];
-            } else {
-                console.log("Nenhuma sessão encontrada para esse ID.");
-                return null;
+                if (result.length > 0) {
+                    console.log("Usuário encontrado:");
+                    return result[0];
+                } else {
+                    console.log("Nenhuma sessão encontrada para esse ID.");
+                    return null;
+                }
+            } catch (error) {
+                console.error("Erro ao buscar privateKey:", error);
+            } finally {
+                await prisma.$disconnect();
             }
-        } catch (error) {
-            console.error("Erro ao buscar privateKey:", error);
-        } finally {
-            await prisma.$disconnect();
-        }
-    },
+        },
 
 
     async insereUsuario(newUser) {
 
-        const { publicKey, privateKey } = cripto.gerarParDeChaves();
+            const { publicKey, privateKey } = cripto.gerarParDeChaves();
 
-        const { nome, email, cpf, senha } = newUser
-        const sessionId = uuidv4();
-        try {
+            const { nome, email, cpf, senha } = newUser
+            const sessionId = uuidv4();
+            try {
 
-            await prisma.$executeRaw`
+                await prisma.$executeRaw`
                 INSERT INTO "usuarios" 
                     (
                     "nome", 
@@ -261,61 +279,61 @@ const bd = {
                     NOW())
             `;
 
-            console.log("Usuário criado:", nome);
-            return ("Usuário criado:", nome)
-        } catch (error) {
-            console.error("Erro ao criar usuário:", error);
-        } finally {
-            await prisma.$disconnect();
-        }
-    },
+                console.log("Usuário criado:", nome);
+                return ("Usuário criado:", nome)
+            } catch (error) {
+                console.error("Erro ao criar usuário:", error);
+            } finally {
+                await prisma.$disconnect();
+            }
+        },
 
     async obtemUsuarios() {
-        try {
-            const sessoes = await prisma.usuarios.findMany();
-            //console.log("Usuários encontrados:", sessoes);
-            return sessoes
-        } catch (error) {
-            console.error("Erro ao conectar ao banco:", error);
-            return error
-        } finally {
-            await prisma.$disconnect();
-        }
-    },
+            try {
+                const sessoes = await prisma.usuarios.findMany();
+                //console.log("Usuários encontrados:", sessoes);
+                return sessoes
+            } catch (error) {
+                console.error("Erro ao conectar ao banco:", error);
+                return error
+            } finally {
+                await prisma.$disconnect();
+            }
+        },
 
     async buscaDadosUsuario(cpf) {
-        try {
-            const result = await prisma.$queryRaw`
+            try {
+                const result = await prisma.$queryRaw`
                 SELECT nome, email, permissao FROM "usuarios" WHERE "cpf" = ${cpf}
             `;
 
-            if (result.length > 0) {
-                console.log(result);
-                return result[0];
-            } else {
-                console.log("Nenhuma sessão encontrada para esse ID.");
-                return null;
+                if (result.length > 0) {
+                    console.log(result);
+                    return result[0];
+                } else {
+                    console.log("Nenhuma sessão encontrada para esse ID.");
+                    return null;
+                }
+            } catch (error) {
+                console.error("Erro ao buscar privateKey:", error);
+            } finally {
+                await prisma.$disconnect();
             }
-        } catch (error) {
-            console.error("Erro ao buscar privateKey:", error);
-        } finally {
-            await prisma.$disconnect();
-        }
-        return { retorna: `${cpf}` }
-    },
+            return { retorna: `${cpf}` }
+        },
 
     async updatePermissao(cpf, nome, email, permissao) {
-        console.log(`ln294: CPF: ${cpf}`)
-        const testeVerificaUsuario = await this.buscaDadosUsuario(cpf)//("015.145.440-08")
-        console.log(`updatePermissao ln295 ${JSON.stringify(testeVerificaUsuario)}`)
-        try {
-           
-            
+            console.log(`ln294: CPF: ${cpf}`)
+            const testeVerificaUsuario = await this.buscaDadosUsuario(cpf)//("015.145.440-08")
+            console.log(`updatePermissao ln295 ${JSON.stringify(testeVerificaUsuario)}`)
+            try {
 
-            await this.excluiSessoesAntigas();
-            const permissaoInt = parseInt(permissao, 10); // Converte para número
-            console.log(`updatePermissao ${cpf} [${permissaoInt}]`)
-            const result = await prisma.$executeRaw`
+
+
+                await this.excluiSessoesAntigas();
+                const permissaoInt = parseInt(permissao, 10); // Converte para número
+                console.log(`updatePermissao ${cpf} [${permissaoInt}]`)
+                const result = await prisma.$executeRaw`
                 UPDATE "usuarios" 
                 SET "modifiedAt" = NOW(), 
                     "nome" = ${nome}, 
@@ -324,15 +342,15 @@ const bd = {
                 WHERE "cpf" = ${cpf} 
             `;
 
-            console.log(`dados atualizados: ${result}`);
-            return result;
+                console.log(`dados atualizados: ${result}`);
+                return result;
 
-        } catch (error) {
-            console.error(`Erro ao atualizar usuário: ${error}`);
-            throw error;
+            } catch (error) {
+                console.error(`Erro ao atualizar usuário: ${error}`);
+                throw error;
+            }
         }
-    }
 
-};
+    };
 
-export default bd;
+    export default bd;

@@ -228,6 +228,22 @@ async function montaDadosUsuario(listaUsuarios) {
             const divBotoes = document.createElement("div");
 
             // Botão excluir usuário
+            const botaoResetSenha = document.createElement('button');
+            botaoResetSenha.textContent = "Reset senha (1234)"
+            botaoResetSenha.classList.add(
+                "text-indigo-800",
+                "p-1",
+                "border", "border-solid", "border-transparent",
+                "rounded-md",
+                "hover:border-indigo-800",
+                "hover:bg-cyan-800",
+                "hover:text-indigo-100"
+            );
+            botaoResetSenha.addEventListener("click", async () => {
+                console.log(await api.resetSenha(cpfSelecionado))
+            });
+
+            // Botão excluir usuário
             const botaoExcluiUsuario = document.createElement('button');
             botaoExcluiUsuario.textContent = "Exclui usuário"
             botaoExcluiUsuario.classList.add(
@@ -308,6 +324,7 @@ async function montaDadosUsuario(listaUsuarios) {
             divBotoes.appendChild(botaoUpdate)
             divBotoes.appendChild(botaoLimpaSessoesAntigas)
             divBotoes.appendChild(botaoExcluiUsuario)
+            divBotoes.appendChild(botaoResetSenha)
             sessaoLoginPermissao0.appendChild(divsUsuario)
             sessaoLoginPermissao0.appendChild(divBotoes)
         }

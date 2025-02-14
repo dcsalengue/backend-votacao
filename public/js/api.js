@@ -317,7 +317,25 @@ class Api {
             alert(`Erro ao excluir o usuário \r\n${error}`);
             throw error;
         }
-        
+
+    }
+    async resetSenha(cpf) {
+        try {
+            const response = await axios.put(`${URL_BASE}/resetsenha`,
+                {}, // Corpo da requisição vazio (caso necessário)
+                {
+                    headers: {
+                        'cpf': `${cpf}`
+                    }
+                }
+            );
+            console.log(response.data);
+            return response.data;
+
+        } catch (error) {
+            alert(`Erro ao inicializar a senha do usuário \r\n${error}`);
+            throw error;
+        }
     }
 
     async updateUsuarioPermissao(cpf, nome, email, permissao) {
