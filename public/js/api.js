@@ -301,6 +301,25 @@ class Api {
         }
     }
 
+    async excluiUsuario(cpf) {
+        try {
+            const response = await axios.delete(`${URL_BASE}/usuario`, {
+                headers: {
+                    'cpf': `${cpf}`
+                }
+            });
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            // depois de excluir monta a página novamente, sem o usuário na lista
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao excluir o usuário \r\n${error}`);
+            throw error;
+        }
+        
+    }
+
     async updateUsuarioPermissao(cpf, nome, email, permissao) {
         console.log(`nome: ${nome} email: ${email} permissao: ${permissao}`)
         let jsonCadastro =
@@ -318,8 +337,8 @@ class Api {
         try {
             const response = await axios.put(`${URL_BASE}/updatepermissao`, {
                 data: encryptedData,
-                sessionId: this.sessionId          
-                   
+                sessionId: this.sessionId
+
             });
             resposta = await response.data.message
         } catch (error) {
@@ -330,7 +349,7 @@ class Api {
                 } else if (status === 403) {
                     resposta = 'Somente o su pode alterar a prermissão dos usuários e a permissão máxima não é permitida.';
                 }
-                
+
                 else {
                     resposta = error.response.data;
                 }

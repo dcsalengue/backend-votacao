@@ -98,6 +98,20 @@ const bd = {
 
     },
 
+    async excluiUsuario(cpf) {
+        try {
+            console.log(cpf)
+            const result = await prisma.$executeRaw`
+                DELETE FROM "usuarios" 
+                WHERE "cpf" = ${cpf}
+            `;
+            console.log(`Usuário excluído: ${result}`);
+        } catch (error) {
+            console.error("Erro ao excluir sessões antigas:", error);
+        }
+
+    },
+
     async verificaSessaoExiste(sessionId) {
         try {
             await this.excluiSessoesAntigas()
@@ -259,7 +273,7 @@ const bd = {
     async obtemUsuarios() {
         try {
             const sessoes = await prisma.usuarios.findMany();
-            console.log("Sessões encontradas:", sessoes);
+            //console.log("Usuários encontrados:", sessoes);
             return sessoes
         } catch (error) {
             console.error("Erro ao conectar ao banco:", error);

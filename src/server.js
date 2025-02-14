@@ -160,16 +160,23 @@ app.put('/updatepermissao', async (req, res) => {
 });
 
 // Rota para excluir um usuário pelo ID (DELETE)
-app.delete('/usuarios/:cpf', (req, res) => {
-  const { cpf } = req.params;
-  const usuarioIndex = trataArquivos.arquivoUsuarios.findIndex(usuario => usuario.cpf === parseInt(cpf));
+app.delete('/usuario', async (req, res) => {
+  const cpf = req.headers['cpf'];
+  try {
+    await bd.excluiUsuario(cpf)
+    let conteudoLista = ''
+    // Atualiza lista de usuários
+    const usuarios = await bd.obtemUsuarios()
+    usuarios.forEach(usuario => {
+      let linha = `<option value="${usuario.cpf}">${usuario.nome}</option >`
+      conteudoLista += linha
 
-  if (usuarioIndex === -1) {
-    return res.status(404).json({ error: 'Usuário não encontrado!' });
+    });
+    res.json({ message: `${conteudoLista}` });
+  } catch (error) {
+    res.json({ error: 'Problema ao excluir usuário, ou usuário já era inexistente!' });
   }
 
-  trataArquivos.arquivoUsuarios.splice(usuarioIndex, 1);
-  res.json({ message: 'Usuário excluído com sucesso!' });
 });
 
 function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAVELMENTE EXISTA ALGUMA BIBLIOTECA PRONTA

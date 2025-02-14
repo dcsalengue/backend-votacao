@@ -162,7 +162,7 @@ async function montaDadosUsuario(listaUsuarios) {
         // Requisita ao backend os dados do usuário com o cpf selecionado
         if (dadosUsuario) {
 
-            console.log(`${dadosUsuario.nome}, ${dadosUsuario.email}, ${dadosUsuario.permissao}`);
+            console.log(`montaDadosUsuario: ${dadosUsuario.nome}, ${dadosUsuario.email}, ${dadosUsuario.permissao}`);
             const sessaoLoginPermissao0 = document.getElementById("login-permissao_0")
             if (sessaoLoginPermissao0) {
                 // Remove todas as divs dentro de `sessaoLoginPermissao0`
@@ -227,6 +227,29 @@ async function montaDadosUsuario(listaUsuarios) {
 
             const divBotoes = document.createElement("div");
 
+            // Botão excluir usuário
+            const botaoExcluiUsuario = document.createElement('button');
+            botaoExcluiUsuario.textContent = "Exclui usuário"
+            botaoExcluiUsuario.classList.add(
+                "text-indigo-800",
+                "p-1",
+                "border", "border-solid", "border-transparent",
+                "rounded-md",
+                "hover:border-indigo-800",
+                "hover:bg-cyan-800",
+                "hover:text-indigo-100"
+            );
+            botaoExcluiUsuario.addEventListener("click", async () => {
+                const dadosListaUsuarios = await api.excluiUsuario(cpfSelecionado)
+                listaUsuarios.innerHTML = ""
+                listaUsuarios.innerHTML = dadosListaUsuarios.message
+                const sessaoLoginPermissao0 = document.getElementById("login-permissao_0")
+                if (sessaoLoginPermissao0) {
+                    // Remove todas as divs dentro de `sessaoLoginPermissao0`
+                    Array.from(sessaoLoginPermissao0.getElementsByTagName("div")).forEach(div => div.remove());
+                }
+            });
+
             // Botão Limpeza de sessões
             const botaoLimpaSessoesAntigas = document.createElement('button');
             botaoLimpaSessoesAntigas.textContent = "Limpar Sessões"
@@ -284,6 +307,7 @@ async function montaDadosUsuario(listaUsuarios) {
             });
             divBotoes.appendChild(botaoUpdate)
             divBotoes.appendChild(botaoLimpaSessoesAntigas)
+            divBotoes.appendChild(botaoExcluiUsuario)
             sessaoLoginPermissao0.appendChild(divsUsuario)
             sessaoLoginPermissao0.appendChild(divBotoes)
         }
@@ -323,78 +347,6 @@ botaoLogin.addEventListener("click", async () => {
             if (listaUsuarios) {
                 montaDadosUsuario(listaUsuarios)
             }
-            //     //+++
-            //     listaUsuarios.addEventListener("change", async () => {
-            //         const cpfSelecionado = listaUsuarios.value;
-            //         const dadosUsuario = await api.buscaDadosUsuario(cpfSelecionado)
-            //         // Requisita ao backend os dados do usuário com o cpf selecionado
-            //         if (dadosUsuario) {
-
-            //             console.log(`${dadosUsuario.nome}, ${dadosUsuario.email}, ${dadosUsuario.permissao}`);
-            //             const sessaoLoginPermissao0 = document.getElementById("login-permissao_0")
-            //             if (sessaoLoginPermissao0) {
-            //                 // Remove todas as divs dentro de `sessaoLoginPermissao0`
-            //                 Array.from(sessaoLoginPermissao0.getElementsByTagName("div")).forEach(div => div.remove());
-            //             }
-            //             const divsUsuario = document.createElement('div');
-
-            //             const cpfUsuario = document.createElement('p');
-            //             cpfUsuario.textContent = `CPF do usuário: ${cpfSelecionado}`
-
-            //             const nomeUsuario = document.createElement('input');
-            //             nomeUsuario.type = "text";
-            //             nomeUsuario.placeholder = 'Nome do usuário'
-            //             nomeUsuario.value = dadosUsuario.nome;
-
-
-            //             const emailUsuario = document.createElement('input');
-            //             emailUsuario.type = "text";
-            //             emailUsuario.placeholder = 'Email do usuário'
-            //             emailUsuario.value = dadosUsuario.email;
-
-            //             const permissaoUsuario = document.createElement('div');
-
-            //             // Opções para o radio button
-            //             const opcoes = ["Permissão 0", "Permissão 1", "Permissão 2"];
-
-            //             // Container onde os botões serão inseridos
-            //             //  const permissaoUsuario = document.getElementById("radio-permissaoUsuario");
-
-            //             opcoes.forEach((opcao, index) => {
-            //                 // Criar elemento <input> do tipo radio
-            //                 const radio = document.createElement("input");
-            //                 radio.type = "radio";
-            //                 radio.name = "opcoes"; // Mesmo nome para agrupar os botões
-            //                 radio.id = `opcao${index}`;
-            //                 radio.value = opcao;
-
-            //                 if (dadosUsuario.permissao == index)
-            //                     radio.checked = true;
-
-            //                 // Criar um <label> associado ao botão
-            //                 const label = document.createElement("label");
-            //                 label.htmlFor = `opcao${index}`;
-            //                 label.textContent = opcao;
-
-            //                 // Adicionar evento ao radio
-            //                 radio.addEventListener("change", () => {
-            //                     console.log(`Selecionado: ${radio.value}`);
-            //                 });
-
-            //                 // Adicionar elementos ao permissaoUsuario
-            //                 permissaoUsuario.appendChild(radio);
-            //                 permissaoUsuario.appendChild(label);
-            //                 permissaoUsuario.appendChild(document.createElement("br"));
-            //             });
-            //             divsUsuario.appendChild(nomeUsuario)
-            //             divsUsuario.appendChild(emailUsuario)
-            //             divsUsuario.appendChild(permissaoUsuario)
-            //             sessaoLoginPermissao0.appendChild(divsUsuario)
-            //         }
-            //     });
-
-            // }
-            // //++++
             const btTestesPermissao0 = document.getElementById('botao-testes')
             btTestesPermissao0.addEventListener('click', () => {
                 console.log('btTestesPermissao0 clicado')
