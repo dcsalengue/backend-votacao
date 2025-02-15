@@ -56,8 +56,8 @@ function getCookie(nome) {
     return null; // Retorna null se o cookie não existir
 }
 
+const validaSenhaCadastro = () => {
 
-repeteSenha.onchange = () => {
     if (cadastroSenha.value === repeteSenha.value) {
         cadastroSenha.style.background = "#7bc27b"
         cadastroSenha.setAttribute("valida", true)
@@ -67,12 +67,42 @@ repeteSenha.onchange = () => {
         cadastroSenha.style.color = "white"
         cadastroSenha.setAttribute("valida", false)
     }
-
 }
+repeteSenha.oninput = () => validaSenhaCadastro()
+cadastroSenha.oninput = () => validaSenhaCadastro()
 
 // Seleciona o campo de CPF e aplica a máscara ao digitar
 cadastroCpf.addEventListener('input', cpf.aplicarMascaraCPF);
 loginCpf.addEventListener('input', cpf.aplicarMascaraCPF);
+cadastroCpf.addEventListener('change', cpf.aplicarMascaraCPF);
+loginCpf.addEventListener('change', cpf.aplicarMascaraCPF);
+
+const exibeBotaoAtualizar = (nomeUsuario, emailUsuario, dadosUsuario) => {
+    
+    let exibirBotao = 0
+    const permissaoUsuario = document.getElementById("radio-permissao-usuario")
+    
+    let dadosAlteradosPermissao = false
+    dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
+        if (radio.checked) {
+            return radio.value.split(' ')[1] != dadosUsuario.permissao;
+        }
+        return false;
+    });
+
+    exibirBotao += (nomeUsuario.value != dadosUsuario.nome)
+    exibirBotao += (emailUsuario.value != dadosUsuario.email)
+    exibirBotao += (dadosAlteradosPermissao ? 1 : 0)
+
+    const botaoUpdate = document.getElementById("botao-update")
+    if (exibirBotao)
+        botaoUpdate.classList.remove("hidden")
+    else
+        botaoUpdate.classList.add("hidden")
+
+    console.log(exibirBotao)
+
+}
 
 // Adiciona validação do formulário para exibir mensagens personalizadas
 
@@ -156,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function montaDadosUsuario(listaUsuarios) {
-    listaUsuarios.addEventListener("change", async () => {
+    listaUsuarios.addEventListener("input", async () => {
         const cpfSelecionado = listaUsuarios.value;
         const dadosUsuario = await api.buscaDadosUsuario(cpfSelecionado)
         // Requisita ao backend os dados do usuário com o cpf selecionado
@@ -178,16 +208,23 @@ async function montaDadosUsuario(listaUsuarios) {
             nomeUsuario.id = "usuario-nome";
             nomeUsuario.placeholder = 'Nome do usuário'
             nomeUsuario.value = dadosUsuario.nome;
+            nomeUsuario.addEventListener("input", () => {
+                exibeBotaoAtualizar(nomeUsuario, emailUsuario, dadosUsuario)
 
+            });
 
             const emailUsuario = document.createElement('input');
             emailUsuario.type = "email";
             emailUsuario.id = "usuario-email";
             emailUsuario.placeholder = 'Email do usuário'
             emailUsuario.value = dadosUsuario.email;
+            emailUsuario.addEventListener("input", () => {
+                exibeBotaoAtualizar(nomeUsuario, emailUsuario, dadosUsuario)
 
+            });
             // Container do radio select
             const permissaoUsuario = document.createElement('div');
+            permissaoUsuario.id = "radio-permissao-usuario"
 
             // Opções para o radio button
             const opcoes = ["Permissão 0", "Permissão 1", "Permissão 2"];
@@ -210,8 +247,11 @@ async function montaDadosUsuario(listaUsuarios) {
                 label.textContent = opcao;
 
                 // Adicionar evento ao radio
-                radio.addEventListener("change", () => {
+                radio.addEventListener("input", () => {
                     console.log(`Selecionado: ${radio.value}`);
+                    // exibeBotaoAtualizar(nomeUsuario, emailUsuario, radio.value.split(' ')[1], dadosUsuario)
+                    exibeBotaoAtualizar(nomeUsuario, emailUsuario, dadosUsuario)
+
                 });
 
                 // Adicionar elementos ao permissaoUsuario
@@ -282,10 +322,57 @@ async function montaDadosUsuario(listaUsuarios) {
                 console.log(await api.excluiSessoesAntigas())
             });
 
+
+
             // Botão de atualizar dados e permissão de usuários
             const botaoUpdate = document.createElement('button');
             botaoUpdate.textContent = "Atualizar"
+            botaoUpdate.id = "botao-update"
             botaoUpdate.classList.add(
+                "text-indigo-800",
+                "p-1",
+                "border", "border-solid", "border-transparent",
+                "rounded-md",
+                "hover:border-indigo-800",
+                "hover:bg-cyan-800",
+                "hover:text-indigo-100",
+                "hidden"
+            );
+
+
+
+            botaoUpdate.addEventListener("click", async () => {
+                // const dadoAlteradoNome = (nomeUsuario.value != dadosUsuario.nome)
+                // const dadoAlteradoEmail = (emailUsuario.value != dadosUsuario.email)
+
+                // let permissaoAlterada = 0; // Inicializa como null
+                // let dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
+                //     if (radio.checked) {
+                //         permissaoAlterada = radio.value.split(' ')[1]; // Define a permissão alterada
+                //         return radio.value.split(' ')[1] !== dadosUsuario.permissao;
+                //     }
+                //     return false;
+                // });
+
+                // dadosAlteradosPermissao = dadosAlteradosPermissao ? 1 : 0;
+
+                // console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
+                // console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
+                // console.log(`${cpfUsuario.textContent}`)
+                // if ((dadoAlteradoNome + dadoAlteradoEmail + dadosAlteradosPermissao))
+                await api.updateUsuarioPermissao(
+                    cpfSelecionado,
+                    nomeUsuario.value,
+                    emailUsuario.value,
+                    permissaoAlterada
+                )
+
+            });
+
+            // Usar para testes no código
+            const botaoTestes = document.createElement('button');
+            botaoTestes.textContent = "Teste"
+            botaoTestes.classList.add(
                 "text-indigo-800",
                 "p-1",
                 "border", "border-solid", "border-transparent",
@@ -294,37 +381,15 @@ async function montaDadosUsuario(listaUsuarios) {
                 "hover:bg-cyan-800",
                 "hover:text-indigo-100"
             );
-            botaoUpdate.addEventListener("click", async () => {
-                const dadoAlteradoNome = (nomeUsuario.value != dadosUsuario.nome)
-                const dadoAlteradoEmail = (emailUsuario.value != dadosUsuario.email)
-
-                let permissaoAlterada = 0; // Inicializa como null
-                let dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
-                    if (radio.checked) {
-                        permissaoAlterada = radio.value.split(' ')[1]; // Define a permissão alterada
-                        return radio.value.split(' ')[1] !== dadosUsuario.permissao;
-                    }
-                    return false;
-                });
-
-                dadosAlteradosPermissao = dadosAlteradosPermissao ? 1 : 0;
-
-                console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
-                console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
-                console.log(`${cpfUsuario.textContent}`)
-                if ((dadoAlteradoNome + dadoAlteradoEmail + dadosAlteradosPermissao))
-                    await api.updateUsuarioPermissao(
-                        cpfSelecionado,
-                        nomeUsuario.value,
-                        emailUsuario.value,
-                        permissaoAlterada
-                    )
-
+            botaoTestes.addEventListener("click", async () => {
+                exibeBotaoAtualizar(nomeUsuario, emailUsuario, permissaoUsuario, dadosUsuario)
             });
             divBotoes.appendChild(botaoUpdate)
             divBotoes.appendChild(botaoLimpaSessoesAntigas)
             divBotoes.appendChild(botaoExcluiUsuario)
             divBotoes.appendChild(botaoResetSenha)
+            divBotoes.appendChild(botaoTestes)
+
             sessaoLoginPermissao0.appendChild(divsUsuario)
             sessaoLoginPermissao0.appendChild(divBotoes)
         }
@@ -390,7 +455,8 @@ botaoLogin.addEventListener("click", async () => {
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
     console.log("btTeste")
-    console.log(await api.verificaValidadeTokenDeSessao())
+    exibeBotaoAtualizar()
+    // console.log(await api.verificaValidadeTokenDeSessao())
     // await api.requisitarTokenDeSessao()
     // console.log(`${api.publicKeySession} | ${api.sessionId}`)
 })
@@ -420,7 +486,7 @@ navCadastroSair.addEventListener("click", async () => {
 })
 
 
-selecionaUsuario.addEventListener("change", function () {
+selecionaUsuario.addEventListener("input", function () {
     mostrarValor(select.options[selecionaUsuario.selectedIndex].value)
     console.log("Novo valor selecionado:", this.value);
 });
