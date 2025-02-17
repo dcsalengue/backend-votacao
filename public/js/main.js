@@ -78,10 +78,10 @@ cadastroCpf.addEventListener('change', cpf.aplicarMascaraCPF);
 loginCpf.addEventListener('change', cpf.aplicarMascaraCPF);
 
 const exibeBotaoAtualizar = (nomeUsuario, emailUsuario, dadosUsuario) => {
-    
+
     let exibirBotao = 0
     const permissaoUsuario = document.getElementById("radio-permissao-usuario")
-    
+
     let dadosAlteradosPermissao = false
     dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
         if (radio.checked) {
@@ -342,24 +342,6 @@ async function montaDadosUsuario(listaUsuarios) {
 
 
             botaoUpdate.addEventListener("click", async () => {
-                // const dadoAlteradoNome = (nomeUsuario.value != dadosUsuario.nome)
-                // const dadoAlteradoEmail = (emailUsuario.value != dadosUsuario.email)
-
-                // let permissaoAlterada = 0; // Inicializa como null
-                // let dadosAlteradosPermissao = Array.from(permissaoUsuario.getElementsByTagName("input")).some(radio => {
-                //     if (radio.checked) {
-                //         permissaoAlterada = radio.value.split(' ')[1]; // Define a permissão alterada
-                //         return radio.value.split(' ')[1] !== dadosUsuario.permissao;
-                //     }
-                //     return false;
-                // });
-
-                // dadosAlteradosPermissao = dadosAlteradosPermissao ? 1 : 0;
-
-                // console.log(`Nome alterado: ${dadoAlteradoNome}, Email alterado: ${dadoAlteradoEmail}, Permissão alterada: ${dadosAlteradosPermissao}`);
-                // console.log(`Nova permissão selecionada: ${permissaoAlterada}`);
-                // console.log(`${cpfUsuario.textContent}`)
-                // if ((dadoAlteradoNome + dadoAlteradoEmail + dadosAlteradosPermissao))
                 await api.updateUsuarioPermissao(
                     cpfSelecionado,
                     nomeUsuario.value,
@@ -369,29 +351,34 @@ async function montaDadosUsuario(listaUsuarios) {
 
             });
 
-            // Usar para testes no código
-            const botaoTestes = document.createElement('button');
-            botaoTestes.textContent = "Teste"
-            botaoTestes.classList.add(
-                "text-indigo-800",
-                "p-1",
-                "border", "border-solid", "border-transparent",
-                "rounded-md",
-                "hover:border-indigo-800",
-                "hover:bg-cyan-800",
-                "hover:text-indigo-100"
-            );
-            botaoTestes.addEventListener("click", async () => {
-                exibeBotaoAtualizar(nomeUsuario, emailUsuario, permissaoUsuario, dadosUsuario)
-            });
+
+
+            // // Usar para testes no código
+            // const botaoTestes = document.createElement('button');
+            // botaoTestes.textContent = "Gera usuários (arquivo)"
+            // botaoTestes.classList.add(
+            //     "text-indigo-800",
+            //     "p-1",
+            //     "border", "border-solid", "border-transparent",
+            //     "rounded-md",
+            //     "hover:border-indigo-800",
+            //     "hover:bg-cyan-800",
+            //     "hover:text-indigo-100"
+            // );
+            // botaoTestes.addEventListener("click", async () => {
+            // });
+
+
+
+
             divBotoes.appendChild(botaoUpdate)
             divBotoes.appendChild(botaoLimpaSessoesAntigas)
             divBotoes.appendChild(botaoExcluiUsuario)
             divBotoes.appendChild(botaoResetSenha)
-            divBotoes.appendChild(botaoTestes)
 
             sessaoLoginPermissao0.appendChild(divsUsuario)
             sessaoLoginPermissao0.appendChild(divBotoes)
+            
         }
     });
 
@@ -428,6 +415,21 @@ botaoLogin.addEventListener("click", async () => {
             const listaUsuarios = document.getElementById('lista-usuarios')
             if (listaUsuarios) {
                 montaDadosUsuario(listaUsuarios)
+                // Para ler o arquivo local com usuários
+                const inputFile = document.createElement('input');
+                inputFile.type = "file"
+                inputFile.id = "fileInput"
+                footer.appendChild(inputFile)
+                document.getElementById('fileInput').addEventListener('change', function (event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        api.geraUsuarios(e.target.result);
+                    };
+                    reader.readAsText(file); // Lê como texto
+                });
             }
             const btTestesPermissao0 = document.getElementById('botao-testes')
             btTestesPermissao0.addEventListener('click', () => {

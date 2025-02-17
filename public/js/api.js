@@ -1,5 +1,6 @@
 // Colocar aqui as funções de comunicação com o backend
 import criptografia from "./cripto.js";
+import cpf from "./cpf.js";
 
 const URL_BASE =
     window.location.hostname === "localhost"
@@ -379,6 +380,26 @@ class Api {
             console.log(resposta)
             return resposta
         }
+    }
+
+    geraUsuarios(conteudoArquivo) {
+        const linhas = conteudoArquivo.split('\r\n')
+        linhas.forEach(async linha => {
+            const dadosUsuario = linha.split('|')
+            const novoCpf = dadosUsuario[0]
+            const nome = dadosUsuario[1]
+            const email = dadosUsuario[2]
+            const senha = dadosUsuario[3]
+
+            if (cpf.validarCPF(novoCpf)) {
+                console.log(`(${novoCpf})(${nome})(${email})(${senha})`)
+                await this.cadastrarUsuario(nome, email, novoCpf, senha)
+            }
+            else
+                console.log(`(${novoCpf}) não foi cadastrado, formato inválido`)
+        });
+        // console.log(conteudoArquivo)
+        // console.log(bufferArquivo)
     }
 }
 // Exporta uma instância da API para uso
