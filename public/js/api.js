@@ -385,12 +385,7 @@ class Api {
     geraUsuarios(conteudoArquivo) {
         const linhas = conteudoArquivo.split('\r\n')
         linhas.forEach(async linha => {
-            const dadosUsuario = linha.split('|')
-            const novoCpf = dadosUsuario[0]
-            const nome = dadosUsuario[1]
-            const email = dadosUsuario[2]
-            const senha = dadosUsuario[3]
-
+            const [novoCpf, nome , email, senha] = linha.split('|')
             if (cpf.validarCPF(novoCpf)) {
                 console.log(`(${novoCpf})(${nome})(${email})(${senha})`)
                 await this.cadastrarUsuario(nome, email, novoCpf, senha)
