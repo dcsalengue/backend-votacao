@@ -15,21 +15,58 @@
 </head>
 
 <body id="body" class="relative h-screen w-full flex flex-col items-center gap-4">
-    <div id="overlay" class="flex items-center justify-center absolute top-0 left-0 h-screen w-screen  z-10 bg-black/60 border border-gray-300 p-2 hidden">
-      <di class="text-black text-4xl text-blue-600 animate-spin"> ⏳</div> 
+    <div id="overlay"
+        class="flex items-center justify-center absolute top-0 left-0 h-screen w-screen  z-10 bg-black/60 border border-gray-300 p-2 hidden">
+        <di class="text-black text-4xl text-blue-600 animate-spin"> ⏳
     </div>
-    <header class="h-24 w-full flex justify-end items-center gap-4 bg-indigo-100 text-indigo-800 p-2">
-
-        <nav>
-            <button id="nav-cadastro-sair" type="button" modo="cadastro"
-                class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+    </div>
+    <header class="h-92 w-full flex justify-end items-center gap-4 bg-indigo-100 text-indigo-800 p-2">
+        <div id="header-titulo" class="
+                font-semibold 
+                text-lg
+                text-center
+                w-full">
+            Login
+        </div>
+        <nav class="size-auto">
+            <!-- <button id="nav-cadastro-sair" type="button" modo="cadastro"
+                class="bg-[url(/assets/icone-cadastrar.png)] 
+                       bg-contain 
+                       bg-no-repeat 
+                       text-indigo-800 
+                       h-76
+                       h-20
+                       
+                       border
+                       border-solid 
+                       border-transparent 
+                       rounded-md 
+                       hover:border-indigo-800 
+                       hover:bg-cyan-800 
+                       hover:text-indigo-100">
                 Cadastro
-            </button>
+            </button> -->
+            <div id="nav-cadastro-sair" type="button" modo="cadastro" class="
+                   bg-[url(/assets/icone-cadastrar.png)] 
+                   bg-contain 
+                   bg-no-repeat 
+                   text-indigo-800 
+                   w-20
+                   h-20                   
+                   border
+                   border-solid 
+                   border-transparent 
+                   rounded-md 
+                   hover:cursor-pointer
+                   hover:border-indigo-800 
+                   hover:bg-white
+                   hover:text-indigo-100">
 
+            </div>
         </nav>
 
     </header>
-    <main id="main"  >
+    <main id="main">
         <section id="section-cadastro"
             class="hidden flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
             <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
@@ -86,15 +123,17 @@
             servidor</s><br>
         <s class="text-indigo-800 leading-none text-left"> Exibir a seção de cadastro e de login somente no hover sobre
             os botões do cabeçalho.</s><br>
-            <s class="text-indigo-800 leading-none text-left">  Ampulheta nas requisições ao servidor</s><br>
-            <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
-            <s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações</s><br>
-            <s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
+        <s class="text-indigo-800 leading-none text-left"> Ampulheta nas requisições ao servidor</s><br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
+        <s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações</s><br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro
+            usuário (nunca ao nível máximo, permitido somente ao
             supersusário) </s><br>
-            <s class="text-indigo-800 leading-none text-left">O superusuario pode fazer refresh das sessões, excluindo as antigas</s><br>
-            <s class="text-indigo-800 leading-none text-left">O superusuario pode excluir um usuário</s><br>
-            <s class="text-indigo-800 leading-none text-left"> O superusuário pode resetar a senha de outro usuário</s><br>
-        
+        <s class="text-indigo-800 leading-none text-left">O superusuario pode fazer refresh das sessões, excluindo as
+            antigas</s><br>
+        <s class="text-indigo-800 leading-none text-left">O superusuario pode excluir um usuário</s><br>
+        <s class="text-indigo-800 leading-none text-left"> O superusuário pode resetar a senha de outro usuário</s><br>
+
 
         O usuário gerente pode criar uma eleição, definindo candidatos e eleitores (que estejam cadastrados)<br>
         Uma eleição deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>

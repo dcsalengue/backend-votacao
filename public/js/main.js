@@ -20,7 +20,7 @@ const footer = document.getElementById("footer")
 const body = document.getElementById("body")
 const main = document.getElementById("main")
 const navCadastroSair = document.getElementById("nav-cadastro-sair")
-
+const divTituloHeader = document.getElementById("header-titulo")
 const sectionCadastro = document.getElementById("section-cadastro")
 const sectionLogin = document.getElementById("section-login")
 const selecionaUsuario = document.getElementById("lista-usuarios")
@@ -378,7 +378,7 @@ async function montaDadosUsuario(listaUsuarios) {
 
             sessaoLoginPermissao0.appendChild(divsUsuario)
             sessaoLoginPermissao0.appendChild(divBotoes)
-            
+
         }
     });
 
@@ -465,6 +465,15 @@ btTeste.addEventListener('click', async () => {
 function deleteCookie(nome) {
     document.cookie = nome + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
+
+function excluiClassesBg() {
+    navCadastroSair.classList.forEach(className => {
+        if (className.startsWith("bg-[")) {
+            navCadastroSair.classList.remove(className);
+        }
+    });
+}
+
 navCadastroSair.addEventListener("click", async () => {
     let modo = navCadastroSair.getAttribute("modo");
     console.log(navCadastroSair.textContent.trim())
@@ -472,12 +481,18 @@ navCadastroSair.addEventListener("click", async () => {
         navCadastroSair.setAttribute("modo", "login"); // Atualiza o atributo
         sectionCadastro.style.display = "flex"
         sectionLogin.style.display = "none"
-        navCadastroSair.textContent = "Login"
+        excluiClassesBg()
+        navCadastroSair.classList.add('bg-[url(/assets/icone-login.png)]')
+        // navCadastroSair.textContent = "Login"
+        divTituloHeader.textContent = "Cadastro"
     } else if (modo == "login") {
         navCadastroSair.setAttribute("modo", "cadastro"); // Atualiza o atributo
         sectionCadastro.style.display = "none"
         sectionLogin.style.display = "flex"
-        navCadastroSair.textContent = "Cadastro"
+        excluiClassesBg()
+        navCadastroSair.classList.add('bg-[url(/assets/icone-cadastrar.png)]')
+        // navCadastroSair.textContent = "Cadastro"
+        divTituloHeader.textContent = "Login"
     } else {
         // Sair da sessão, excluir cookie, excluir sessionId no servidor
         await toggleOverlay() // Depois de fazer o processo de carregamento esconde a ampulheta
@@ -501,12 +516,16 @@ const modificaBotaoSessao = async () => {
     // console.log(api.sessionId)
     const sessaoValida = await api.verificaValidadeTokenDeSessao()
     if (sessaoValida) {
-        navCadastroSair.textContent = "Sair"
+        excluiClassesBg()
+        navCadastroSair.classList.add('bg-[url(/assets/icone-logout.png)]')
+        // navCadastroSair.textContent = "Sair"
         navCadastroSair.setAttribute("modo", "sair"); // Atualiza o atributo
     } else if (navCadastroSair.getAttribute("modo") == "sair") {
         await toggleOverlay()
         navCadastroSair.setAttribute("modo", "cadastro");
-        navCadastroSair.textContent = "Cadastro"
+        excluiClassesBg()
+        navCadastroSair.classList.add('bg-[url(/assets/icone-cadastrar.png)]')
+        // navCadastroSair.textContent = "Cadastro"
         sectionLogin.style.display = "flex"
         deleteCookie("sessionId");
         location.reload(true);
