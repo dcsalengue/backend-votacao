@@ -1,6 +1,10 @@
 import criptografia from "./cripto.js";
 import cpf from "./cpf.js";
 import api from "./api.js";
+
+import htmlPermissao1DadosVotacao from "./html-permissao1-dados-eleicao.js";
+import htmlPermissao1CriarEleicao from "./html-permissao1-criar-eleicao.js";
+
 const overlay = document.getElementById('overlay');
 const cadastroNome = document.getElementById('cadastro__nome');
 const cadastroEmail = document.getElementById('cadastro__email');
@@ -158,6 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!sessionId)
             return
         const resposta = await api.obtemPaginaDeLogin(sessionId)
+        console.log(`Permissão: ${resposta.permissao}`);
         main.innerHTML = resposta.data
         // Executar scripts manualmente
         main.querySelectorAll('script').forEach(script => {
@@ -403,40 +408,43 @@ botaoLogin.addEventListener("click", async () => {
         const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
         const resposta = await api.loginUsuario(usuario)
+
         // Mostra mensagem de login
         footer.innerHTML = `${resposta.resposta}`
 
-        //const resposta = await api.obtemPaginaDeLogin(api.sessionId)
-        console.log(resposta)
+        console.log(resposta.permissao)
         if (resposta?.pagina) {
+            const permissao = resposta.pagina.permissao
             main.innerHTML = resposta.pagina.data
 
+            console.log(permissao)
+            if (permissao == 0) {
+                const listaUsuarios = document.getElementById('lista-usuarios')
+                if (listaUsuarios) {
+                    await montaDadosUsuario(listaUsuarios)
+                    // Para ler o arquivo local com usuários
+                    const inputFile = document.createElement('input');
+                    inputFile.type = "file"
+                    inputFile.id = "fileInput"
+                    footer.appendChild(inputFile)
+                    document.getElementById('fileInput').addEventListener('change', function (event) {
+                        const file = event.target.files[0];
+                        if (!file) return;
 
-            const listaUsuarios = document.getElementById('lista-usuarios')
-            if (listaUsuarios) {
-                montaDadosUsuario(listaUsuarios)
-                // Para ler o arquivo local com usuários
-                const inputFile = document.createElement('input');
-                inputFile.type = "file"
-                inputFile.id = "fileInput"
-                footer.appendChild(inputFile)
-                document.getElementById('fileInput').addEventListener('change', function (event) {
-                    const file = event.target.files[0];
-                    if (!file) return;
-
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        api.geraUsuarios(e.target.result);
-                    };
-                    reader.readAsText(file); // Lê como texto
-                });
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            api.geraUsuarios(e.target.result);
+                        };
+                        reader.readAsText(file); // Lê como texto
+                    });
+                }
             }
-            const btTestesPermissao0 = document.getElementById('botao-testes')
-            btTestesPermissao0.addEventListener('click', () => {
-                console.log('btTestesPermissao0 clicado')
-            })
-            console.log(`Nome: ${resposta.pagina.nome}, Permissão: ${resposta.pagina.permissao}`);
+            if (permissao <= 1)
+                 main.appendChild(htmlPermissao1DadosVotacao());
 
+            if (permissao <= 2)
+                main.appendChild(htmlPermissao1CriarEleicao());
+           
         }
 
     } catch (error) {

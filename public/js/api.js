@@ -130,7 +130,7 @@ class Api {
                 const expires = "expires=" + data.toUTCString();
                 document.cookie = `sessionId=${this.sessionId};${expires};path=/`
                 pagina = await this.obtemPaginaDeLogin(this.sessionId)
-                console.log(pagina)
+                
             }
         } catch (error) {
             if (error.response) {
@@ -144,7 +144,7 @@ class Api {
         }
         finally {
             console.log(`${resposta}`)
-            console.log(`${pagina}`)
+            console.log(`${pagina.nome} ${pagina.permissao}`)
             return { resposta, pagina }
         }
     }
@@ -380,6 +380,10 @@ class Api {
             console.log(resposta)
             return resposta
         }
+    }
+
+    async criarEleicao(dados){
+        console.log(dados)
     }
 
     geraUsuarios(conteudoArquivo) {

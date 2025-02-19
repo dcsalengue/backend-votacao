@@ -296,13 +296,6 @@ app.post('/pagina', async (req, res) => {
       const usuarios = await bd.obtemUsuarios()
       conteudoPagina = `
           <section id="login-permissao_0">
-        <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
-        <s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações<br>
-        O superusuario pode excluir um usuário</s><br>
-        <s class="text-indigo-800 leading-none text-left"> O superusuario pode fazer refresh das sessões, excluindo as antigas</s><br>
-        O superusuário pode resetar a senha de outro usuário<br>
-        <s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro usuário (nunca ao nível máximo, permitido somente ao
-        superusuário)</s> <br>
         <label for="lista-usuarios">Nome dos usuários:</label>
         <select name="lista-usuarios" id="lista-usuarios">
 
@@ -336,7 +329,6 @@ app.post('/pagina', async (req, res) => {
       `
     }
 
-
     res.set({
       'X-User-Name': nome,
       'X-User-Permission': permissao
@@ -368,7 +360,7 @@ app.post('/login', async (req, res) => {
 
     const user = await bd.obtemUsuarioComCpf(cpf)
 
-    console.log(user)
+    console.log(user.nome)
     // Verifica se o CPF já existe
     if (user) {
       console.log(`CPF está cadastrado`);
