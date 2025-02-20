@@ -164,6 +164,16 @@ const bd = {
         }
     },
         
+    async listaEleicoes(sessionId) {
+        const opcoes = [
+            { valor: "1", texto: "Opção 1" },
+            { valor: "2", texto: "Opção 2" },
+            { valor: "3", texto: "Opção 3" }
+        ];
+
+        return opcoes
+    },
+    
     async excluirSessao(sessionId) {
             try {
                 console.log(`excluirSessao(${sessionId}`)

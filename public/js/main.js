@@ -389,6 +389,48 @@ async function montaDadosUsuario(listaUsuarios) {
 
 }
 
+
+
+const aoSelecionar = (valor) => {
+    console.log("Selecionado:", valor);
+};
+
+
+function criarSelectComLabel(id, labelTexto, opcoes, aoSelecionar) {
+    const container = document.createElement("div");
+
+    // Criar label
+    const label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.textContent = labelTexto;
+    label.classList.add("block", "font-semibold", "mb-1");
+
+    // Criar select
+    const select = document.createElement("select");
+    select.setAttribute("id", id);
+    select.setAttribute("name", id);
+    select.classList.add("border", "p-2", "rounded");
+
+    // Adicionar opções
+    opcoes.forEach(opcao => {
+        const optionElement = document.createElement("option");
+        optionElement.value = opcao.valor;
+        optionElement.textContent = opcao.texto;
+        select.appendChild(optionElement);
+    });
+
+    // Adicionar evento onChange
+    select.addEventListener("change", (event) => {
+        aoSelecionar(event.target.value);
+    });
+
+    // Adicionar elementos ao container
+    container.appendChild(label);
+    container.appendChild(select);
+
+    return container;
+}
+
 botaoLogin.addEventListener("click", async () => {
 
     // Validações
@@ -417,7 +459,18 @@ botaoLogin.addEventListener("click", async () => {
             const permissao = resposta.pagina.permissao
             main.innerHTML = resposta.pagina.data
 
+            const opcoes = await api.listaEleicoes()
+            // Exemplo de uso:
+            // const opcoes = [
+            //     { valor: "1", texto: "Opção 1" },
+            //     { valor: "2", texto: "Opção 2" },
+            //     { valor: "3", texto: "Opção 3" }
+            // ];
+
             console.log(permissao)
+            divTituloHeader.innerHTML = ''
+            const selectEleicao = criarSelectComLabel("lista-eleicoes", "Selecione uma eleição:", opcoes, aoSelecionar)
+            divTituloHeader.appendChild(selectEleicao);
             if (permissao == 0) {
                 const listaUsuarios = document.getElementById('lista-usuarios')
                 if (listaUsuarios) {
@@ -439,12 +492,15 @@ botaoLogin.addEventListener("click", async () => {
                     });
                 }
             }
+
+            document.createElement("select")
+
             if (permissao <= 1)
-                 main.appendChild(htmlPermissao1DadosVotacao());
+                main.appendChild(htmlPermissao1DadosVotacao());
 
             if (permissao <= 2)
                 main.appendChild(htmlPermissao1CriarEleicao());
-           
+
         }
 
     } catch (error) {

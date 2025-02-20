@@ -382,8 +382,45 @@ class Api {
         }
     }
 
-    async criarEleicao(dados){
-        console.log(dados)
+    async listaEleicoes(){ // Enviar sessão, retornar somente as eleições relacionadas com o usuário, ou todas se for permissão 0
+        try {
+            const response = await axios.get(`${URL_BASE}/eleicoes`, {
+                sessionId: this.sessionId
+            });
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async dadosEleicao(uuidEleicao){ // criptografar sessão, uuid, retornar somente se uuid da eleição tiver relação com o usuário (através da sessão) , ou qualquer eleição válida para permissão 0
+        try {
+            const response = await axios.get(`${URL_BASE}/eleicao`);
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
+    }
+
+    async criarEleicao(dados){ // criptografar sessão, dados, permitir criar somente para usuários permissão 0 e 1
+        try {
+            const response = await axios.put(`${URL_BASE}/eleicao`);
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
     }
 
     geraUsuarios(conteudoArquivo) {

@@ -225,6 +225,14 @@ app.get('/verificaValidadeToken', async (req, res) => {
 })
 
 
+// Verifica se a sessão ainda é válida, inicialmente exclui as expiradas
+app.get('/eleicoes', async (req, res) => {
+  const sessionId = req.body; // Captura o valor do parâmetro "sessionId"
+  const result = await bd.listaEleicoes(sessionId)
+  res.json(result)
+})
+
+
 // Rota para criar um novo usuário (CREATE)
 app.post('/usuarios', async (req, res) => {
   try {
