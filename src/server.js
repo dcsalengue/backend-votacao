@@ -349,6 +349,26 @@ app.post('/pagina', async (req, res) => {
   }
 });
 
+app.get('/listacpfs', async (req, res) => {
+  try {
+    const sessionId = req.headers['session-id']; 
+    console.log(`listacpfs ${sessionId}`)
+    if (await bd.refreshSessao(sessionId) == 0)
+      return res.status(404).json({ error: `sessão expirada` });
+    const usuarios = await bd.obtemUsuarios();
+    const cpfs = usuarios.map(usuario => ({
+      nome: usuario.nome,
+      cpf: usuario.cpf
+    }));
+    console.log(cpfs)
+    return res.status(200).json(cpfs);
+  } catch (error) {
+    console.log(error)
+    return res.status(404).json({ error: `${error}` });
+    
+  }
+})
+
 // Rota para criar um novo usuário (CREATE)
 app.post('/login', async (req, res) => {
   try {

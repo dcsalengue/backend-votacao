@@ -4,6 +4,7 @@ import api from "./api.js";
 
 import htmlPermissao1DadosVotacao from "./html-permissao1-dados-eleicao.js";
 import htmlPermissao1CriarEleicao from "./html-permissao1-criar-eleicao.js";
+import criarDefinicaoEleitores from "./definirEleitores.js";
 
 const overlay = document.getElementById('overlay');
 const cadastroNome = document.getElementById('cadastro__nome');
@@ -494,13 +495,19 @@ botaoLogin.addEventListener("click", async () => {
             }
 
             document.createElement("select")
+            // opcoes = null
+            if (permissao <= 1) {
+                if (opcoes)
+                    main.appendChild(htmlPermissao1DadosVotacao());
+                else
+                    main.innerHTML = "Nenhuma eleição cadastrada"
+            }
 
-            if (permissao <= 1)
-                main.appendChild(htmlPermissao1DadosVotacao());
-
-            if (permissao <= 2)
-                main.appendChild(htmlPermissao1CriarEleicao());
-
+            if (permissao <= 2) {
+                const dadosEntrada = await api.listacpfs()
+                // main.appendChild(htmlPermissao1CriarEleicao());
+                main.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
+            }
         }
 
     } catch (error) {
@@ -614,6 +621,7 @@ CREATE TABLE "public"."sessoes" (
   "publicKey" TEXT UNIQUE NOT NULL,
   "created_at" TIMESTAMP NOT NULL,
   "modified_at" TIMESTAMP NOT NULL,
+  53991756892
 )
 
 
@@ -627,6 +635,7 @@ CREATE TABLE "public"."usuarios" (
   "privateKey" TEXT UNIQUE NOT NULL,
   "publicKey" TEXT UNIQUE NOT NULL,
   "modified_at" TIMESTAMP NOT NULL,
+   
 )
 
 */

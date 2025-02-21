@@ -130,7 +130,7 @@ class Api {
                 const expires = "expires=" + data.toUTCString();
                 document.cookie = `sessionId=${this.sessionId};${expires};path=/`
                 pagina = await this.obtemPaginaDeLogin(this.sessionId)
-                
+
             }
         } catch (error) {
             if (error.response) {
@@ -382,7 +382,12 @@ class Api {
         }
     }
 
-    async listaEleicoes(){ // Enviar sessão, retornar somente as eleições relacionadas com o usuário, ou todas se for permissão 0
+
+    cpfsEleitores(cpfs){
+        console.log(cpfs)
+    }
+
+    async listaEleicoes() { // Enviar sessão, retornar somente as eleições relacionadas com o usuário, ou todas se for permissão 0
         try {
             const response = await axios.get(`${URL_BASE}/eleicoes`, {
                 sessionId: this.sessionId
@@ -397,7 +402,7 @@ class Api {
         }
     }
 
-    async dadosEleicao(uuidEleicao){ // criptografar sessão, uuid, retornar somente se uuid da eleição tiver relação com o usuário (através da sessão) , ou qualquer eleição válida para permissão 0
+    async dadosEleicao(uuidEleicao) { // criptografar sessão, uuid, retornar somente se uuid da eleição tiver relação com o usuário (através da sessão) , ou qualquer eleição válida para permissão 0
         try {
             const response = await axios.get(`${URL_BASE}/eleicao`);
             console.log(response.data)
@@ -410,7 +415,7 @@ class Api {
         }
     }
 
-    async criarEleicao(dados){ // criptografar sessão, dados, permitir criar somente para usuários permissão 0 e 1
+    async criarEleicao(dados) { // criptografar sessão, dados, permitir criar somente para usuários permissão 0 e 1
         try {
             const response = await axios.put(`${URL_BASE}/eleicao`);
             console.log(response.data)
@@ -423,10 +428,30 @@ class Api {
         }
     }
 
+    async listacpfs() {
+        try {
+            console.log("lista CPFs")
+            const response = await axios.get(`${URL_BASE}/listacpfs`, {
+                headers: {
+                    'session-id': `${this.sessionId}`
+                }
+            });
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            
+            debugger
+            alert(`Erro ao requisitar token de sesssão \r\n${error}`);
+            throw error;
+        }
+    }
+
     geraUsuarios(conteudoArquivo) {
         const linhas = conteudoArquivo.split('\r\n')
         linhas.forEach(async linha => {
-            const [novoCpf, nome , email, senha] = linha.split('|')
+            const [novoCpf, nome, email, senha] = linha.split('|')
             if (cpf.validarCPF(novoCpf)) {
                 console.log(`(${novoCpf})(${nome})(${email})(${senha})`)
                 await this.cadastrarUsuario(nome, email, novoCpf, senha)
