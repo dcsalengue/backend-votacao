@@ -5,6 +5,8 @@ import api from "./api.js";
 import htmlPermissao1DadosVotacao from "./html-permissao1-dados-eleicao.js";
 import htmlPermissao1CriarEleicao from "./html-permissao1-criar-eleicao.js";
 import criarDefinicaoEleitores from "./definirEleitores.js";
+import criarMenuNav from "./menu-nav-horizontal.js";
+
 
 const overlay = document.getElementById('overlay');
 const cadastroNome = document.getElementById('cadastro__nome');
@@ -493,21 +495,38 @@ botaoLogin.addEventListener("click", async () => {
                     });
                 }
             }
+            const dadosEntrada = await api.listacpfs();
 
+             // Criando a seção para os dados do menu
+             const containerDadosMenu = document.createElement("section");
+             containerDadosMenu.classList.add("w-full", "flex-1","flex", "flex-col", "jutify-center", "items-center", "text-center");
+             containerDadosMenu.textContent = "Hello";
+             containerDadosMenu.id = 'section-dados-menu';
+
+            // Criando a navegação do menu
+            const menuNav = criarMenuNav(["Dados", "Eleitores", "Candidatos", "Resultado"], opcoes, dadosEntrada, containerDadosMenu);
+
+           
+
+            // Adicionando os elementos na ordem correta
+            main.appendChild(menuNav);          // Primeiro, adiciona o menu
+            main.appendChild(containerDadosMenu); // Depois, adiciona o conteúdo abaixo do menu
             document.createElement("select")
-            // opcoes = null
-            if (permissao <= 1) {
-                if (opcoes)
-                    main.appendChild(htmlPermissao1DadosVotacao());
-                else
-                    main.innerHTML = "Nenhuma eleição cadastrada"
-            }
 
-            if (permissao <= 2) {
-                const dadosEntrada = await api.listacpfs()
-                // main.appendChild(htmlPermissao1CriarEleicao());
-                main.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
-            }
+            // opcoes = null
+            // if (permissao <= 1) {
+            //     main.appendChild(criarMenuNav(["Dados", "Eleitores", "Candidatos", "Resultado"]));
+            //     if (opcoes)
+            //         main.appendChild(htmlPermissao1DadosVotacao());
+            //     else
+            //         main.innerHTML = "Nenhuma eleição cadastrada"
+            // }
+
+            // if (permissao <= 2) {
+            //     const dadosEntrada = await api.listacpfs()
+            //     // main.appendChild(htmlPermissao1CriarEleicao());
+            //     main.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
+            // }
         }
 
     } catch (error) {

@@ -14,45 +14,27 @@
     <title>Votação</title>
 </head>
 
-<body id="body" class="relative h-screen w-full flex flex-col items-center gap-4">
+<body id="body" class="h-screen w-full grid grid-rows-[auto_1fr_auto]">
     <div id="overlay"
         class="flex items-center justify-center absolute top-0 left-0 h-screen w-screen  z-10 bg-black/60 border border-gray-300 p-2 hidden">
-        <di class="text-black text-4xl text-blue-600 animate-spin"> ⏳
+        <div class="text-black text-4xl text-blue-600 animate-spin"> ⏳
+        </div>
     </div>
-    </div>
-    <header class="relative h-20 w-full flex items-center bg-indigo-100 text-indigo-800 p-2">
-        <!-- Título Centralizado na Tela -->
-        <div id="header-titulo" class="
-                absolute 
-                left-1/2 
-                transform -translate-x-1/2
-                font-semibold 
-                text-xl">
+
+    <header class="h-20 w-full flex items-center bg-indigo-100 text-indigo-800 p-2 shadow-md z-10">
+        <div id="header-titulo" class="absolute left-1/2 transform -translate-x-1/2 font-semibold text-xl">
             Login
         </div>
-
-        <!-- Navegação à Direita -->
         <nav class="ml-auto">
-            <div id="nav-cadastro-sair" type="button" modo="cadastro" class="
-                   bg-[url(/assets/icone-cadastrar.png)] 
-                   bg-contain 
-                   bg-no-repeat 
-                   text-indigo-800 
-                   w-20
-                   h-20                   
-                   border
-                   border-solid 
-                   border-transparent 
-                   rounded-md 
-                   hover:cursor-pointer
-                   hover:border-indigo-800 
-                   hover:bg-white
-                   hover:text-indigo-100">
+            <div id="nav-cadastro-sair" type="button" modo="cadastro"
+                class="bg-[url(/assets/icone-cadastrar.png)] bg-contain bg-no-repeat text-indigo-800 w-20 h-20 
+                border border-solid border-transparent rounded-md hover:cursor-pointer hover:border-indigo-800 hover:bg-white hover:text-indigo-100">
             </div>
         </nav>
     </header>
 
-    <main id="main">
+    <main id="main" class="flex flex-col overflow-y-auto bg-gray-50">
+
         <section id="section-cadastro"
             class="hidden flex justify-center text-center items-center p-4 bg-indigo-100 w-auto border border-solid border-indigo-800">
             <form id="form-cadastro-usuario" class="flex flex-col justify-center text-center items-center gap-4">
@@ -61,174 +43,84 @@
                 <input type="text" id="cadastro__cpf" name="cadastro__cpf" maxlength="14" placeholder="000.000.000-00"
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
                 <input type="hidden" id="hash__senha" name="hash__senha">
-                <input type="password" placeholder="Senha" id="cadastro__senha" valida=false>
+                <input type="password" placeholder="Senha" id="cadastro__senha">
                 <input type="password" placeholder="Repetir senha" id="repete-senha">
-
                 <button id="botao-cadastrar" type="button"
-                    class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                    class="text-indigo-800 p-1 border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
                     Cadastrar
                 </button>
             </form>
-
         </section>
 
-
         <section id="section-login"
-            class="z-0 flex flex-col  justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
-            <div class="flex flex-col   justify-center gap-4">
+            class="z-0 flex flex-col justify-center text-center items-center p-4 bg-indigo-100 w-auto gap-4 border border-solid border-indigo-800">
+            <div class="flex flex-col justify-center gap-4">
                 <input type="text" id="login__cpf" name="login__cpf" maxlength="14" placeholder="000.000.000-00"
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" required>
                 <input type="password" placeholder="senha" id="login-senha">
             </div>
             <button id="botao-login" type="button"
-                class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                class="text-indigo-800 p-1 border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
                 Login
             </button>
         </section>
 
-
-        <section id="section-usuarios">
+        <section id="section-usuarios" class="hidden">
             <button id="botao-testes" type="button"
-                class="text-indigo-800 p-1  border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
+                class="text-indigo-800 p-1 border border-solid border-transparent rounded-md hover:border-indigo-800 hover:bg-cyan-800 hover:text-indigo-100">
                 Teste
             </button>
-            <ul id="lista-usuarios" hidden>
-
-            </ul>
+            <ul id="lista-usuarios" class="hidden"></ul>
             <button id="botao-lista-usuarios" type="button">Lista usuários</button>
         </section>
-    </main>
-    <footer class="w-full" id="footer" class="flex flex-col  justify-center gap-2">
-        <s class="text-indigo-800 leading-none text-left">Setar cookies, com a sessão, para manter ativa no front-end
-            enquanto o servidor permitir</s><br>
-        <s class="text-indigo-800 leading-none text-left">Ao fazer login retornar página com contexto, dependendo do
-            tipo de usuário</s><br>
-        <s class="text-indigo-800 leading-none text-left">Precisa incluir o cpf na tabela de sessão para poder definir
-            qual a permissão do usuário que solicitou a sessão</s><br>
-        <s class="text-indigo-800 leading-none text-left">Botão de sair, para excluir o cookie e deletar a sessão no
-            servidor</s><br>
-        <s class="text-indigo-800 leading-none text-left"> Exibir a seção de cadastro e de login somente no hover sobre
-            os botões do cabeçalho.</s><br>
-        <s class="text-indigo-800 leading-none text-left"> Ampulheta nas requisições ao servidor</s><br>
-        <s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
-        <s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações</s><br>
-        <s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro
-            usuário (nunca ao nível máximo, permitido somente ao
-            supersusário) </s><br>
-        <s class="text-indigo-800 leading-none text-left">O superusuario pode fazer refresh das sessões, excluindo as
-            antigas</s><br>
-        <s class="text-indigo-800 leading-none text-left">O superusuario pode excluir um usuário</s><br>
-        <s class="text-indigo-800 leading-none text-left"> O superusuário pode resetar a senha de outro usuário</s><br>
-
-
-        O usuário gerente pode criar uma eleição, definindo candidatos e eleitores (que estejam cadastrados)<br>
-        Uma eleição deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>
-        Usuários devem poder trocar a senha.
-        Usuários podem esquecer a senha e receber por email um link para alterar a senha esse link deve conter uma
-        sessão para acessar a alteração de senha do usuário (UPDATE modifiedAt e senhaa partir do cpf )
-        Usuários podem receber uma lista das eleições as quais estão cadastrados.
-        Usuários podem votar em candidatos da eleição
-        <br>
-        const script = document.createElement("script");
-        script.textContent = document.getElementById("dynamic-script").textContent;
-        document.body.appendChild(script);
-
-        <!-- <section id="section-define-eleitores"
-                 class="
-                        w-full 
-                        h-full 
-                        bg-indigo-200 
-                        flex 
-                        justify-center 
-                        items-center
-                        ">
-                        
-            <div id="define-eleitores-entrada" 
-                 class="
-                        w-full 
-                        h-full 
-                        bg-indigo-100 
-                        flex 
-                        justify-center 
-                        items-center 
-                        border-r 
-                        border-white 
-                        p-4
-                        ">
-                <ul id="define-eleitores-lista-entrada">
-                    <li>cpf 1</li>
-                    <li>cpf 2</li>
-                    <li>cpf 3</li>
-                </ul>
-            </div>
-
-            
-            <div id="define-eleitores-botoes" 
-                 class="
-                        w-14 
-                        h-24 
-                        z-10 
-                        bg-indigo-200 
-                        text-center 
-                        flex 
-                        flex-col 
-                        justify-center 
-                        items-center
-                        ">
-                <div id="define-eleitores-botao-direita-incluir" 
-                     class="
-                            w-10 
-                            h-10 
-                            mt-4 
-                            bg-no-repeat 
-                            bg-cover 
-                            bg-center
-                            bg-[url('/assets/Arrow-right.svg')]
-                            bg-indigo-200 
-                            border-white                           
-                            hover:bg-indigo-100 
-                            hover:cursor-pointer
-                            ">
-                </div>
-
-                <div id="define-eleitores-botao-esquerda-excluir" 
-                     class="
-                            w-10 
-                            h-10 
-                            mt-4 
-                            bg-no-repeat 
-                            bg-cover 
-                            bg-center
-		                    bg-[url('/assets/Arrow-left.svg')] 
-                            bg-indigo-200                      
-                            hover:bg-indigo-100                             
-                            hover:cursor-pointer
-                             ">
-                </div>
-            </div>
-
-            <div id="define-eleitores-saida" 
-                 class="
-                        w-full 
-                        h-full 
-                        bg-indigo-100 
-                        flex 
-                        justify-center 
-                        items-center 
-                        border-l 
-                        border-white 
-                        p-4
-                        ">
-                        <ul id="define-eleitores-lista-saida">
-                            <li>cpf 1</li>
-                            <li>cpf 2</li>
-                            <li>cpf 3</li>
-                        </ul>
-            </div>
+        <!-- <section id="section-dados-menu" class="flex flex-col flex-col items-center text-center items-center">
+            Hello world !
         </section> -->
+    </main>
 
-
+    <footer id="footer"
+        class="h-16 w-full flex flex-col justify-center items-center bg-indigo-200 text-indigo-800 shadow-md">
     </footer>
 </body>
 
+
 </html>
+<!-- 
+<s class="text-indigo-800 leading-none text-left">Setar cookies, com a sessão, para manter ativa no front-end
+    enquanto o servidor permitir</s><br>
+<s class="text-indigo-800 leading-none text-left">Ao fazer login retornar página com contexto, dependendo do
+    tipo de usuário</s><br>
+<s class="text-indigo-800 leading-none text-left">Precisa incluir o cpf na tabela de sessão para poder definir
+    qual a permissão do usuário que solicitou a sessão</s><br>
+<s class="text-indigo-800 leading-none text-left">Botão de sair, para excluir o cookie e deletar a sessão no
+    servidor</s><br>
+<s class="text-indigo-800 leading-none text-left"> Exibir a seção de cadastro e de login somente no hover sobre
+    os botões do cabeçalho.</s><br>
+<s class="text-indigo-800 leading-none text-left"> Ampulheta nas requisições ao servidor</s><br>
+<s class="text-indigo-800 leading-none text-left"> O superusuario lista todos os usuários ao fazer login</s><br>
+<s class="text-indigo-800 leading-none text-left"> Selecionar o usuário e obter todas as informações</s><br>
+<s class="text-indigo-800 leading-none text-left"> O superusuário pode alterar o nível de permissão de outro
+    usuário (nunca ao nível máximo, permitido somente ao
+    supersusário) </s><br>
+<s class="text-indigo-800 leading-none text-left">O superusuario pode fazer refresh das sessões, excluindo as
+    antigas</s><br>
+<s class="text-indigo-800 leading-none text-left">O superusuario pode excluir um usuário</s><br>
+<s class="text-indigo-800 leading-none text-left"> O superusuário pode resetar a senha de outro usuário</s><br>
+
+
+O usuário gerente pode criar uma eleição, definindo candidatos e eleitores (que estejam cadastrados)<br>
+Uma eleição deve criar o bloco gênese da blockchain, atribuindo um saldo de 1 para cada eleitor<br>
+Usuários devem poder trocar a senha.
+Usuários podem esquecer a senha e receber por email um link para alterar a senha esse link deve conter uma
+sessão para acessar a alteração de senha do usuário (UPDATE modifiedAt e senhaa partir do cpf )
+Usuários podem receber uma lista das eleições as quais estão cadastrados.
+Usuários podem votar em candidatos da eleição
+<br>
+const script = document.createElement("script");
+script.textContent = document.getElementById("dynamic-script").textContent;
+document.body.appendChild(script);
+
+
+<nav>
+
+</nav> -->
