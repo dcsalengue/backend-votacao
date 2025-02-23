@@ -6,6 +6,7 @@ import htmlPermissao1DadosVotacao from "./html-permissao1-dados-eleicao.js";
 import htmlPermissao1CriarEleicao from "./html-permissao1-criar-eleicao.js";
 import criarDefinicaoEleitores from "./definirEleitores.js";
 import criarMenuNav from "./menu-nav-horizontal.js";
+import criarSelectComLabel from "./criar_select_com_label.js"
 
 
 const overlay = document.getElementById('overlay');
@@ -154,11 +155,19 @@ botaCadastrar.addEventListener('click', async function (event) {
 // Lista usuários ao carregar a página
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        // const usuarios = JSON.parse(await api.listarUsuarios())     
-        // console.log(usuarios)
-        // usuarios.forEach(usuario => {
-        //     listaUsuarios.innerHTML += `<li>[${usuario.nome}][${usuario.cpf}][${usuario.usuario}][${usuario.senha}]</li>`
-        // }); 
+        // Teste do select com input
+        // const opcoes = [
+        //     { valor: "Chrome" },
+        //     { valor: "Firefox" },
+        //     { valor: "Internet Explorer" },
+        //     { valor: "Opera" },
+        //     { valor: "Safari" }
+        // ];
+
+    
+        // const selectEleicao = criarSelectComLabel("lista-eleicoes", "Selecione uma eleição:", opcoes, aoSelecionar, aoCriarNovaOpcao)
+        //     divTituloHeader.appendChild(selectEleicao);
+       
         await toggleOverlay()// Exibe a ampulheta ao carregar a página
         const sessionId = getCookie("sessionId")
         //console.log(document.cookie);
@@ -394,45 +403,21 @@ async function montaDadosUsuario(listaUsuarios) {
 
 
 
-const aoSelecionar = (valor) => {
+const aoSelecionarEleicao = (valor) => {
     console.log("Selecionado:", valor);
 };
 
+const aoCriarNovaEleicao = (valor) => {
+    console.log("Criar nova:", valor);
+    main.innerHTML = ``
+    main.appendChild(htmlPermissao1CriarEleicao(valor))
+};
 
-function criarSelectComLabel(id, labelTexto, opcoes, aoSelecionar) {
-    const container = document.createElement("div");
 
-    // Criar label
-    const label = document.createElement("label");
-    label.setAttribute("for", id);
-    label.textContent = labelTexto;
-    label.classList.add("block", "font-semibold", "mb-1");
 
-    // Criar select
-    const select = document.createElement("select");
-    select.setAttribute("id", id);
-    select.setAttribute("name", id);
-    select.classList.add("border", "p-2", "rounded");
 
-    // Adicionar opções
-    opcoes.forEach(opcao => {
-        const optionElement = document.createElement("option");
-        optionElement.value = opcao.valor;
-        optionElement.textContent = opcao.texto;
-        select.appendChild(optionElement);
-    });
 
-    // Adicionar evento onChange
-    select.addEventListener("change", (event) => {
-        aoSelecionar(event.target.value);
-    });
 
-    // Adicionar elementos ao container
-    container.appendChild(label);
-    container.appendChild(select);
-
-    return container;
-}
 
 botaoLogin.addEventListener("click", async () => {
 
@@ -463,16 +448,10 @@ botaoLogin.addEventListener("click", async () => {
             main.innerHTML = resposta.pagina.data
 
             const opcoes = await api.listaEleicoes()
-            // Exemplo de uso:
-            // const opcoes = [
-            //     { valor: "1", texto: "Opção 1" },
-            //     { valor: "2", texto: "Opção 2" },
-            //     { valor: "3", texto: "Opção 3" }
-            // ];
 
             console.log(permissao)
             divTituloHeader.innerHTML = ''
-            const selectEleicao = criarSelectComLabel("lista-eleicoes", "Selecione uma eleição:", opcoes, aoSelecionar)
+            const selectEleicao = criarSelectComLabel("lista-eleicoes", "Selecione uma eleição:", opcoes, aoSelecionarEleicao, aoCriarNovaEleicao)
             divTituloHeader.appendChild(selectEleicao);
             if (permissao == 0) {
                 const listaUsuarios = document.getElementById('lista-usuarios')
@@ -511,7 +490,7 @@ botaoLogin.addEventListener("click", async () => {
             // Adicionando os elementos na ordem correta
             main.appendChild(menuNav);          // Primeiro, adiciona o menu
             main.appendChild(containerDadosMenu); // Depois, adiciona o conteúdo abaixo do menu
-            document.createElement("select")
+            // document.createElement("select")
 
             // opcoes = null
             // if (permissao <= 1) {

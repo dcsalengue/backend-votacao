@@ -1,7 +1,7 @@
 import api from "./api.js";
 
-function htmlPermissao1CriarEleicao() {
-    
+function htmlPermissao1CriarEleicao(tituloPadrao) {
+
     const sessaoCriarEleicao = document.createElement("section");
     sessaoCriarEleicao.classList.add("bg-indigo-100", "text-indigo-800", "p-2", "flex", "flex-col");
 
@@ -19,6 +19,8 @@ function htmlPermissao1CriarEleicao() {
         label.classList.add("font-semibold");
         label.setAttribute("for", inputId);
 
+        if (input.id == "titulo-eleicao")
+            input.value = tituloPadrao
         return { label, input };
     };
 
@@ -107,7 +109,7 @@ function htmlPermissao1CriarEleicao() {
             descricao: descricaoConteudo.value,
             cnpj: cnpjConteudo.value,
             dataInicio: dataInicioConteudo.value,
-            dataFim: dataFimConteudo.value        
+            dataFim: dataFimConteudo.value
         };
 
         const resumo = `
@@ -125,12 +127,15 @@ function htmlPermissao1CriarEleicao() {
             try {
                 const resposta = await api.criarEleicao(dadosEleicao);
                 alert("Eleição criada com sucesso!");
-                console.log("Resposta do servidor:", resposta);
+                console.log("Resposta do servidor:", resposta);const data = new Date();
+                window.location.reload               
             } catch (erro) {
                 alert("Erro ao criar eleição. Tente novamente.");
                 console.error("Erro:", erro);
+                window.location.reload 
             }
         }
+        window.location.reload 
     });
 
     // Adicionando elementos ao formulário

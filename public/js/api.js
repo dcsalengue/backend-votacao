@@ -383,7 +383,7 @@ class Api {
     }
 
 
-    cpfsEleitores(cpfs){
+    cpfsEleitores(cpfs) {
         console.log(cpfs)
     }
 
@@ -416,11 +416,25 @@ class Api {
     }
 
     async criarEleicao(dados) { // criptografar sessão, dados, permitir criar somente para usuários permissão 0 e 1
+        // let jsonCadastro =
+        // {
+        //     "cpf": `${cpf}`,
+        //     "nome": `${nome}`,
+        //     "email": `${email}`,
+        //     "permissao": `${permissao}`,
+        // }
+
+        // console.log(`${cpf} ${permissao}`)
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(this.publicKeySession, dados);
+        let resposta
         try {
-            const response = await axios.put(`${URL_BASE}/eleicao`);
-            console.log(response.data)
-            // Obtendo os dados do corpo da resposta (body)
-            return (response.data);
+            const response = await axios.put(`${URL_BASE}/eleicao`, {
+                data: encryptedData,
+                sessionId: this.sessionId
+
+            });
+            resposta = await response.data.message
 
         } catch (error) {
             alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
@@ -441,8 +455,8 @@ class Api {
             return (response.data);
 
         } catch (error) {
+
             
-            debugger
             alert(`Erro ao requisitar token de sesssão \r\n${error}`);
             throw error;
         }

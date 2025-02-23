@@ -27,3 +27,13 @@ model usuarios {
   createdAt  DateTime @db.Timestamp(6)
   modifiedAt DateTime @db.Timestamp(6)
 }
+
+model eleicoes {
+  uuid        String    @id @db.Uuid
+  titulo      String?
+  descricao   String?
+  cnpj        String?
+  data_inicio DateTime? @db.Date
+  data_fim    DateTime? @db.Date
+  created_at  String?
+}

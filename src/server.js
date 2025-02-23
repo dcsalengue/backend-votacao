@@ -190,6 +190,45 @@ app.put('/resetsenha', async (req, res) => {
   }
 
 });
+
+// Criar eleição
+app.put('/eleicao', async (req, res) => {
+  try {
+    const { data, sessionId } = req.body;
+
+    // Verifica se a sessão é de permissão máxima
+    const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId)
+    console.log(`permissao ${JSON.stringify(permissaoSessao)}`)
+    if (permissaoSessao.permissao > 1) {
+      return res.status(403).json({ error: 'Não autorizado.' });
+    }
+
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
+    // Verifica se a sessão é válida
+    if (!privateKey) {
+      return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+    }
+
+    // Decriptografa os dados de login usando a chave privada da sessão
+    const decryptedData = await cripto.descriptografar(data, privateKey);
+
+    // Converte os dados descriptografados de volta para JSON
+    // const { cpf, nome, email, permissao } = JSON.parse(decryptedData);
+    const dt = JSON.parse(decryptedData);
+
+    console.log(` ${dt} `)
+
+  
+    await bd.criaEleicao(JSON.parse(decryptedData))
+    return res.status(200).json({ message: 'ok.' });
+
+
+    res.json({ message: `${cpf} ${nome} ${email} ${permissao}` });
+  } catch (error) {
+    console.log(error)
+  }
+});
+
 function formatMilliseconds(ms) { // COLOCAR ESSA FUNÇÃO EM OUTRO LUGAR PROVAVELMENTE EXISTA ALGUMA BIBLIOTECA PRONTA
   // Calculando as partes de tempo (horas, minutos, segundos, milissegundos)
   const hours = Math.floor(ms / 3600000);

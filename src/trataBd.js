@@ -164,8 +164,49 @@ const bd = {
         }
     },
 
+
+    async criaEleicao(dadosEleicao) {
+        console.log(dadosEleicao)
+        try {
+            const uuid = uuidv4();
+            const { titulo, descricao, cnpj, dataInicio, dataFim } = dadosEleicao
+
+            const dataInicioFormatada = new Date(dataInicio).toISOString().split("T")[0];
+            const dataFimFormatada = new Date(dataFim).toISOString().split("T")[0];
+            console.log(cnpj)
+            await prisma.$executeRaw`
+        INSERT INTO "eleicoes" 
+            (
+            "uuid",
+            "titulo", 
+            "descricao",
+            "cnpj", 
+            "data_inicio",
+            "data_fim",
+            "created_at"
+            )
+        VALUES (
+            ${uuid}::uuid, 
+            ${titulo}, 
+            ${descricao},
+            ${cnpj}, 
+            ${dataInicioFormatada}::DATE,
+            ${dataFimFormatada}::DATE,
+            NOW())
+    `;
+
+
+            console.log("Eleição criada!");
+            return ("Eleição criada!")
+        } catch (error) {
+            console.error("Erro ao criar eleição:", error);
+        } finally {
+            await prisma.$disconnect();
+        }
+    },
+
     async listaEleicoes(sessionId) {
-        const opcoes = 
+        const opcoes =
             [
                 { valor: "1", texto: "Opção 1" },
                 { valor: "2", texto: "Opção 2" },
