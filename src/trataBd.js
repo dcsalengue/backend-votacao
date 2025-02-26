@@ -205,15 +205,64 @@ const bd = {
         }
     },
 
-    async listaEleicoes(sessionId) {
-        const opcoes =
-            [
-                { valor: "1", texto: "Opção 1" },
-                { valor: "2", texto: "Opção 2" },
-                { valor: "3", texto: "Opção 3" }
-            ];
+    async listaEleicoes() {
+        // const opcoes =
+        //     [
+        //         { valor: "1", texto: "Opção 1" },
+        //         { valor: "2", texto: "Opção 2" },
+        //         { valor: "3", texto: "Opção 3" }
+        //     ];
+
+
+        try {
+            const result = await prisma.$queryRaw`
+                    SELECT uuid, titulo FROM "eleicoes" 
+                `;
+
+            if (result.length > 0) {
+                console.log(`(${result.length})Usuário encontrado:`);
+                console.log(`${result}`);
+                return result;
+            } else {
+                console.log("Nenhuma eleição encontrada.");
+                return null;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar privateKey:", error);
+        } finally {
+            await prisma.$disconnect();
+        }
+
 
         return opcoes
+    },
+
+
+    async obtemDadosEleicao(uuid) {
+        let dadosEleicao =null
+        try {
+            const result = await prisma.$queryRaw`
+                    SELECT * 
+                    FROM "eleicoes" 
+                    WHERE "uuid" = ${uuid}::uuid      
+
+                `;
+
+            if (result.length > 0) {
+                console.log(`(${result.length})Usuário encontrado:`);
+                console.log(`${JSON.stringify(result)}`);
+                dadosEleicao = result
+            } else {
+                console.log("Nenhuma eleição encontrada.");
+                dadosEleicao =  null;
+            }
+        } catch (error) {
+            console.error("Erro ao buscar privateKey:", error);
+        } finally {
+            await prisma.$disconnect();
+            return dadosEleicao
+        }
+       
     },
 
     async excluirSessao(sessionId) {

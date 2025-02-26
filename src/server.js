@@ -268,9 +268,17 @@ app.get('/verificaValidadeToken', async (req, res) => {
 app.get('/eleicoes', async (req, res) => {
   const sessionId = req.body; // Captura o valor do parâmetro "sessionId"
   const result = await bd.listaEleicoes(sessionId)
+  console.log(result)
   res.json(result)
 })
 
+app.get('/dadoseleicoes', async (req, res) => {
+  const sessionId = req.headers['session-id']; 
+  const uuid = req.headers['uuid']; 
+  console.log(`dadoseleicoes ${uuid}`)
+  const result = await bd.obtemDadosEleicao(uuid)
+  res.json(result)
+})
 
 // Rota para criar um novo usuário (CREATE)
 app.post('/usuarios', async (req, res) => {

@@ -18,29 +18,47 @@ function criarDatalistComLabel(id, labelTexto, opcoes, aoSelecionar, aoCriarNova
     const datalist = document.createElement("datalist");
     datalist.setAttribute("id", id + "-datalist");
 
+    console.log(opcoes);
+    if (!Array.isArray(opcoes)) {
+        opcoes = [opcoes]; // Transforma um objeto único em array
+    }
+
+    // Criar um mapa para armazenar UUIDs das opções
+    const opcoesMap = new Map();
+
     // Adicionar opções ao datalist
-    opcoes.forEach(opcao => {
+    opcoes.forEach((opcao, index) => {
         const optionElement = document.createElement("option");
-        optionElement.value = opcao.valor;
-        optionElement.text = opcao.texto;
+        const { uuid, titulo } = opcao;
+        console.log(opcao);
+
+        optionElement.value = titulo;
         datalist.appendChild(optionElement);
+
+        // Armazena o UUID associado ao título no mapa
+        opcoesMap.set(titulo, uuid);
+        // Coloca a primeira opção no input
+        if (index == 0) {
+            input.value = titulo
+            input.setAttribute("uuid", uuid)
+        }
     });
+
 
     // Adicionar evento "change" para capturar valores selecionados ou digitados
     input.addEventListener("change", () => {
         const inputValue = input.value;
-        const exists = Array.from(datalist.options).some(option => option.value === inputValue);
+        const uuid = opcoesMap.get(inputValue) || null; // Obtém o UUID da opção se existir
+        
+        if (!uuid && inputValue.trim() !== "") {
+            // Se a opção não existir no datalist, chamar aoCriarNovaOpcao
+            aoCriarNovaOpcao(inputValue);
+        } else {
+            input.setAttribute("uuid", uuid)
+            // Se for uma opção existente, chamar aoSelecionar com UUID
+            aoSelecionar({ titulo: inputValue, uuid });
 
-        if (!exists && inputValue.trim() !== "") {
-            // Criar uma nova opção no datalist se não existir
-            // const newOption = document.createElement("option");
-            // newOption.value = inputValue;
-            // datalist.appendChild(newOption);
-            // console.log("Nova opção adicionada:", inputValue);
-            aoCriarNovaOpcao(inputValue)
         }
-        else
-            aoSelecionar(inputValue); // Chama a função de callback
     });
 
     // Adicionar elementos ao container
@@ -51,4 +69,4 @@ function criarDatalistComLabel(id, labelTexto, opcoes, aoSelecionar, aoCriarNova
     return container;
 }
 
-export default criarDatalistComLabel
+export default criarDatalistComLabel;

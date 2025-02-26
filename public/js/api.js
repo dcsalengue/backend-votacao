@@ -402,6 +402,25 @@ class Api {
         }
     }
 
+    async dadoseleicoes(uuid) { // Enviar sessão, retornar somente as eleições relacionadas com o usuário, ou todas se for permissão 0
+        try {
+            const response = await axios.get(`${URL_BASE}/dadoseleicoes`, {
+                headers: {
+                    'session-id': `${this.sessionId}`,
+                    'uuid': `${uuid}`
+                }
+            });
+            console.log(response.data)
+            // Obtendo os dados do corpo da resposta (body)
+            return (response.data);
+
+        } catch (error) {
+            alert(`Erro ao requisitar token de sessÃ£o \r\n${error}`);
+            throw error;
+        }
+    }
+
+
     async dadosEleicao(uuidEleicao) { // criptografar sessão, uuid, retornar somente se uuid da eleição tiver relação com o usuário (através da sessão) , ou qualquer eleição válida para permissão 0
         try {
             const response = await axios.get(`${URL_BASE}/eleicao`);

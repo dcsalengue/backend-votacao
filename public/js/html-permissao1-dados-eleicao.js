@@ -1,43 +1,58 @@
-function htmlPermissao1DadosEleicao() {
-    
+import api from "./api.js";
+import ui from "./ui.js";
+async function htmlPermissao1DadosEleicao(dados) {
     const sessaoDados = document.createElement("section");
-    sessaoDados.classList.add("bg-indigo-100", "text-indigo-800", "p-2", "flex" , "flex-col" );
-    
+    sessaoDados.classList.add("bg-indigo-100", "text-indigo-800", "p-2", "flex", "flex-col");
+
     const criarElemento = (tituloTexto, conteudoTexto, conteudoId) => {
+        const container = document.createElement("div");
+        container.classList.add("flex", "items-center", "gap-2");
+
         const elemento = document.createElement("p");
         const conteudo = document.createElement("span");
 
         elemento.classList.add("font-semibold");
-        conteudo.classList.add("regular", "ml-2");
+        conteudo.classList.add("regular");
 
-        elemento.textContent = tituloTexto;
-        conteudo.textContent = conteudoTexto;
+        elemento.textContent = tituloTexto + ":";
+        conteudo.textContent = conteudoTexto || "N/A"; // Se `conteudoTexto` for `null`, usa "N/A"
         conteudo.id = conteudoId;
 
-        return { elemento, conteudo };
+        container.appendChild(elemento);
+        container.appendChild(conteudo);
+
+        return container;
     };
 
-    const { elemento: titulo, conteudo: tituloConteudo } = criarElemento("Título", "Eleição para diretor", "titulo-conteudo");
-    const { elemento: descricao, conteudo: descricaoConteudo } = criarElemento("Descrição", "Escolha do diretor da escola a ocorrer no dia 17/02/2025", "descricao-conteudo");
-    const { elemento: cnpj, conteudo: cnpjConteudo } = criarElemento("CNPJ", "12.345.678/0001-99", "cnpj-conteudo");
-    const { elemento: dataInicio, conteudo: dataInicioConteudo } = criarElemento("Data início", "17/02/2025 às 08:00", "dataInicio-conteudo");
-    const { elemento: dataFim, conteudo: dataFimConteudo } = criarElemento("Data fim", "18/02/2025 às 18:00", "dataFim-conteudo");
-    const { elemento: status, conteudo: statusConteudo } = criarElemento("Status", "Não iniciado / Em andamento / Finalizado / Cancelado", "status-conteudo");
+console.log(dados)
+    const { titulo, descricao, cnpj, data_inicio, data_fim } = dados[0]
 
-    
+    console.log("Dados recebidos:", dados);
+    console.log("Título:", titulo);
+    console.log("Descrição:", descricao);
+    console.log("CNPJ:", cnpj);
+    console.log("Data Início:", data_inicio);
+    console.log("Data Fim:", data_fim);
 
-    sessaoDados.appendChild(titulo);
-    sessaoDados.appendChild(tituloConteudo);
-    sessaoDados.appendChild(descricao);
-    sessaoDados.appendChild(descricaoConteudo);
-    sessaoDados.appendChild(cnpj);
-    sessaoDados.appendChild(cnpjConteudo);
-    sessaoDados.appendChild(dataInicio);
-    sessaoDados.appendChild(dataInicioConteudo);
-    sessaoDados.appendChild(dataFim);
-    sessaoDados.appendChild(dataFimConteudo);
-    sessaoDados.appendChild(status);
-    sessaoDados.appendChild(statusConteudo);
+
+    const elementos = [
+        criarElemento("Título", titulo, "titulo-conteudo"),
+        criarElemento("Descrição", descricao, "descricao-conteudo"),
+        criarElemento("CNPJ", cnpj, "cnpj-conteudo"),
+        criarElemento("Data início", data_inicio, "dataInicio-conteudo"),
+        criarElemento("Data fim", data_fim, "dataFim-conteudo"),
+        criarElemento("Status", "Não iniciado / Em andamento / Finalizado / Cancelado", "status-conteudo"),
+    ];
+
+    // Adiciona todos os elementos de uma vez, melhorando a performance
+    sessaoDados.append(...elementos);
+   
+    // const opcoes = await api.listaEleicoes()
+    // const dadosEntrada = await api.listacpfs();
+    // const containerDadosMenu = document.getElementById('section-dados-menu');
+    // const item = document.querySelector(".menu-item[selecionado]");
+
+    // ui.selecionaItemNav(item, opcoes, containerDadosMenu, dadosEntrada)
 
     return sessaoDados;
 }
