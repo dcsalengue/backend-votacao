@@ -1,6 +1,7 @@
 // Colocar aqui as funções de comunicação com o backend
 import criptografia from "./cripto.js";
 import cpf from "./cpf.js";
+// import axios from "axios";
 
 const URL_BASE =
     window.location.hostname === "localhost"

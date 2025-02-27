@@ -51,7 +51,7 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
     const botoes = document.createElement("div");
     botoes.classList.add("w-14", "h-full", "z-10", "bg-indigo-200", "text-center", "flex", "flex-col", "justify-center", "items-center");
 
-    function criarBotao(id, imgPath, moverPara) {
+    function criarBotao(id, imgPath, moverPara, tudo) {
         const botao = document.createElement("div");
         botao.id = id;
         botao.classList.add("w-10", "h-10", "mt-4", "bg-no-repeat", "bg-cover", "bg-center", "bg-indigo-200", "hover:bg-indigo-100", "cursor-pointer");
@@ -60,8 +60,11 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
         botao.addEventListener("click", () => {
             const listaOrigem = document.getElementById(moverPara === "saida" ? "lista-entrada" : "lista-saida");
             const listaDestino = document.getElementById(moverPara === "saida" ? "lista-saida" : "lista-entrada");
-
-            const selecionados = Array.from(listaOrigem.querySelectorAll("ul.bg-indigo-400"));
+            let selecionados
+            if (tudo)
+                selecionados = Array.from(listaOrigem.querySelectorAll("ul"));
+            else
+                selecionados = Array.from(listaOrigem.querySelectorAll("ul.bg-indigo-400"));
             selecionados.forEach(ul => {
                 ul.classList.remove("bg-indigo-400");
                 listaDestino.appendChild(ul);
@@ -72,6 +75,8 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
 
     const botaoDireita = criarBotao("botao-direita", "/assets/Arrow-right.svg", "saida");
     const botaoEsquerda = criarBotao("botao-esquerda", "/assets/Arrow-left.svg", "entrada");
+    const botaoTudoDireita = criarBotao("botao-direita", "/assets/seta-dupla-direita.png", "saida",true);
+    const botaoTudoEsquerda = criarBotao("botao-esquerda", "/assets/seta-dupla-esquerda.png", "entrada",true);
 
     const botaoConfirmar = document.createElement("button");
     botaoConfirmar.textContent = `Confirmar inclusão de ${tipo}`
@@ -86,7 +91,7 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
         "hover:bg-cyan-800",
         "hover:text-indigo-100")
 
-    botaoConfirmar.addEventListener("click",async () => {
+    botaoConfirmar.addEventListener("click", async () => {
         const uls = saida.getElementsByTagName("ul"); // Retorna uma HTMLCollection
         if (!saida) {
             console.error("Elemento 'saida' não encontrado.");
@@ -102,21 +107,22 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
             Array.from(lis).forEach((li, liIndex) => {
                 const cpf = li.textContent.trim();
                 if (cpf) {
-                    if(liIndex % 2 ==0)
+                    if (liIndex % 2 == 0)
                         cpfs.push(cpf);
                     console.log(`UL ${ulIndex} - LI ${liIndex}: ${cpf}`);
                 }
             });
 
         });
-        
+
         await api.cpfsEleitores(cpfs)
     });
 
 
     botoes.appendChild(botaoDireita);
     botoes.appendChild(botaoEsquerda);
-
+    botoes.appendChild(botaoTudoDireita);
+    botoes.appendChild(botaoTudoEsquerda);
     // Montar a seção
 
     containerLista.appendChild(entrada);

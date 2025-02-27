@@ -1,5 +1,5 @@
-import api from "./api.js";
-import ui from "./ui.js";
+// import api from "./api.js";
+// import ui from "./ui.js";
 async function htmlPermissao1DadosEleicao(dados) {
     const sessaoDados = document.createElement("section");
     sessaoDados.classList.add("bg-indigo-100", "text-indigo-800", "p-2", "flex", "flex-col");

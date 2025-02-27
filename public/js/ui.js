@@ -35,10 +35,12 @@ const ui = {
         }
         else if (item.textContent === "Eleitores") {
             console.log("Eleitores");
-            containerDadosMenu.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
+            containerDadosMenu.appendChild(criarDefinicaoEleitores("eleitores", dadosEntrada));
         }
         else if (item.textContent === "Candidatos") {
             console.log("Candidatos");
+            containerDadosMenu.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
+
         }
         else if (item.textContent === "Resultado") {
             console.log("Resultado");
