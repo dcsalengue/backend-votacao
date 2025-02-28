@@ -618,7 +618,7 @@ const modificaBotaoSessao = async () => {
 }
 
 const timerVerificaValidadeToken = async () => {
-    setTimeout(modificaBotaoSessao, 5000)
+    setTimeout(modificaBotaoSessao, 30000)
 }
 timerVerificaValidadeToken()
 /*

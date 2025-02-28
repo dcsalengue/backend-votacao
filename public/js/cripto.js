@@ -58,6 +58,7 @@ const criptografia = {
 
     async encryptUserData(publicKeyPem, userData) {
         try {
+            
             // Importar a chave pública
             const publicKey = await this.importPublicKey(publicKeyPem);
 

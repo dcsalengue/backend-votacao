@@ -474,6 +474,38 @@ app.post('/refreshSessao', async (req, res) => {
   }
 })
 
+// Rota para criar eleitores
+app.post('/eleitores', async (req, res) => {
+  try {
+    const { data, sessionId } = req.body;
+
+    // Verifica se a sessão é de permissão máxima
+    const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId)
+    console.log(`permissao ${JSON.stringify(permissaoSessao)}`)
+    if (permissaoSessao.permissao != 1) {
+      return res.status(403).json({ error: 'Não autorizado.' });
+    }
+
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId)
+    // Verifica se a sessão é válida
+    if (!privateKey) {
+      return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+    }
+
+    // Decriptografa os dados de login usando a chave privada da sessão
+    const decryptedData = await cripto.descriptografar(data, privateKey);
+
+    // Converte os dados descriptografados de volta para JSON
+    const { cpfs, id_eleicao } = JSON.parse(decryptedData);
+    console.log(`server ln 500: ${decryptedData} ${cpfs} ${id_eleicao}`)
+
+    await bd.criaEleitores(cpfs, id_eleicao)
+
+    res.json({ message: `Eleitores criados vo banco de dados para a eleição ${id_eleicao}` });
+  } catch (error) {
+    console.log(error)
+  }
+});
 /////////////////////////////////////////////////////////////////////////////////////
 app.post('/teste', (req, res) => {
   const mensagem = JSON.stringify(req.body, null, 2)

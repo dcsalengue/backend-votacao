@@ -1,6 +1,7 @@
 
 import api from "./api.js";
-function criarDefinicaoEleitores(tipo, dadosEntrada) {
+// Dados entrada recebidos da lista de usuários e dados de saída recebidos da lista de eleitores / candidatos (os dados de entrada devem ser filtrados para não reexibir os dados de saída)
+function criarDefinicaoEleitores(tipo, dadosEntrada, dadosSaida) {
     const section = document.createElement("section");
     section.classList.add("w-full", "h-full", "bg-indigo-200", "flex", "flex-col", "justify-center");
 
@@ -91,32 +92,37 @@ function criarDefinicaoEleitores(tipo, dadosEntrada) {
         "hover:bg-cyan-800",
         "hover:text-indigo-100")
 
-    botaoConfirmar.addEventListener("click", async () => {
-        const uls = saida.getElementsByTagName("ul"); // Retorna uma HTMLCollection
-        if (!saida) {
-            console.error("Elemento 'saida' não encontrado.");
-            return;
-        }
-
-        const cpfs = [];
-        // Convertendo HTMLCollection em um array e iterando
-        Array.from(uls).forEach((ul, ulIndex) => {
-            const lis = ul.getElementsByTagName("li"); // Pegando os <li> dentro de cada <ul>
-
-            // Convertendo NodeList em array para usar forEach
-            Array.from(lis).forEach((li, liIndex) => {
-                const cpf = li.textContent.trim();
-                if (cpf) {
-                    if (liIndex % 2 == 0)
-                        cpfs.push(cpf);
-                    console.log(`UL ${ulIndex} - LI ${liIndex}: ${cpf}`);
-                }
+        botaoConfirmar.addEventListener("click", async () => {
+            const uls = saida.getElementsByTagName("ul"); // Retorna uma HTMLCollection
+            
+            if (!saida) {
+                console.error("Elemento 'saida' não encontrado.");
+                return;
+            }
+        
+            const cpfsSet = new Set(); // Usamos um Set para evitar CPFs duplicados
+        
+            // Convertendo HTMLCollection em um array e iterando
+            Array.from(uls).forEach((ul, ulIndex) => {
+                const lis = ul.getElementsByTagName("li"); // Pegando os <li> dentro de cada <ul>
+        
+                // Convertendo NodeList em array para usar forEach
+                Array.from(lis).forEach((li, liIndex) => {
+                    const cpf = li.textContent.trim();
+                    if (cpf && !cpfsSet.has(cpf)) { // Verifica se o CPF já foi adicionado
+                        if (liIndex % 2 == 0) {
+                            cpfsSet.add(cpf);
+                        }
+                        console.log(`UL ${ulIndex} - LI ${liIndex}: ${cpf}`);
+                    }
+                });
             });
-
+        
+            const cpfs = Array.from(cpfsSet); // Converte o Set para array
+        
+            await api.criaEleitores(cpfs);
         });
-
-        await api.cpfsEleitores(cpfs)
-    });
+        
 
 
     botoes.appendChild(botaoDireita);

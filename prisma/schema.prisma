@@ -37,3 +37,17 @@ model eleicoes {
   data_fim    DateTime? @db.Date
   created_at  String?
 }
+
+model eleitores {
+  id         String @id @db.Uuid
+  cpf        String @unique
+  id_eleicao String @db.Uuid
+  permissao  Int?   @db.SmallInt
+  saldo      Int?   @db.SmallInt
+}
+
+model candidatos {
+  id_eleitor String  @id @db.Uuid
+  apelido    String?
+  votos      Int?    @default(0)
+}
