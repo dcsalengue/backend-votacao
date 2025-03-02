@@ -480,12 +480,19 @@ const bd = {
     let eleitores = null;
     try {
       const result = await prisma.$queryRaw`
-                    SELECT * 
-                    FROM "eleitores" 
-                    WHERE "id_eleicao" = ${uuidEleicao}::uuid      
+       SELECT u."nome", u."cpf" 
+            FROM "eleitores" e
+            JOIN "usuarios" u 
+            ON e."cpf" = u."cpf"
+            WHERE e."id_eleicao" = CAST(${uuidEleicao} AS UUID)
+
+                     
 
                 `;
-
+                 // SELECT * 
+                    // FROM "eleitores" 
+                    // WHERE "id_eleicao" = ${uuidEleicao}::uuid    
+// selecionar também o nome vinculado aos cpfs
       if (result.length > 0) {
         console.log(`${JSON.stringify(result)}`);
         eleitores = result;
