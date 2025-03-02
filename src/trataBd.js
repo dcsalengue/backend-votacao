@@ -432,6 +432,22 @@ const bd = {
     }
   },
 
+  async excluirEleitores(cpfsExcluir, id_eleicao) {
+    // Remover CPFs do banco que não estão na nova lista
+    for (const cpf of cpfsExcluir) {
+      try {
+        await prisma.$executeRaw`
+            DELETE FROM "eleitores" 
+            WHERE "cpf" = ${cpf} 
+            AND "id_eleicao" = ${id_eleicao}::uuid
+        `;
+        console.log(`Eleitor removido: ${cpf}`);
+      } catch (error) {
+        console.error(`Erro ao remover eleitor ${cpf}:`, error);
+      }
+    }
+  },
+
   async criaEleitores(cpfs, id_eleicao) {
     try {
       // Se cpfs for uma string JSON, fazer o parse
@@ -441,12 +457,44 @@ const bd = {
 
       console.log(`${id_eleicao}\r\n${cpfs}`);
 
-      for (const cpf of cpfs) {
-        const id = uuidv4();
-        console.log(`${cpf} | ${id}`);
+      // Obter lista de eleitores do banco de dados
+      const cpfsAtual = (await this.obtemEleitores(id_eleicao)).map(
+        (elemento) => elemento.cpf
+      ); // Retorna um array de CPFs existentes
 
-        try {
-          await prisma.$executeRaw`
+      console.log("CPFs atual:", cpfsAtual);
+
+      // Criar lista de CPFs a excluir (estão no banco, mas não foram passados)
+      const cpfsExcluir = cpfsAtual.filter((cpf) => !cpfs.includes(cpf));
+
+      // Criar lista de CPFs a incluir (foram passados, mas não estão no banco)
+      const cpfsIncluir = cpfs.filter((cpf) => !cpfsAtual.includes(cpf));
+
+      console.log("CPFs a excluir:", cpfsExcluir);
+      console.log("CPFs a incluir:", cpfsIncluir);
+
+      // Exclui os que estão no banco de dados mas não foram passados na lista
+      await  this.excluirEleitores(cpfsExcluir, id_eleicao)
+      /*
+        // Remover CPFs do banco que não estão na nova lista
+        for (const cpf of cpfsExcluir) {
+            try {
+                await prisma.$executeRaw`
+                    DELETE FROM "eleitores" 
+                    WHERE "cpf" = ${cpf} 
+                    AND "id_eleicao" = ${id_eleicao}::uuid
+                `;
+                console.log(`Eleitor removido: ${cpf}`);
+            } catch (error) {
+                console.error(`Erro ao remover eleitor ${cpf}:`, error);
+            }
+        }
+*/
+        // Incluir novos CPFs no banco
+        for (const cpf of cpfsIncluir) {
+            const id = uuidv4();
+            try {
+                await prisma.$executeRaw`
                     INSERT INTO "eleitores"  (
                             "id", 
                             "cpf", 
@@ -460,12 +508,11 @@ const bd = {
                             2, 
                             0)
                 `;
-
-          console.log("Eleitor criado:", cpf);
-        } catch (error) {
-          console.error("Erro ao criar eleitor:", error);
+                console.log("Eleitor criado:", cpf);
+            } catch (error) {
+                console.error("Erro ao criar eleitor:", error);
+            }
         }
-      }
 
       return "Ok";
     } catch (error) {
@@ -489,10 +536,10 @@ const bd = {
                      
 
                 `;
-                 // SELECT * 
-                    // FROM "eleitores" 
-                    // WHERE "id_eleicao" = ${uuidEleicao}::uuid    
-// selecionar também o nome vinculado aos cpfs
+      // SELECT *
+      // FROM "eleitores"
+      // WHERE "id_eleicao" = ${uuidEleicao}::uuid
+      // selecionar também o nome vinculado aos cpfs
       if (result.length > 0) {
         console.log(`${JSON.stringify(result)}`);
         eleitores = result;
@@ -532,7 +579,6 @@ const bd = {
     }
     return eleitores;
   },
-
 };
 
 export default bd;

@@ -46,7 +46,7 @@ const ui = {
       const dadosFiltrados = dadosEntrada.filter(
         (usuario) => !cpfsExistentes.has(usuario.cpf)
       );
-debugger
+
       containerDadosMenu.appendChild(
         criarDefinicaoEleitores("eleitores", dadosFiltrados, dadosSaida)
       );

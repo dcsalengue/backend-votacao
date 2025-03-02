@@ -482,7 +482,7 @@ app.post('/eleitores', async (req, res) => {
     // Verifica se a sessão é de permissão máxima
     const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId)
     console.log(`permissao ${JSON.stringify(permissaoSessao)}`)
-    if (permissaoSessao.permissao != 1) {
+    if (permissaoSessao.permissao > 1) {
       return res.status(403).json({ error: 'Não autorizado.' });
     }
 
