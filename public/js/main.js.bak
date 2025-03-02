@@ -539,12 +539,11 @@ botaoLogin.addEventListener("click", async () => {
 const btTeste = document.getElementById("botao-testes")
 btTeste.addEventListener('click', async () => {
     console.log("btTeste")
-    // exibeBotaoAtualizar()
+    exibeBotaoAtualizar()
     // console.log(await api.verificaValidadeTokenDeSessao())
     // await api.requisitarTokenDeSessao()
     // console.log(`${api.publicKeySession} | ${api.sessionId}`)
 })
-
 function deleteCookie(nome) {
     document.cookie = nome + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }

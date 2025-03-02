@@ -481,41 +481,6 @@ class Api {
     }
   }
 
-  async listaEleitores() {
-    try {
-      const response = await axios.get(`${URL_BASE}/eleitores`, {
-        headers: {
-          "session-id": `${this.sessionId}`,
-          "uuid-eleicao": `${this.uuidEleicao}`,
-        },
-      });
-      console.log(response.data);
-      // Obtendo os dados do corpo da resposta (body)
-      return response.data;
-    } catch (error) {
-      alert(`Erro ao requisitar eleitores \r\n${error}`);
-      throw error;
-    }
-  }
-
-  async listaCandidatos() {
-    try {
-      const response = await axios.get(`${URL_BASE}/candidatos`, {
-        headers: {
-          "session-id": `${this.sessionId}`,
-          "uuid-eleicao": `${this.uuidEleicao}`,
-        },
-      });
-
-      console.log(response.data);
-      // Obtendo os dados do corpo da resposta (body)
-      return response.data;
-    } catch (error) {
-      alert(`Erro ao requisitar candidatos \r\n${error}`);
-      throw error;
-    }
-  }
-
   geraUsuarios(conteudoArquivo) {
     const linhas = conteudoArquivo.split("\r\n");
     linhas.forEach(async (linha) => {

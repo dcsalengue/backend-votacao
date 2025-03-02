@@ -434,19 +434,19 @@ const bd = {
 
   async criaEleitores(cpfs, id_eleicao) {
     try {
-      // Se cpfs for uma string JSON, fazer o parse
-      if (typeof cpfs === "string") {
-        cpfs = JSON.parse(cpfs);
-      }
+        // Se cpfs for uma string JSON, fazer o parse
+        if (typeof cpfs === "string") {
+            cpfs = JSON.parse(cpfs);
+        }
 
-      console.log(`${id_eleicao}\r\n${cpfs}`);
+        console.log(`${id_eleicao}\r\n${cpfs}`);
 
-      for (const cpf of cpfs) {
-        const id = uuidv4();
-        console.log(`${cpf} | ${id}`);
+        for (const cpf of cpfs) {
+            const id = uuidv4();
+            console.log(`${cpf} | ${id}`);
 
-        try {
-          await prisma.$executeRaw`
+            try {
+                await prisma.$executeRaw`
                     INSERT INTO "eleitores"  (
                             "id", 
                             "cpf", 
@@ -461,71 +461,21 @@ const bd = {
                             0)
                 `;
 
-          console.log("Eleitor criado:", cpf);
-        } catch (error) {
-          console.error("Erro ao criar eleitor:", error);
+                console.log("Eleitor criado:", cpf);
+            } catch (error) {
+                console.error("Erro ao criar eleitor:", error);
+            }
         }
-      }
 
-      return "Ok";
+        return "Ok";
     } catch (error) {
-      console.error("Erro geral:", error);
-      return "Erro ao criar eleitores";
+        console.error("Erro geral:", error);
+        return "Erro ao criar eleitores";
     } finally {
-      await prisma.$disconnect(); // Fecha conexão corretamente
+        await prisma.$disconnect(); // Fecha conexão corretamente
     }
-  },
-
-  async obtemEleitores(uuidEleicao) {
-    let eleitores = null;
-    try {
-      const result = await prisma.$queryRaw`
-                    SELECT * 
-                    FROM "eleitores" 
-                    WHERE "id_eleicao" = ${uuidEleicao}::uuid      
-
-                `;
-
-      if (result.length > 0) {
-        console.log(`${JSON.stringify(result)}`);
-        eleitores = result;
-      } else {
-        console.log("Nenhuma eleição encontrada.");
-        eleitores = null;
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      await prisma.$disconnect();
-    }
-    return eleitores;
-  },
-
-  async obtemCandidatos(uuidEleicao) {
-    let eleitores = null;
-    try {
-      const result = await prisma.$queryRaw`
-                    SELECT * 
-                    FROM "candidatos" 
-                    WHERE "id_eleicao" = ${uuidEleicao}::uuid      
-
-                `;
-
-      if (result.length > 0) {
-        console.log(`${JSON.stringify(result)}`);
-        eleitores = result;
-      } else {
-        console.log("Nenhuma eleição encontrada.");
-        eleitores = null;
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      await prisma.$disconnect();
-    }
-    return eleitores;
-  },
-
+}
+,
 };
 
 export default bd;

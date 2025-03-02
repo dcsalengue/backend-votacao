@@ -524,23 +524,6 @@ app.post('/teste', (req, res) => {
   res.send(mensagemDescriptografada);
 });
 
-
-app.get('/eleitores', async (req, res) => {
-  const sessionId = req.headers['session-id'];  // deve verificar se é uma sessão vá lida e com permissão para fazer a requisição
-  const uuidEleicao = req.headers['uuid-eleicao']; 
-  console.log(`dadoseleicoes ${uuidEleicao}`)
-  const result = await bd.obtemEleitores(uuidEleicao)
-  res.json(result)
-})
-
-
-app.get('/candidatos', async (req, res) => {
-  const sessionId = req.headers['session-id']; 
-  const uuidEleicao = req.headers['uuidEleicao']; 
-  console.log(`dadoseleicoes ${uuidEleicao}`)
-  const result = await bd.obtemCandidatos(uuidEleicao)
-  res.json(result)
-})
 // app.get("/favicon.ico", (req, res) => res.status(204));
 
 

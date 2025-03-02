@@ -40,7 +40,9 @@ function criarDefinicaoEleitores(tipo, dadosEntrada, dadosSaida) {
     const entrada = criarLista("entrada", dadosEntrada);
     entrada.classList.add("border-r", "border-white");
 
-    const saida = criarLista("saida", []);
+    debugger
+
+    const saida = criarLista("saida", dadosSaida);
     saida.classList.add("border-l", "border-white");
 
     const botoes = document.createElement("div");

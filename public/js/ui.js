@@ -14,6 +14,8 @@ const ui = {
     },
 
     async selecionaItemNav(item, opcoes, containerDadosMenu, dadosEntrada) {
+        let dadosSaida
+
         document.querySelectorAll(".menu-item").forEach(el => el.classList.remove("border-b-2", "border-indigo-600"));
         item.classList.add("border-b-2", "border-indigo-600");
         item.setAttribute("selecionado", true)
@@ -35,11 +37,14 @@ const ui = {
         }
         else if (item.textContent === "Eleitores") {
             console.log("Eleitores");
-            containerDadosMenu.appendChild(criarDefinicaoEleitores("eleitores", dadosEntrada));
+            debugger
+            dadosSaida = await api.listaEleitores()
+            containerDadosMenu.appendChild(criarDefinicaoEleitores("eleitores", dadosEntrada, dadosSaida));
         }
         else if (item.textContent === "Candidatos") {
             console.log("Candidatos");
-            containerDadosMenu.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada));
+            dadosSaida = await api.listaCandidatos()
+            containerDadosMenu.appendChild(criarDefinicaoEleitores("candidatos", dadosEntrada, dadosSaida));
 
         }
         else if (item.textContent === "Resultado") {
