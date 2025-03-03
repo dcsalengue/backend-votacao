@@ -387,7 +387,7 @@ class Api {
       throw error;
     }
   }
-  
+
   async dadoseleicoes(uuid) {
     // Enviar sessão, retornar somente as eleições relacionadas com o usuário, ou todas se for permissão 0
     try {
@@ -411,7 +411,7 @@ class Api {
     // criptografar sessão, uuid, retornar somente se uuid da eleição tiver relação com o usuário (através da sessão) , ou qualquer eleição válida para permissão 0
     try {
       const response = await axios.get(`${URL_BASE}/eleicao`);
-      
+
       console.log(response.data);
       // Obtendo os dados do corpo da resposta (body)
       return response.data;
@@ -458,22 +458,35 @@ class Api {
 
   async criaEleitores(cpfs) {
     try {
-      let jsonEleitores = {
-        cpfs: JSON.stringify(cpfs),
-        id_eleicao: `${this.uuidEleicao}`,
-      };
-      
-      // Criptografando os dados
-      const encryptedData = await criptografia.encryptUserData(
-        this.publicKeySession,
-        jsonEleitores
-      );
+      console.log(`criaEleitores`);
+      console.log(`${this.publicKeySession}`);
+      console.log(`${cpfs}`);
 
-      const response = await axios.post(`${URL_BASE}/eleitores`, {
-        data: encryptedData,
-        sessionId: this.sessionId,
-      });
-      return await response.data.message;
+      for (const cpf of cpfs) {
+        let jsonEleitor = {
+          cpfs: JSON.stringify([cpf]), // Enviando apenas um CPF por vez
+          id_eleicao: `${this.uuidEleicao}`,
+        };
+
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(
+          this.publicKeySession,
+          jsonEleitor
+        );
+
+        console.log(`Enviando CPF: ${cpf}`);
+        console.log(`${encryptedData}`);
+
+        // Enviar a requisição para cada CPF individualmente
+        const response = await axios.post(`${URL_BASE}/eleitores`, {
+          data: encryptedData,
+          sessionId: this.sessionId,
+        });
+
+        console.log(`Resposta para ${cpf}:`, response.data.message);
+      }
+
+      return "Todos os eleitores foram processados com sucesso.";
     } catch (error) {
       if (error.response) {
         return error.response.data;
@@ -498,6 +511,43 @@ class Api {
     }
   }
 
+  async criaCandidatos(cpfs) {
+    try {
+      console.log(`criaCandidatos`);
+      console.log(`${this.publicKeySession}`);
+      console.log(`${cpfs}`);
+
+      for (const cpf of cpfs) {
+        let jsonEleitor = {
+          cpfs: JSON.stringify([cpf]), // Enviando apenas um CPF por vez
+          id_eleicao: `${this.uuidEleicao}`,
+        };
+
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(
+          this.publicKeySession,
+          jsonEleitor
+        );
+
+        console.log(`Enviando CPF: ${cpf}`);
+        console.log(`${encryptedData}`);
+
+        // Enviar a requisição para cada CPF individualmente
+        const response = await axios.post(`${URL_BASE}/candidatos`, {
+          data: encryptedData,
+          sessionId: this.sessionId,
+        });
+
+        console.log(`Resposta para ${cpf}:`, response.data.message);
+      }
+
+      return "Todos os candidatos foram processados com sucesso.";
+    } catch (error) {
+      if (error.response) {
+        return error.response.data;
+      }
+    }
+  }
   async listaCandidatos() {
     try {
       const response = await axios.get(`${URL_BASE}/candidatos`, {

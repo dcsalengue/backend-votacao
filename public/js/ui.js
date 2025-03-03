@@ -14,7 +14,6 @@ const ui = {
   },
 
   async selecionaItemNav(item, opcoes, containerDadosMenu, dadosEntrada) {
-    
     document
       .querySelectorAll(".menu-item")
       .forEach((el) => el.classList.remove("border-b-2", "border-indigo-600"));
@@ -39,27 +38,43 @@ const ui = {
     } else if (item.textContent === "Eleitores") {
       console.log("Eleitores");
       const dadosSaida = await api.listaEleitores();
-      // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
-      const cpfsExistentes = new Set(dadosSaida.map((eleitor) => eleitor.cpf));
+      let dadosFiltrados;
+      if (dadosSaida) {
+        // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
+        const cpfsExistentes = new Set(
+          dadosSaida.map((eleitor) => eleitor.cpf)
+        );
 
-      // Filtrar os dados de entrada, removendo CPFs que já estão em dadosSaida
-      const dadosFiltrados = dadosEntrada.filter(
-        (usuario) => !cpfsExistentes.has(usuario.cpf)
-      );
+        // Filtrar os dados de entrada, removendo CPFs que já estão em dadosSaida
+        dadosFiltrados = dadosEntrada.filter(
+          (usuario) => !cpfsExistentes.has(usuario.cpf)
+        );
+      } else {
+        dadosFiltrados = dadosEntrada;
+      }
 
       containerDadosMenu.appendChild(
         criarDefinicaoEleitores("eleitores", dadosFiltrados, dadosSaida)
       );
     } else if (item.textContent === "Candidatos") {
       console.log("Candidatos");
+      dadosEntrada = await api.listaEleitores();
       const dadosSaida = await api.listaCandidatos();
-       // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
-       const cpfsExistentes = new Set(dadosSaida.map((eleitor) => eleitor.cpf));
 
-       // Filtrar os dados de entrada, removendo CPFs que já estão em dadosSaida
-       const dadosFiltrados = dadosEntrada.filter(
-         (usuario) => !cpfsExistentes.has(usuario.cpf)
-       );
+      let dadosFiltrados;
+      if (dadosSaida) {
+        // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
+        const cpfsExistentes = new Set(
+          dadosSaida.map((candidato) => candidato.cpf)
+        );
+
+        // Filtrar os dados de entrada, removendo CPFs que já estão em dadosSaida
+        dadosFiltrados = dadosEntrada.filter(
+          (usuario) => !cpfsExistentes.has(usuario.cpf)
+        );
+      } else {
+        dadosFiltrados = dadosEntrada;
+      }
       containerDadosMenu.appendChild(
         criarDefinicaoEleitores("candidatos", dadosFiltrados, dadosSaida)
       );

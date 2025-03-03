@@ -80,7 +80,7 @@ const bd = {
     try {
       const result = await prisma.$executeRaw`
                 DELETE FROM "sessoes" 
-                WHERE "modifiedAt" < NOW() - INTERVAL '5 minutes'
+                WHERE "modifiedAt" < NOW() - INTERVAL '15 minutes'
             `;
       console.log(`Sessões excluídas: ${result}`);
     } catch (error) {
@@ -474,7 +474,7 @@ const bd = {
       console.log("CPFs a incluir:", cpfsIncluir);
 
       // Exclui os que estão no banco de dados mas não foram passados na lista
-      await  this.excluirEleitores(cpfsExcluir, id_eleicao)
+      //await  this.excluirEleitores(cpfsExcluir, id_eleicao)
       /*
         // Remover CPFs do banco que não estão na nova lista
         for (const cpf of cpfsExcluir) {
@@ -490,11 +490,11 @@ const bd = {
             }
         }
 */
-        // Incluir novos CPFs no banco
-        for (const cpf of cpfsIncluir) {
-            const id = uuidv4();
-            try {
-                await prisma.$executeRaw`
+      // Incluir novos CPFs no banco
+      for (const cpf of cpfsIncluir) {
+        const id = uuidv4();
+        try {
+          await prisma.$executeRaw`
                     INSERT INTO "eleitores"  (
                             "id", 
                             "cpf", 
@@ -508,11 +508,11 @@ const bd = {
                             2, 
                             0)
                 `;
-                console.log("Eleitor criado:", cpf);
-            } catch (error) {
-                console.error("Erro ao criar eleitor:", error);
-            }
+          console.log("Eleitor criado:", cpf);
+        } catch (error) {
+          console.error("Erro ao criar eleitor:", error);
         }
+      }
 
       return "Ok";
     } catch (error) {
@@ -555,29 +555,106 @@ const bd = {
     return eleitores;
   },
 
+  async criaCandidatos(cpfs, id_eleicao) {
+    try {
+        // Se cpfs for uma string JSON, fazer o parse
+        if (typeof cpfs === "string") {
+            cpfs = JSON.parse(cpfs);
+        }
+
+        console.log("CPFs recebidos:", cpfs);
+
+        let idsAtual = [];
+        let ids = [];
+
+        try {
+            // Buscar os eleitores da eleição informada
+            const result = await prisma.$queryRaw`
+                SELECT id, cpf
+                FROM "eleitores"
+                WHERE "id_eleicao" = CAST(${id_eleicao} AS UUID)
+                AND "cpf" = ${cpfs[0]}
+            `;
+
+            console.log("Resultado da consulta:", result);
+
+            if (result.length > 0) {
+                // Filtrar apenas os IDs dos CPFs que estão na lista passada
+                ids = result
+                    .filter(eleitor => cpfs.includes(eleitor.cpf))
+                    .map(eleitor => eleitor.id); // Extraindo os IDs dos eleitores
+
+                // IDs de todos os eleitores cadastrados no banco
+                idsAtual = result.map(eleitor => eleitor.id);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar eleitores:", error);
+            return "Erro ao buscar eleitores";
+        } finally {
+            await prisma.$disconnect();
+        }
+
+        console.log("IDs filtrados (presentes no banco e na lista):", ids);
+        console.log("IDs atuais no banco:", idsAtual);
+
+        // Criar lista de IDs a excluir (estão no banco, mas não foram passados)
+        const idsExcluir = idsAtual.filter(id => !ids.includes(id));
+
+        // Criar lista de IDs a incluir (foram passados, mas não estão no banco)
+        const idsIncluir = ids// ids.filter(id => !idsAtual.includes(id));
+
+        console.log("IDs a excluir:", idsExcluir);
+        console.log("IDs a incluir:", idsIncluir);
+
+        // Incluir novos CPFs no banco
+        for (const id of idsIncluir) {
+            try {
+                await prisma.$executeRaw`
+                    INSERT INTO "candidatos" ("id_eleitor", "apelido", "votos")
+                    VALUES (${id}::uuid, 'incluir', 0)
+                `;
+                console.log("Candidato criado para ID:", id);
+            } catch (error) {
+                console.error("Erro ao criar candidato:", error);
+            }
+        }
+
+        return "Ok";
+    } catch (error) {
+        console.error("Erro geral:", error);
+        return "Erro ao criar candidatos";
+    } finally {
+        await prisma.$disconnect(); // Fecha conexão corretamente
+    }
+},
+
+
+
+
   async obtemCandidatos(uuidEleicao) {
-    let eleitores = null;
+    let candidatos = null;
     try {
       const result = await prisma.$queryRaw`
-                    SELECT * 
-                    FROM "candidatos" 
-                    WHERE "id_eleicao" = ${uuidEleicao}::uuid      
-
+                    SELECT u."nome", u."cpf" 
+                    FROM "eleitores" e
+                    JOIN "candidatos" c ON e."id" = c."id_eleitor"
+                    JOIN "usuarios" u ON e."cpf" = u."cpf"
+                    WHERE e."id_eleicao" = ${uuidEleicao}::uuid
                 `;
 
       if (result.length > 0) {
         console.log(`${JSON.stringify(result)}`);
-        eleitores = result;
+        candidatos = result;
       } else {
-        console.log("Nenhuma eleição encontrada.");
-        eleitores = null;
+        console.log("Nenhum candidato encontrado.");
+        candidatos = null;
       }
     } catch (error) {
       console.error(error);
     } finally {
       await prisma.$disconnect();
     }
-    return eleitores;
+    return candidatos;
   },
 };
 
