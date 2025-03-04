@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         //     divTituloHeader.appendChild(selectEleicao);
 
         await toggleOverlay()// Exibe a ampulheta ao carregar a página
-        const sessionId = getCookie("sessionId")
+        const sessionId = null//getCookie("sessionId")
         //console.log(document.cookie);
         if (!sessionId)
             return

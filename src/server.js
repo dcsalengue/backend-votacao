@@ -506,6 +506,42 @@ app.post('/eleitores', async (req, res) => {
     console.log(error)
   }
 });
+
+// Rota para excluir eleitores
+app.delete('/eleitores', async (req, res) => {
+  try {
+    const { data } = req.body; // ✅ Agora pega do body
+    const sessionId = req.headers['sessionid']; // ✅ Certifique-se de que está minúsculo
+
+    if (!data || !sessionId) {
+      return res.status(400).json({ error: 'Dados incompletos.' });
+    }
+
+    const permissaoSessao = await bd.obtemPermissaoUsuarioSessao(sessionId);
+    if (permissaoSessao.permissao > 1) {
+      return res.status(403).json({ error: 'Não autorizado.' });
+    }
+
+    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    if (!privateKey) {
+      return res.status(400).json({ error: 'Sessão inválida ou expirou.' });
+    }
+
+    const decryptedData = await cripto.descriptografar(data, privateKey);
+    let { cpfs, id_eleicao } = JSON.parse(decryptedData);
+    
+    
+    //cpfs = Array.isArray(cpfs) ? cpfs : [cpfs];
+    console.log(`Excluir eleitores: ${cpfs}, Eleição: ${id_eleicao}`);
+    await bd.excluirEleitor(cpfs, id_eleicao);
+
+    res.status(200).json({ message: `Eleitores removidos da eleição ${id_eleicao}` });
+  } catch (error) {
+    console.error("Erro ao excluir eleitores:", error);
+    res.status(500).json({ error: "Erro no servidor" });
+  }
+});
+
 /////////////////////////////////////////////////////////////////////////////////////
 app.post('/teste', (req, res) => {
   const mensagem = JSON.stringify(req.body, null, 2)

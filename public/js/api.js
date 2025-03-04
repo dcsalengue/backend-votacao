@@ -16,6 +16,8 @@ class Api {
     this.sessionId = null; // ID de sessão gerado
     this.publicKeySession = null; // Chave pública recebida do servidor
     this.uuidEleicao = null; // ID da eleição selecionada
+    this.cpfEleitoresAtual = [];
+    this.cpfCandidatosdAtual = [];
   }
   // sessionId ,       // Id de sessão enviado pelo servidor
   // publicKeySession,// Chave pública relacionada a sessionId
@@ -458,11 +460,35 @@ class Api {
 
   async criaEleitores(cpfs) {
     try {
-      console.log(`criaEleitores`);
-      console.log(`${this.publicKeySession}`);
-      console.log(`${cpfs}`);
+      // Lista ignorar (se os cpfs já estiverem presentes no bd)
+      // Lista excluir (se os cpfs estiverem presentes no bd mas não na lista)
+      // Lista incluir (o resto da lista retirando os ignorados)
 
-      for (const cpf of cpfs) {
+      const cpfsBd = [...this.cpfEleitoresAtual];
+
+      console.log(`criaEleitores`);
+      console.log(`lista cpfs: ${cpfs}`);
+      console.log(`bd cpfs: ${cpfsBd}`);
+      let cpfsIncluir;
+      let cpfsExcluir;
+      
+      // Lista de cpfs no banco de dados
+      if (cpfsBd) {
+        cpfsIncluir = cpfs.filter((cpf) => !cpfsBd.includes(cpf));
+      } else {
+        cpfsIncluir = cpfs;
+      }
+
+      if (cpfsBd) {
+        cpfsExcluir = cpfsBd.filter((cpf) => !cpfs.includes(cpf));
+      } else {
+        cpfsExcluir = [];
+      }
+
+      console.log(`cpfsIncluir: ${cpfsIncluir}`);
+      console.log(`cpfsExcluir: ${cpfsExcluir}`);
+
+      for (const cpf of cpfsIncluir) {
         let jsonEleitor = {
           cpfs: JSON.stringify([cpf]), // Enviando apenas um CPF por vez
           id_eleicao: `${this.uuidEleicao}`,
@@ -486,6 +512,29 @@ class Api {
         console.log(`Resposta para ${cpf}:`, response.data.message);
       }
 
+      for (const cpf of cpfsExcluir) {
+        let jsonEleitor = {
+          cpfs: JSON.stringify([cpf]), // Enviando apenas um CPF por vez
+          id_eleicao: `${this.uuidEleicao}`,
+        };
+
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(
+          this.publicKeySession,
+          jsonEleitor
+        );
+
+        console.log(`Enviando CPF: ${cpf}`);
+        console.log(`${encryptedData}`);
+
+        // Enviar a requisição para cada CPF individualmente
+        const response = await axios.delete(`${URL_BASE}/eleitores`, {
+          headers: { sessionid: this.sessionId },
+          data: { data: encryptedData }, // ✅ O dado deve ir no `data`
+        });
+
+        console.log(`Resposta para ${cpf}:`, response.data.message);
+      }
       return "Todos os eleitores foram processados com sucesso.";
     } catch (error) {
       if (error.response) {
@@ -502,7 +551,15 @@ class Api {
           "uuid-eleicao": `${this.uuidEleicao}`,
         },
       });
-      console.log(response.data);
+
+      // Obtendo os dados do corpo da resposta (body)
+      if (response.data) {
+        // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
+        this.cpfEleitoresAtual = new Set(
+          response.data.map((eleitor) => eleitor.cpf)
+        );
+        console.log(this.cpfEleitoresAtual);
+      }
       // Obtendo os dados do corpo da resposta (body)
       return response.data;
     } catch (error) {
@@ -559,6 +616,12 @@ class Api {
 
       console.log(response.data);
       // Obtendo os dados do corpo da resposta (body)
+      if (response.data) {
+        // Criar um conjunto (Set) para rápida verificação de CPFs já existentes
+        this.cpfCandidatosdAtual = new Set(
+          response.data.map((candidato) => candidato.cpf)
+        );
+      }
       return response.data;
     } catch (error) {
       alert(`Erro ao requisitar candidatos \r\n${error}`);

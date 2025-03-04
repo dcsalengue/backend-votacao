@@ -179,7 +179,6 @@ function criarDefinicaoEleitores(tipo, dadosEntrada, dadosSaida) {
   );
 
   botaoConfirmar.addEventListener("click", async () => {
-    
     const uls = saida.getElementsByTagName("ul");
     if (!saida) {
       console.error("Elemento 'saida' não encontrado.");
@@ -195,18 +194,18 @@ function criarDefinicaoEleitores(tipo, dadosEntrada, dadosSaida) {
           if (liIndex % 2 === 0) {
             cpfsSet.add(cpf);
           }
-          console.log(`UL ${ulIndex} - LI ${liIndex}: ${cpf}`);
+         //console.log(`UL ${ulIndex} - LI ${liIndex}: ${cpf}`);
         }
       });
     });
 
     const cpfs = Array.from(cpfsSet);
-    console.log(`botaoConfirmar `)
-    console.log(`${cpfs} `)
-    if(tipo === "eleitores")
+    console.log(`botaoConfirmar `);
+    console.log(`${cpfs} `);
+    if (tipo === "eleitores") 
         await api.criaEleitores(cpfs);
-    else
-    await api.criaCandidatos(cpfs);
+    else 
+        await api.criaCandidatos(cpfs);
   });
 
   containerLista.appendChild(entrada);
