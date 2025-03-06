@@ -78,6 +78,15 @@ const ui = {
       containerDadosMenu.appendChild(
         criarDefinicaoEleitores("candidatos", dadosFiltrados, dadosSaida)
       );
+    } else if (item.textContent === "Eleição") {
+      // Obtém lista com nomes e apelidos dos candidatos, vinculados a eleição selecionada
+      // Monta um radio select dos candidatos
+      // Insere atributo com o uuid do candidato na tabela de eleitores
+      // Insere atributo com a publicKey do candidato
+
+      containerDadosMenu.appendChild(await this.montaEleicao());
+
+      console.log("Eleição");
     } else if (item.textContent === "Resultado") {
       console.log("Resultado");
     }
@@ -279,5 +288,169 @@ const ui = {
       }
     });
   },
+
+  async montaEleicao() {
+    // Obtém lista com nomes e apelidos dos candidatos, vinculados a eleição selecionada
+    const candidatos = await api.listaCandidatos();
+    // Monta um radio select dos candidatos
+    console.log(candidatos);
+
+    const escolhaCandidatosContainer = document.createElement("div");
+    escolhaCandidatosContainer.classList.add(
+      "bg-white",
+      "shadow-lg",
+      "rounded-lg",
+      "p-6",
+      "w-80",
+      "gap-2"
+    );
+    escolhaCandidatosContainer.id = "escolha-candidatos-container";
+
+    const tituloCandidatosContainer = document.createElement("h2");
+    tituloCandidatosContainer.classList.add(
+      "text-xl",
+      "font-bold",
+      "text-gray-700",
+      "mb-4"
+    );
+    tituloCandidatosContainer.textContent = "Selecione um candidato:";
+
+    const radioContainer = document.createElement("div");
+    radioContainer.id = "radio-container";
+    radioContainer.classList.add("space-y-2");
+
+    const selectionContainer = document.createElement("div");
+    selectionContainer.id = "selection-container";
+    selectionContainer.classList.add("space-y-2");
+
+    escolhaCandidatosContainer.appendChild(tituloCandidatosContainer);
+    escolhaCandidatosContainer.appendChild(radioContainer);
+    escolhaCandidatosContainer.appendChild(selectionContainer);
+
+    this.montaRadioSelectEleicao(
+      escolhaCandidatosContainer,
+      selectionContainer,
+      candidatos
+    );
+
+    // Insere atributo com o uuid do candidato na tabela de eleitores
+    // Insere atributo com a publicKey do candidato
+
+    return escolhaCandidatosContainer;
+  },
+
+  montaRadioSelectEleicao(container, selectionContainer, candidatos) {
+
+    if (!container || !selectionContainer) {
+      console.error("Erro: Elemento não encontrado.");
+      return;
+    }
+
+    // 🔹 Criando dinamicamente o texto de seleção
+    const selectionText = document.createElement("p");
+    selectionText.classList.add("mt-4", "text-gray-600");
+    selectionText.textContent = "Candidato selecionado: ";
+
+    const selectedOptionText = document.createElement("strong");
+    selectedOptionText.id = "selected-option";
+    selectedOptionText.classList.add("text-blue-600");
+    selectedOptionText.textContent = "Nenhuma";
+
+    selectionText.appendChild(selectedOptionText);
+
+    selectionContainer.appendChild(selectionText);
+
+    candidatos.forEach((candidato, index) => {
+      const div = document.createElement("div");
+      div.classList.add(
+        "flex",
+        "items-center",
+        "p-2",
+        "m-2",
+        "bg-gray-100",
+        "rounded-lg",
+        "cursor-pointer",
+        "hover:bg-gray-200"
+      );
+
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "opcao";
+      input.value = candidato.cpf;
+      input.id = `opcao${index}`;
+      input.classList.add("hidden");
+
+      const label = document.createElement("label");
+      label.htmlFor = `opcao${index}`;
+      label.classList.add(
+        "flex",
+        "items-center",
+        "cursor-pointer",
+        "w-full",
+        "p-2"
+      );
+      label.innerHTML = `
+                <div class="w-5 h-5 mr-2 border-2 border-gray-400 rounded-full flex justify-center items-center">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full opacity-0 transition-opacity duration-200"></div>
+                </div>
+                <span class="text-gray-700">${candidato.nome}</span>
+            `;
+
+      input.addEventListener("change", () => {
+        ;
+        if (selectedOptionText) {
+          selectedOptionText.textContent = candidato.nome;
+          selectedOptionText.setAttribute("id_eleitor", candidato.id_eleitor )
+          selectedOptionText.setAttribute("publicKey", candidato.publicKey )
+        }
+
+        document.querySelectorAll('input[name="opcao"]').forEach((radio) => {
+          radio.nextElementSibling
+            .querySelector("div div")
+            .classList.add("opacity-0");
+        });
+
+        label.querySelector("div div").classList.remove("opacity-0");
+      });
+
+      div.appendChild(input);
+      div.appendChild(label);
+      container.appendChild(div);
+    });
+    //});
+  },
+  //   montaRadioSelectEleicao(container, candidatos){
+  //     // Opções do Radio
+  //     const opcoes = candidatos;
+  //    // const container = document.getElementById("radio-container");
+
+  //     // Criar os botões de rádio dinamicamente
+  //     opcoes.forEach((opcao, index) => {
+  //         const div = document.createElement("div");
+  //         div.classList.add("flex", "items-center", "p-2", "bg-gray-100", "rounded-lg", "cursor-pointer", "hover:bg-gray-200");
+
+  //         const input = document.createElement("input");
+  //         input.type = "radio";
+  //         input.name = "opcao";
+  //         input.value = opcao.cpf;
+  //         input.id = `opcao${index}`;
+  //         input.setAttribute("id_eleitor", opcao.id_eleitor)
+  //         input.setAttribute("publicKey", opcao.publicKey)
+  //         input.classList.add("p-2")
+
+  //         const label = document.createElement("label");
+  //         label.htmlFor = `opcao${index}`;
+  //         label.textContent = opcao.nome;
+
+  //         // Adiciona evento para capturar seleção
+  //         input.addEventListener("change", () => {
+  //             document.getElementById("selected-option").textContent = opcao;
+  //         });
+
+  //         div.appendChild(input);
+  //         div.appendChild(label);
+  //         container.appendChild(div);
+  //     });
+  //   }
 };
 export default ui;

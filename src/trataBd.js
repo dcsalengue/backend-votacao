@@ -632,7 +632,7 @@ const bd = {
     let candidatos = null;
     try {
       const result = await prisma.$queryRaw`
-                    SELECT u."nome", u."cpf" 
+                    SELECT u."nome", u."cpf", u."publicKey", c."id_eleitor"
                     FROM "eleitores" e
                     JOIN "candidatos" c ON e."id" = c."id_eleitor"
                     JOIN "usuarios" u ON e."cpf" = u."cpf"
