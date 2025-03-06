@@ -3,6 +3,7 @@ import api from "./api.js";
 import htmlPermissao1DadosVotacao from "./html-permissao1-dados-eleicao.js";
 import htmlPermissao1CriarEleicao from "./html-permissao1-criar-eleicao.js";
 import criarDefinicaoEleitores from "./definirEleitores.js";
+import criptografia from "./cripto.js";
 // Colocar aqui as funções que comunicam com o DOM html
 
 const ui = {
@@ -290,11 +291,11 @@ const ui = {
   },
 
   async montaEleicao() {
-    // Obtém lista com nomes e apelidos dos candidatos, vinculados a eleição selecionada
+    // Obtém lista com nomes e apelidos dos candidatos, vinculados à eleição selecionada
     const candidatos = await api.listaCandidatos();
-    // Monta um radio select dos candidatos
     console.log(candidatos);
 
+    // Criação do container principal
     const escolhaCandidatosContainer = document.createElement("div");
     escolhaCandidatosContainer.classList.add(
       "bg-white",
@@ -306,6 +307,7 @@ const ui = {
     );
     escolhaCandidatosContainer.id = "escolha-candidatos-container";
 
+    // Título
     const tituloCandidatosContainer = document.createElement("h2");
     tituloCandidatosContainer.classList.add(
       "text-xl",
@@ -315,6 +317,7 @@ const ui = {
     );
     tituloCandidatosContainer.textContent = "Selecione um candidato:";
 
+    // Containers para os radios e seleção
     const radioContainer = document.createElement("div");
     radioContainer.id = "radio-container";
     radioContainer.classList.add("space-y-2");
@@ -323,24 +326,73 @@ const ui = {
     selectionContainer.id = "selection-container";
     selectionContainer.classList.add("space-y-2");
 
+    // Adicionando os elementos ao container principal
     escolhaCandidatosContainer.appendChild(tituloCandidatosContainer);
     escolhaCandidatosContainer.appendChild(radioContainer);
     escolhaCandidatosContainer.appendChild(selectionContainer);
 
+    // Criar os radio buttons
     this.montaRadioSelectEleicao(
       escolhaCandidatosContainer,
       selectionContainer,
       candidatos
     );
 
-    // Insere atributo com o uuid do candidato na tabela de eleitores
-    // Insere atributo com a publicKey do candidato
+    // Criar botão de votação
+    const botaoVotar = document.createElement("button");
+    botaoVotar.id = "botao-votar";
+    botaoVotar.textContent = "Votar";
+    botaoVotar.classList.add(
+      "bg-blue-500",
+      "text-white",
+      "px-4",
+      "py-2",
+      "rounded",
+      "mt-4",
+      "hover:bg-blue-700",
+      "transition"
+    );
+
+    // ✅ Correção do `onclick`
+    botaoVotar.addEventListener("click", async function () {
+      const candidato = document.getElementById("selected-option");
+      if (!candidato) {
+        console.error("Nenhum candidato selecionado!");
+        return;
+      }
+
+      const pbKeyCandidato = candidato.getAttribute("publicKey");
+      const horaDoVoto = new Date(); // ✅ Agora é definido antes de ser usado
+
+      try {
+        // Criptografando os dados
+        const encryptedData = await criptografia.encryptUserData(pbKeyCandidato, {
+          timestamp: horaDoVoto,
+          id_candidato: candidato.getAttribute("id_eleitor"),
+          nome_candidato: candidato.textContent,
+        });
+
+        const voto = {
+          timestamp: horaDoVoto,
+          id_candidato: candidato.getAttribute("id_eleitor"),
+          nome_candidato: candidato.textContent,
+          encryptedData: encryptedData,
+        };
+
+        console.log("Voto registrado:", voto);
+      } catch (error) {
+        console.error("Erro ao processar o voto:", error);
+      }
+    });
+
+    // Adiciona o botão ao container principal
+    escolhaCandidatosContainer.appendChild(botaoVotar);
 
     return escolhaCandidatosContainer;
-  },
+},
+
 
   montaRadioSelectEleicao(container, selectionContainer, candidatos) {
-
     if (!container || !selectionContainer) {
       console.error("Erro: Elemento não encontrado.");
       return;
@@ -397,11 +449,12 @@ const ui = {
             `;
 
       input.addEventListener("change", () => {
-        ;
         if (selectedOptionText) {
           selectedOptionText.textContent = candidato.nome;
-          selectedOptionText.setAttribute("id_eleitor", candidato.id_eleitor )
-          selectedOptionText.setAttribute("publicKey", candidato.publicKey )
+          // Insere atributo com o uuid do candidato na tabela de eleitores
+          // Insere atributo com a publicKey do candidato
+          selectedOptionText.setAttribute("id_eleitor", candidato.id_eleitor);
+          selectedOptionText.setAttribute("publicKey", candidato.publicKey);
         }
 
         document.querySelectorAll('input[name="opcao"]').forEach((radio) => {
@@ -417,40 +470,6 @@ const ui = {
       div.appendChild(label);
       container.appendChild(div);
     });
-    //});
   },
-  //   montaRadioSelectEleicao(container, candidatos){
-  //     // Opções do Radio
-  //     const opcoes = candidatos;
-  //    // const container = document.getElementById("radio-container");
-
-  //     // Criar os botões de rádio dinamicamente
-  //     opcoes.forEach((opcao, index) => {
-  //         const div = document.createElement("div");
-  //         div.classList.add("flex", "items-center", "p-2", "bg-gray-100", "rounded-lg", "cursor-pointer", "hover:bg-gray-200");
-
-  //         const input = document.createElement("input");
-  //         input.type = "radio";
-  //         input.name = "opcao";
-  //         input.value = opcao.cpf;
-  //         input.id = `opcao${index}`;
-  //         input.setAttribute("id_eleitor", opcao.id_eleitor)
-  //         input.setAttribute("publicKey", opcao.publicKey)
-  //         input.classList.add("p-2")
-
-  //         const label = document.createElement("label");
-  //         label.htmlFor = `opcao${index}`;
-  //         label.textContent = opcao.nome;
-
-  //         // Adiciona evento para capturar seleção
-  //         input.addEventListener("change", () => {
-  //             document.getElementById("selected-option").textContent = opcao;
-  //         });
-
-  //         div.appendChild(input);
-  //         div.appendChild(label);
-  //         container.appendChild(div);
-  //     });
-  //   }
 };
 export default ui;
