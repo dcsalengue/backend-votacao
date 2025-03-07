@@ -471,7 +471,7 @@ class Api {
       console.log(`bd cpfs: ${cpfsBd}`);
       let cpfsIncluir;
       let cpfsExcluir;
-      
+
       // Lista de cpfs no banco de dados
       if (cpfsBd) {
         cpfsIncluir = cpfs.filter((cpf) => !cpfsBd.includes(cpf));
@@ -626,6 +626,27 @@ class Api {
     } catch (error) {
       alert(`Erro ao requisitar candidatos \r\n${error}`);
       throw error;
+    }
+  }
+
+  async votar(voto) {
+    try {
+      console.log(voto);
+      // 📡 Enviar requisição para o servidor
+      const response = await axios.post(`${URL_BASE}/votar`, {
+        voto: voto,
+        id_eleicao: this.uuidEleicao,
+        sessionId: this.sessionId,
+      });
+
+      console.log("✅ Voto enviado com sucesso:", response.data);
+      return response.data; // Retornar para uso no chamador
+    } catch (error) {
+      console.error(
+        "❌ Erro ao enviar o voto:",
+        error.response?.data || error.message
+      );
+      return { success: false, error: error.message }; // Retorno seguro
     }
   }
 

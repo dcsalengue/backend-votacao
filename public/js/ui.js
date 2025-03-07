@@ -366,19 +366,31 @@ const ui = {
 
       try {
         // Criptografando os dados
-        const encryptedData = await criptografia.encryptUserData(pbKeyCandidato, {
+        
+        const encryptedDataCandidato = await criptografia.encryptUserData(pbKeyCandidato, {
           timestamp: horaDoVoto,
           id_candidato: candidato.getAttribute("id_eleitor"),
           nome_candidato: candidato.textContent,
         });
 
+        const encrypteSessiondData = await criptografia.encryptUserData(api.publicKeySession, {
+            timestamp: horaDoVoto,
+            id_candidato: candidato.getAttribute("id_eleitor"),
+            nome_candidato: candidato.textContent,
+          });
+        // const voto = {
+        //   timestamp: horaDoVoto,
+        //   id_candidato: candidato.getAttribute("id_eleitor"),
+        //   nome_candidato: candidato.textContent,
+        //   encryptedData: encryptedData,
+        // };
+
         const voto = {
-          timestamp: horaDoVoto,
-          id_candidato: candidato.getAttribute("id_eleitor"),
-          nome_candidato: candidato.textContent,
-          encryptedData: encryptedData,
+          votoPublico: encrypteSessiondData,
+          votoCandidato: encryptedDataCandidato
         };
 
+        await api.votar(voto)
         console.log("Voto registrado:", voto);
       } catch (error) {
         console.error("Erro ao processar o voto:", error);

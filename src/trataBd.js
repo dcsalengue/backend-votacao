@@ -274,7 +274,7 @@ const bd = {
         console.log("Session ID inválido");
         return null;
       }
-      console.log(`mPrivateKeyDeSessao ${sessionId}`);
+      console.log(`PrivateKeyDeSessao ${sessionId}`);
       const result = await prisma.$queryRaw`
                     SELECT "privateKey" 
                     FROM "sessoes"
@@ -434,51 +434,45 @@ const bd = {
 
   async excluirEleitor(cpfsExcluir, id_eleicao) {
     if (typeof cpfsExcluir === "string") {
-        try {
-            cpfsExcluir = JSON.parse(cpfsExcluir);
-        } catch (error) {
-            console.error("Erro ao parsear cpfsExcluir:", error);
-            return;
-        }
+      try {
+        cpfsExcluir = JSON.parse(cpfsExcluir);
+      } catch (error) {
+        console.error("Erro ao parsear cpfsExcluir:", error);
+        return;
+      }
     }
     console.log(`excluirEleitores ${cpfsExcluir} | ${id_eleicao}`);
-    
-    const cpf = cpfsExcluir[0]
-    //for (const cpf of cpfsExcluir) {
-      try {
-        console.log(
-          `CPF: ${JSON.stringify(cpfsExcluir)} (tipo: ${typeof cpf})`
-        );
-        console.log(
-            `CPF: ${JSON.stringify(cpf)} (tipo: ${typeof cpf})`
-          );
-        console.log(`ID Eleição: ${id_eleicao} (tipo: ${typeof id_eleicao})`);
 
-        // Verifica se o CPF existe no banco antes de deletar
-        const existe = await prisma.$queryRaw`
+    const cpf = cpfsExcluir[0];
+    //for (const cpf of cpfsExcluir) {
+    try {
+      console.log(`CPF: ${JSON.stringify(cpfsExcluir)} (tipo: ${typeof cpf})`);
+      console.log(`CPF: ${JSON.stringify(cpf)} (tipo: ${typeof cpf})`);
+      console.log(`ID Eleição: ${id_eleicao} (tipo: ${typeof id_eleicao})`);
+
+      // Verifica se o CPF existe no banco antes de deletar
+      const existe = await prisma.$queryRaw`
                 SELECT * FROM "eleitores" 
                 WHERE "cpf" = ${cpf}
                 AND "id_eleicao" = CAST(${id_eleicao} AS UUID)
             `;
 
-        if (existe.length === 0) {
-          console.log(
-            `CPF ${cpf} não encontrado na eleição ${id_eleicao}`
-          );
-        } else {
-          console.log(`CPF ${cpf} encontrado! Deletando...`);
+      if (existe.length === 0) {
+        console.log(`CPF ${cpf} não encontrado na eleição ${id_eleicao}`);
+      } else {
+        console.log(`CPF ${cpf} encontrado! Deletando...`);
 
-          const result = await prisma.$executeRaw`
+        const result = await prisma.$executeRaw`
                     DELETE FROM "eleitores" 
                     WHERE "cpf" = ${cpf}
                     AND "id_eleicao" = CAST(${id_eleicao} AS UUID)
                 `;
-          console.log(`Eleitor removido: ${cpf} [${result}]`);
-        }
-      } catch (error) {
-        console.error(`Erro ao remover eleitor ${cpf}:`, error);
+        console.log(`Eleitor removido: ${cpf} [${result}]`);
       }
-   // }
+    } catch (error) {
+      console.error(`Erro ao remover eleitor ${cpf}:`, error);
+    }
+    // }
   },
 
   async criaEleitores(cpfs, id_eleicao) {
@@ -652,6 +646,40 @@ const bd = {
       await prisma.$disconnect();
     }
     return candidatos;
+  },
+
+  async obtemPrivateKeyCandidato(id_candidato) {
+    try {
+      const result = await prisma.$queryRaw`
+            SELECT u."privateKey" 
+            FROM "usuarios" u
+            JOIN "eleitores" e ON e."cpf" = u."cpf"
+            JOIN "candidatos" c ON c."id_eleitor" = e."id"
+            WHERE c."id_eleitor" = CAST(${id_candidato} AS UUID)
+        `;
+
+      if (result.length > 0) {
+        console.log(
+          "✅ Private Key encontrada para o candidato:",
+          id_candidato
+        );
+        return result[0].privateKey;
+      } else {
+        console.warn(
+          "⚠️ Nenhuma chave privada encontrada para esse candidato:",
+          id_candidato
+        );
+        return null;
+      }
+    } catch (error) {
+      console.error("❌ Erro ao buscar privateKey do candidato:", error);
+      return null;
+    }
+  },
+
+  async votar(voto) {
+    console.log("bd.votar");
+    console.log(voto);
   },
 };
 
