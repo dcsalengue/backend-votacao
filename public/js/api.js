@@ -630,6 +630,7 @@ class Api {
   }
 
   async votar(voto) {
+    
     try {
       console.log(voto);
       // 📡 Enviar requisição para o servidor

@@ -24,8 +24,8 @@ async function htmlPermissao1DadosEleicao(dados) {
         return container;
     };
 
-console.log(dados)
-    const { titulo, descricao, cnpj, data_inicio, data_fim } = dados[0]
+    console.log(dados)
+    const { titulo, descricao, cnpj, data_inicio, data_fim } = dados
 
     console.log("Dados recebidos:", dados);
     console.log("Título:", titulo);

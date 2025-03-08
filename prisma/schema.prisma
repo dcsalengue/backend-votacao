@@ -33,14 +33,14 @@ model eleicoes {
   titulo      String?
   descricao   String?
   cnpj        String?
-  data_inicio DateTime? @db.Date
-  data_fim    DateTime? @db.Date
+  data_inicio DateTime? @db.Timestamptz(6)
+  data_fim    DateTime? @db.Timestamptz(6)
   created_at  String?
 }
 
 model eleitores {
   id         String @id @db.Uuid
-  cpf        String @unique
+  cpf        String
   id_eleicao String @db.Uuid
   permissao  Int?   @db.SmallInt
   saldo      Int?   @db.SmallInt
@@ -52,7 +52,10 @@ model candidatos {
   votos      Int?    @default(0)
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model urna {
-  uuid_eleicao String @id @db.Uuid
+  uuid_eleicao String @db.Uuid
   voto         String
+
+  @@ignore
 }

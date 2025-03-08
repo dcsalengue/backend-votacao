@@ -135,7 +135,7 @@ app.put("/updatepermissao", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -204,7 +204,7 @@ app.put("/eleicao", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -280,6 +280,7 @@ app.get("/dadoseleicoes", async (req, res) => {
   const uuid = req.headers["uuid"];
   console.log(`dadoseleicoes ${uuid}`);
   const result = await bd.obtemDadosEleicao(uuid);
+  console.log(`${JSON.stringify(result)}`)
   res.json(result);
 });
 
@@ -290,7 +291,7 @@ app.post("/usuarios", async (req, res) => {
 
     console.log(sessionId);
     // Recupera a chave privada da sessão a partir do sessionId
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
 
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -332,7 +333,7 @@ app.post("/pagina", async (req, res) => {
   const { sessionId } = req.body;
 
   try {
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
 
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -424,7 +425,7 @@ app.post("/login", async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -487,7 +488,7 @@ app.post("/eleitores", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -525,7 +526,7 @@ app.delete("/eleitores", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
     }
@@ -589,7 +590,7 @@ app.post("/candidatos", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -629,36 +630,73 @@ app.post("/votar", async (req, res) => {
       return res.status(400).json({ error: "❌ Dados inválidos." });
     }
 
-   // ++++++ +Proteger pelo sessionId caso o eleitor já tenha votado ou caso não esteja cadas trado como eleitor dessa eleição 
+    // ++++++ +Proteger pelo sessionId caso o eleitor já tenha votado ou caso não esteja cadas trado como eleitor dessa eleição
+    // Verificar se A data e hora é permitida para votar
+    const { data_inicio, data_fim } = await bd.obtemDadosEleicao(id_eleicao);
+
+    
+    const dataAtual = new Date();
+
+    console.log(`data_inicio: ${data_inicio}`);
+    console.log(`dataAtual: ${dataAtual}`);
+    console.log(`data_fim: ${data_fim}`);
+    const eleicaoValida =
+      dataAtual < data_inicio
+        ? "não iniciada"
+        : dataAtual > data_fim
+        ? "finalizado"
+        : "Em andamento";
+    console.log(eleicaoValida);
+
+    if (eleicaoValida != "Em andamento") {
+      return res.status(403).json({ error: `❌ Eleição ${eleicaoValida}.` });
+      // Inserir o status na tabela de eleição
+    }
+
+
 
     console.log(`📩 Recebendo voto para eleição ${id_eleicao}`);
 
     // Obtém a chave privada da sessão
-    const privateKey = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const {privateKey, cpf} = await bd.obtemPrivateKeyDeSessao(sessionId);
     if (!privateKey) {
       return res.status(400).json({ error: "❌ Sessão inválida ou expirou." });
     }
 
+    console.log(cpf)
     console.log(`🔑 Chave privada obtida para sessão ${sessionId}`);
 
     // ⚠️ Verifica se o voto já é uma string Base64 antes de chamar JSON.stringify()
-    const votoCriptografado = typeof voto.votoPublico === "string" 
-      ? voto.votoPublico 
-      : JSON.stringify(voto.votoPublico);
+    const votoCriptografado =
+      typeof voto.votoPublico === "string"
+        ? voto.votoPublico
+        : JSON.stringify(voto.votoPublico);
 
     console.log(`🔐 Tentando descriptografar voto...`);
-    let decryptedData = await cripto.descriptografar(votoCriptografado, privateKey);
-    
+    let decryptedData = await cripto.descriptografar(
+      votoCriptografado,
+      privateKey
+    );
+
     console.log(`✅ Dados descriptografados:`, decryptedData);
 
     try {
       decryptedData = JSON.parse(decryptedData);
     } catch (parseError) {
-      console.error("❌ Erro ao converter os dados descriptografados para JSON:", parseError);
-      return res.status(400).json({ error: "Erro ao processar os dados descriptografados." });
+      console.error(
+        "❌ Erro ao converter os dados descriptografados para JSON:",
+        parseError
+      );
+      return res
+        .status(400)
+        .json({ error: "Erro ao processar os dados descriptografados." });
     }
 
-    if (!decryptedData.id_candidato || !decryptedData.timestamp || !decryptedData.nome_candidato) {
+    if (
+      !decryptedData.id_candidato ||
+      !decryptedData.timestamp ||
+      !decryptedData.nome_candidato
+    ) {
       return res.status(400).json({ error: "❌ Dados do voto incompletos." });
     }
 
@@ -673,21 +711,32 @@ app.post("/votar", async (req, res) => {
     console.log("📌 Voto decifrado:", jsonVoto);
 
     // Obtém a chave privada do candidato
-    const pvtKeyCandidato = await bd.obtemPrivateKeyCandidato(jsonVoto.id_candidato);
+    const pvtKeyCandidato = await bd.obtemPrivateKeyCandidato(
+      jsonVoto.id_candidato
+    );
     if (!pvtKeyCandidato) {
-      return res.status(400).json({ error: "❌ Chave privada do candidato não encontrada." });
+      return res
+        .status(400)
+        .json({ error: "❌ Chave privada do candidato não encontrada." });
     }
 
-    console.log(`🔑 Chave privada do candidato ${jsonVoto.id_candidato} obtida.`);
+    console.log(
+      `🔑 Chave privada do candidato ${jsonVoto.id_candidato} obtida.`
+    );
 
     console.log(`🔄 Tentando descriptografar o voto do candidato...`);
     let votoCandidato;
     try {
-      votoCandidato = await cripto.descriptografar(voto.votoCandidato, pvtKeyCandidato);
+      votoCandidato = await cripto.descriptografar(
+        voto.votoCandidato,
+        pvtKeyCandidato
+      );
       votoCandidato = JSON.parse(votoCandidato); // Garante que é um objeto
     } catch (error) {
       console.error("❌ Erro ao descriptografar o voto do candidato:", error);
-      return res.status(400).json({ error: "Erro ao validar o voto do candidato." });
+      return res
+        .status(400)
+        .json({ error: "Erro ao validar o voto do candidato." });
     }
 
     console.log(`✅ Voto do candidato descriptografado:`, votoCandidato);
@@ -704,20 +753,17 @@ app.post("/votar", async (req, res) => {
       return res.status(400).json({ error: "❌ Voto inválido ou adulterado." });
     }
 
-
     // Pela sessionId deve verificar se o eleitor já votou ou se está cadastraddo como eleitor dessa eleição
     // ✅ Insere o voto no banco
     await bd.votar(jsonVoto);
 
     console.log(`🗳️ Voto registrado com sucesso!`);
     res.json({ message: "✅ Voto enviado para a urna." });
-
   } catch (error) {
     console.error("❌ Erro ao processar o voto:", error);
     res.status(500).json({ error: "Erro no servidor ao registrar o voto." });
   }
 });
-
 
 // app.get("/favicon.ico", (req, res) => res.status(204));
 

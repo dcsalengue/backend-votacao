@@ -162,10 +162,7 @@ const bd = {
       const uuid = uuidv4();
       const { titulo, descricao, cnpj, dataInicio, dataFim } = dadosEleicao;
 
-      const dataInicioFormatada = new Date(dataInicio)
-        .toISOString()
-        .split("T")[0];
-      const dataFimFormatada = new Date(dataFim).toISOString().split("T")[0];
+    
       console.log(cnpj);
       await prisma.$executeRaw`
         INSERT INTO "eleicoes" 
@@ -183,8 +180,8 @@ const bd = {
             ${titulo}, 
             ${descricao},
             ${cnpj}, 
-            ${dataInicioFormatada}::DATE,
-            ${dataFimFormatada}::DATE,
+            ${dataInicio}::TIMESTAMP,
+            ${dataFim}::TIMESTAMP,
             NOW())
     `;
 
@@ -239,18 +236,20 @@ const bd = {
 
       if (result.length > 0) {
         console.log(`(${result.length})Usuário encontrado:`);
-        console.log(`${JSON.stringify(result)}`);
-        dadosEleicao = result;
+        dadosEleicao = result[0];
+        console.log(`bd ln241 - ${JSON.stringify(dadosEleicao)}`)
       } else {
         console.log("Nenhuma eleição encontrada.");
         dadosEleicao = null;
       }
-    } catch (error) {
-      console.error("Erro ao buscar privateKey:", error);
-    } finally {
       await prisma.$disconnect();
       return dadosEleicao;
-    }
+    } catch (error) {
+      console.error("Erro ao buscar privateKey:", error);
+      await prisma.$disconnect();
+      return null;
+    } 
+    
   },
 
   async excluirSessao(sessionId) {
@@ -276,7 +275,7 @@ const bd = {
       }
       console.log(`PrivateKeyDeSessao ${sessionId}`);
       const result = await prisma.$queryRaw`
-                    SELECT "privateKey" 
+                    SELECT "privateKey" , "cpf"
                     FROM "sessoes"
                     WHERE "sessionId" =  CAST(${sessionId} AS UUID)
                 `;
@@ -285,8 +284,11 @@ const bd = {
         console.log("Private Key encontrada");
         // Se a sessão ainda existir marca o modifiedAt com o now
 
+        console.log(`bd ln 285 -  ${JSON.stringify(result[0])}`)
         await this.refreshSessao(sessionId);
-        return result[0].privateKey;
+        //return result[0].privateKey;
+        //return { privateKey: result.privateKey, cpf: result.cpf };
+        return result[0]
       } else {
         console.log("Nenhuma sessão encontrada para esse ID.");
         return null;
@@ -500,7 +502,7 @@ const bd = {
                             ${cpf}, 
                             ${id_eleicao}::uuid,
                             2, 
-                            0)
+                            1)
                 `;
           console.log("Eleitor criado:", cpf);
         } catch (error) {
@@ -548,6 +550,8 @@ const bd = {
     }
     return eleitores;
   },
+
+
 
   async criaCandidatos(cpfs, id_eleicao) {
     try {
