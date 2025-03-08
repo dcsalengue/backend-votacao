@@ -629,6 +629,8 @@ app.post("/votar", async (req, res) => {
       return res.status(400).json({ error: "❌ Dados inválidos." });
     }
 
+   // ++++++ +Proteger pelo sessionId caso o eleitor já tenha votado ou caso não esteja cadas trado como eleitor dessa eleição 
+
     console.log(`📩 Recebendo voto para eleição ${id_eleicao}`);
 
     // Obtém a chave privada da sessão
@@ -661,6 +663,7 @@ app.post("/votar", async (req, res) => {
     }
 
     const jsonVoto = {
+      id_eleicao: id_eleicao,
       timestamp: decryptedData.timestamp,
       id_candidato: decryptedData.id_candidato,
       nome_candidato: decryptedData.nome_candidato,
@@ -701,6 +704,8 @@ app.post("/votar", async (req, res) => {
       return res.status(400).json({ error: "❌ Voto inválido ou adulterado." });
     }
 
+
+    // Pela sessionId deve verificar se o eleitor já votou ou se está cadastraddo como eleitor dessa eleição
     // ✅ Insere o voto no banco
     await bd.votar(jsonVoto);
 

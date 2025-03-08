@@ -677,9 +677,32 @@ const bd = {
     }
   },
 
-  async votar(voto) {
-    console.log("bd.votar");
-    console.log(voto);
+  async votar(dado) {
+    console.log("🗳️ Registrando voto na urna...");
+    console.log(dado);
+
+    const voto = {
+        timestamp: dado.timestamp,
+        id_candidato: dado.id_candidato,
+        nome_candidato: dado.nome_candidato ,
+        voto_candidato: dado.voto_candidato  
+    }
+    try {
+      await prisma.$executeRaw`
+        INSERT INTO "urna" (
+            "uuid_eleicao", 
+            "voto") 
+        VALUES (
+            CAST(${dado.id_eleicao} AS UUID),
+            ${JSON.stringify(voto)})`;
+      await prisma.$disconnect(); // Fecha conexão corretamente
+      console.log("✅ Voto incluído na urna!");
+      return { success: true, message: "Voto incluído na urna" };
+    } catch (error) {
+        await prisma.$disconnect(); // Fecha conexão corretamente
+      console.error("❌ Erro ao votar:", error);
+      return { success: false, error: "Erro ao registrar voto" };
+    }
   },
 };
 

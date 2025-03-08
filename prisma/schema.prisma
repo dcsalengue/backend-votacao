@@ -51,3 +51,8 @@ model candidatos {
   apelido    String?
   votos      Int?    @default(0)
 }
+
+model urna {
+  uuid_eleicao String @id @db.Uuid
+  voto         String
+}
