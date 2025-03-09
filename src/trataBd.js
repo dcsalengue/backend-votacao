@@ -162,7 +162,6 @@ const bd = {
       const uuid = uuidv4();
       const { titulo, descricao, cnpj, dataInicio, dataFim } = dadosEleicao;
 
-    
       console.log(cnpj);
       await prisma.$executeRaw`
         INSERT INTO "eleicoes" 
@@ -237,7 +236,7 @@ const bd = {
       if (result.length > 0) {
         console.log(`(${result.length})Usuário encontrado:`);
         dadosEleicao = result[0];
-        console.log(`bd ln241 - ${JSON.stringify(dadosEleicao)}`)
+        console.log(`bd ln241 - ${JSON.stringify(dadosEleicao)}`);
       } else {
         console.log("Nenhuma eleição encontrada.");
         dadosEleicao = null;
@@ -248,8 +247,7 @@ const bd = {
       console.error("Erro ao buscar privateKey:", error);
       await prisma.$disconnect();
       return null;
-    } 
-    
+    }
   },
 
   async excluirSessao(sessionId) {
@@ -284,11 +282,11 @@ const bd = {
         console.log("Private Key encontrada");
         // Se a sessão ainda existir marca o modifiedAt com o now
 
-        console.log(`bd ln 285 -  ${JSON.stringify(result[0])}`)
+        console.log(`bd ln 285 -  ${JSON.stringify(result[0])}`);
         await this.refreshSessao(sessionId);
         //return result[0].privateKey;
         //return { privateKey: result.privateKey, cpf: result.cpf };
-        return result[0]
+        return result[0];
       } else {
         console.log("Nenhuma sessão encontrada para esse ID.");
         return null;
@@ -551,8 +549,6 @@ const bd = {
     return eleitores;
   },
 
-
-
   async criaCandidatos(cpfs, id_eleicao) {
     try {
       // Se cpfs for uma string JSON, fazer o parse
@@ -681,16 +677,54 @@ const bd = {
     }
   },
 
+  async obtemSaldoEleitor(idEleicao, cpf) {
+    try {
+        
+        const saldoEleitor = await prisma.$queryRaw`
+            SELECT e."saldo" 
+            FROM "eleitores" e
+            WHERE e."id_eleicao" = CAST(${idEleicao} AS UUID)
+            AND  e."cpf" = ${cpf}
+        `;
+        console.log(`bd ln 689 saldoEleitor - ${JSON.stringify(saldoEleitor)}`)
+        await prisma.$disconnect(); // Fecha conexão corretamente
+        return saldoEleitor[0]
+    } catch (error) {
+        console.log (error)
+       return  0
+    }
+
+  },
+
+  async atualizaSaldoEleitor(idEleicao, cpf, saldoAtual) {
+    try {
+        const result = await prisma.$executeRaw`
+            UPDATE "eleitores" 
+            SET "saldo" = ${saldoAtual-1} 
+            WHERE "id_eleicao" = CAST(${idEleicao} AS UUID)
+            AND  "cpf" = ${cpf}
+              `;
+        console.log(`Saldo do eleitor decrementado`  );
+        return result;
+      } catch (error) {
+        console.error(`Não alterou saldo do eleitor :${error}`);
+      }
+    },
+
+  async obtemVotosCandidato() {},
+
+  async adicionaVotoCandidato() {},
+
   async votar(dado) {
     console.log("🗳️ Registrando voto na urna...");
     console.log(dado);
 
     const voto = {
-        timestamp: dado.timestamp,
-        id_candidato: dado.id_candidato,
-        nome_candidato: dado.nome_candidato ,
-        voto_candidato: dado.voto_candidato  
-    }
+      timestamp: dado.timestamp,
+      id_candidato: dado.id_candidato,
+      nome_candidato: dado.nome_candidato,
+      voto_candidato: dado.voto_candidato,
+    };
     try {
       await prisma.$executeRaw`
         INSERT INTO "urna" (
@@ -699,11 +733,20 @@ const bd = {
         VALUES (
             CAST(${dado.id_eleicao} AS UUID),
             ${JSON.stringify(voto)})`;
+
+      // Atualiza saldo do eleitor
+      await prisma.$executeRaw`
+            INSERT INTO "urna" (
+                "uuid_eleicao", 
+                "voto") 
+            VALUES (
+                CAST(${dado.id_eleicao} AS UUID),
+                ${JSON.stringify(voto)})`;
       await prisma.$disconnect(); // Fecha conexão corretamente
       console.log("✅ Voto incluído na urna!");
       return { success: true, message: "Voto incluído na urna" };
     } catch (error) {
-        await prisma.$disconnect(); // Fecha conexão corretamente
+      await prisma.$disconnect(); // Fecha conexão corretamente
       console.error("❌ Erro ao votar:", error);
       return { success: false, error: "Erro ao registrar voto" };
     }

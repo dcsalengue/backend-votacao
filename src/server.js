@@ -135,7 +135,7 @@ app.put("/updatepermissao", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -204,7 +204,7 @@ app.put("/eleicao", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -280,7 +280,7 @@ app.get("/dadoseleicoes", async (req, res) => {
   const uuid = req.headers["uuid"];
   console.log(`dadoseleicoes ${uuid}`);
   const result = await bd.obtemDadosEleicao(uuid);
-  console.log(`${JSON.stringify(result)}`)
+  console.log(`${JSON.stringify(result)}`);
   res.json(result);
 });
 
@@ -291,7 +291,7 @@ app.post("/usuarios", async (req, res) => {
 
     console.log(sessionId);
     // Recupera a chave privada da sessão a partir do sessionId
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
 
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -333,7 +333,7 @@ app.post("/pagina", async (req, res) => {
   const { sessionId } = req.body;
 
   try {
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
 
     // Verifica se a sessão é válida
     if (!privateKey) {
@@ -425,7 +425,7 @@ app.post("/login", async (req, res) => {
   try {
     const { data, sessionId } = req.body;
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -488,7 +488,7 @@ app.post("/eleitores", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -526,7 +526,7 @@ app.delete("/eleitores", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
     }
@@ -590,7 +590,7 @@ app.post("/candidatos", async (req, res) => {
       return res.status(403).json({ error: "Não autorizado." });
     }
 
-    const {privateKey} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
@@ -634,7 +634,6 @@ app.post("/votar", async (req, res) => {
     // Verificar se A data e hora é permitida para votar
     const { data_inicio, data_fim } = await bd.obtemDadosEleicao(id_eleicao);
 
-    
     const dataAtual = new Date();
 
     console.log(`data_inicio: ${data_inicio}`);
@@ -653,18 +652,24 @@ app.post("/votar", async (req, res) => {
       // Inserir o status na tabela de eleição
     }
 
-
-
     console.log(`📩 Recebendo voto para eleição ${id_eleicao}`);
 
     // Obtém a chave privada da sessão
-    const {privateKey, cpf} = await bd.obtemPrivateKeyDeSessao(sessionId);
+    const { privateKey, cpf } = await bd.obtemPrivateKeyDeSessao(sessionId);
     if (!privateKey) {
       return res.status(400).json({ error: "❌ Sessão inválida ou expirou." });
     }
 
-    console.log(cpf)
+    console.log(cpf);
     console.log(`🔑 Chave privada obtida para sessão ${sessionId}`);
+
+    const { saldo } = await bd.obtemSaldoEleitor(id_eleicao, cpf);
+    // Verifica se o eleitor tem saldo para votar
+    if (saldo < 1) {
+      return res
+        .status(403)
+        .json({ error: `❌ Eleitor já votou nessa eleição.` });
+    }
 
     // ⚠️ Verifica se o voto já é uma string Base64 antes de chamar JSON.stringify()
     const votoCriptografado =
@@ -758,7 +763,13 @@ app.post("/votar", async (req, res) => {
     await bd.votar(jsonVoto);
 
     console.log(`🗳️ Voto registrado com sucesso!`);
+
+     // Atualiza saldo do eleitor, marca como já votou
+     console.log(await bd.atualizaSaldoEleitor(id_eleicao, cpf, saldo));
+
     res.json({ message: "✅ Voto enviado para a urna." });
+
+   
   } catch (error) {
     console.error("❌ Erro ao processar o voto:", error);
     res.status(500).json({ error: "Erro no servidor ao registrar o voto." });
