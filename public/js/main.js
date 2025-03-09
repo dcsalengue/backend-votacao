@@ -492,7 +492,7 @@ botaoLogin.addEventListener("click", async () => {
       else {
         // Criando a navegação do menu
         menuNav = criarMenuNav(
-          ["Eleição", "Resultado"],
+          ["Dados","Eleição", "Resultado"],
           opcoes,
           dadosEntrada,
           containerDadosMenu

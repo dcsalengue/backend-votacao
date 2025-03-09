@@ -679,41 +679,68 @@ const bd = {
 
   async obtemSaldoEleitor(idEleicao, cpf) {
     try {
-        
-        const saldoEleitor = await prisma.$queryRaw`
+      const saldoEleitor = await prisma.$queryRaw`
             SELECT e."saldo" 
             FROM "eleitores" e
             WHERE e."id_eleicao" = CAST(${idEleicao} AS UUID)
             AND  e."cpf" = ${cpf}
         `;
-        console.log(`bd ln 689 saldoEleitor - ${JSON.stringify(saldoEleitor)}`)
-        await prisma.$disconnect(); // Fecha conexão corretamente
-        return saldoEleitor[0]
+      console.log(`bd ln 689 saldoEleitor - ${JSON.stringify(saldoEleitor)}`);
+      await prisma.$disconnect(); // Fecha conexão corretamente
+      return saldoEleitor[0];
     } catch (error) {
-        console.log (error)
-       return  0
+      console.log(error);
+      return 0;
     }
-
   },
 
   async atualizaSaldoEleitor(idEleicao, cpf, saldoAtual) {
     try {
-        const result = await prisma.$executeRaw`
+      const result = await prisma.$executeRaw`
             UPDATE "eleitores" 
-            SET "saldo" = ${saldoAtual-1} 
+            SET "saldo" = ${saldoAtual - 1} 
             WHERE "id_eleicao" = CAST(${idEleicao} AS UUID)
             AND  "cpf" = ${cpf}
               `;
-        console.log(`Saldo do eleitor decrementado`  );
-        return result;
-      } catch (error) {
-        console.error(`Não alterou saldo do eleitor :${error}`);
-      }
-    },
+      console.log(`Saldo do eleitor decrementado`);
+      return result;
+    } catch (error) {
+      console.error(`Não alterou saldo do eleitor :${error}`);
+    }
+  },
 
-  async obtemVotosCandidato() {},
+  async obtemVotosCandidato(id_candidato) {
+    try {
+      const saldoCandidato = await prisma.$queryRaw`
+            SELECT c."votos" 
+            FROM "candidatos" c
+            WHERE c."id_eleicao" = CAST(${id_candidato} AS UUID)
+        `;
+      console.log(`bd ln 689 saldoEleitor - ${JSON.stringify(saldoCandidato)}`);
+      await prisma.$disconnect(); // Fecha conexão corretamente
+      return saldoCandidato[0];
+    } catch (error) {
+      console.log(error);
+      return 0;
+    }
+  },
 
-  async adicionaVotoCandidato() {},
+  async adicionaVotoCandidato(id_candidato) {
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        return await tx.candidatos.update({
+          where: { id_eleitor: id_candidato },
+          data: { votos: { increment: 1 } }, // Evita race condition
+        });
+      });
+
+      console.log(`Voto registrado com sucesso`);
+      return result;
+    } catch (error) {
+      console.error(`Erro ao registrar voto: ${error}`);
+      return null;
+    }
+  },
 
   async votar(dado) {
     console.log("🗳️ Registrando voto na urna...");

@@ -56,6 +56,7 @@ model candidatos {
 model urna {
   uuid_eleicao String @db.Uuid
   voto         String
+  id           Int    @id @default(autoincrement())
 
   @@ignore
 }

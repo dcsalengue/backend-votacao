@@ -764,12 +764,13 @@ app.post("/votar", async (req, res) => {
 
     console.log(`🗳️ Voto registrado com sucesso!`);
 
-     // Atualiza saldo do eleitor, marca como já votou
-     console.log(await bd.atualizaSaldoEleitor(id_eleicao, cpf, saldo));
+    // Atualiza saldo do eleitor, marca como já votou
+    console.log(await bd.atualizaSaldoEleitor(id_eleicao, cpf, saldo));
 
+    // Atualiza saldo do eleitor, marca como já votou
+    console.log(await bd.adicionaVotoCandidato(jsonVoto.id_candidato));
+    
     res.json({ message: "✅ Voto enviado para a urna." });
-
-   
   } catch (error) {
     console.error("❌ Erro ao processar o voto:", error);
     res.status(500).json({ error: "Erro no servidor ao registrar o voto." });
