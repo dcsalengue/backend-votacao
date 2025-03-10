@@ -627,7 +627,10 @@ class Api {
         "❌ Erro ao enviar o voto:",
         error.response?.data || error.message
       );
-      return { success: false, error: error.message }; // Retorno seguro
+      console.log(error)
+      console.log(error.response?.data)
+      console.log(error.message)
+      return { success: false, error: error.response?.data }; // Retorno seguro
     }
   }
 

@@ -640,7 +640,7 @@ app.post("/votar", async (req, res) => {
       dataAtual < data_inicio
         ? "não iniciada"
         : dataAtual > data_fim
-        ? "finalizado"
+        ? "finalizada"
         : "Em andamento";
     console.log(eleicaoValida);
 

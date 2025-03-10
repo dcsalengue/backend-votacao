@@ -391,12 +391,15 @@ const ui = {
         };
 
         const result = await api.votar(voto);
+       
+        console.log(result.error)
         if (result.message) {
           alert(result.message);
         } else {
-          alert(result.error);
+          alert(result.error.error);
         }
       } catch (error) {
+        console.log(`${error} ${JSON.stringfy(error)}`)
         console.error("Erro ao processar o voto:", error);
         alert("Erro ao processar o voto:", error.message);
       }
