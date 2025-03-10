@@ -333,16 +333,15 @@ app.post("/pagina", async (req, res) => {
   const { sessionId } = req.body;
 
   try {
+    
     const { privateKey } = await bd.obtemPrivateKeyDeSessao(sessionId);
-
+    
     // Verifica se a sessão é válida
     if (!privateKey) {
       return res.status(400).json({ error: "Sessão inválida ou expirou." });
     }
-
     // Obtém permissões do usuário
     const userData = await bd.obtemPermissaoUsuarioSessao(sessionId);
-
     if (!userData) {
       return res
         .status(403)
@@ -388,13 +387,11 @@ app.post("/pagina", async (req, res) => {
 
       `;
     }
-
-    res.set({
-      "X-User-Name": nome,
-      "X-User-Permission": permissao,
+    res.json({
+      nome,
+      permissao,
+      conteudoPagina,
     });
-    // res.sendFile(path.join(__dirname, `permissao${permissao}.html`));
-    res.send(conteudoPagina);
   } catch (error) {
     console.error("Erro no endpoint /pagina:", error);
     res.status(500).json({ error: "Erro interno do servidor" });
@@ -769,7 +766,7 @@ app.post("/votar", async (req, res) => {
 
     // Atualiza saldo do eleitor, marca como já votou
     console.log(await bd.adicionaVotoCandidato(jsonVoto.id_candidato));
-    
+
     res.json({ message: "✅ Voto enviado para a urna." });
   } catch (error) {
     console.error("❌ Erro ao processar o voto:", error);

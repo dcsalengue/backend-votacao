@@ -418,15 +418,14 @@ botaoLogin.addEventListener("click", async () => {
     const hashSenha = await criptografia.hash(loginSenha.value);
     const usuario = { cpf: `${loginCpf.value}`, senha: `${hashSenha}` };
 
-    const resposta = await api.loginUsuario(usuario);
+    const {resposta, pagina} = await api.loginUsuario(usuario);
+    const {conteudoPagina, nome, permissao} = pagina
 
     // Mostra mensagem de login
-    footer.innerHTML = `${resposta.resposta}`;
+    footer.innerHTML = `${resposta}`;
 
-    console.log(resposta.permissao);
-    if (resposta?.pagina) {
-      const permissao = resposta.pagina.permissao;
-      main.innerHTML = resposta.pagina.data;
+    if (pagina) {
+      main.innerHTML = conteudoPagina ? conteudoPagina : ``;
 
       const opcoes = await api.listaEleicoes();
 

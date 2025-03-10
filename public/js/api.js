@@ -173,16 +173,10 @@ class Api {
       });
       console.log(sessionId);
       this.sessionId = sessionId;
-      // Obtendo os dados do corpo da resposta (body)
-      const data = response.data;
-
-      // Obtendo os cabeçalhos da resposta
-      const nome = response.headers["x-user-name"];
-      const permissao = response.headers["x-user-permission"];
-
+      const { nome, permissao,  conteudoPagina} = response.data
       console.log(`Nome: ${nome}, Permissão: ${permissao}`);
 
-      return { data, nome, permissao };
+      return { conteudoPagina, nome, permissao };
     } catch (error) {
       alert(`Erro ao requisitar token de sessão \r\n${error}`);
       throw error;
