@@ -151,20 +151,6 @@ class Api {
     }
   }
 
-  // async obtemPaginaDeLogin(sessionId) {
-  //     try {
-  //         const response = await axios.post(`${URL_BASE}/pagina`, {
-  //             sessionId: sessionId
-  //         });
-
-  //         // Obtendo os dados do corpo da resposta (body)
-  //         return (response.data);
-
-  //     } catch (error) {
-  //         alert(`Erro ao requisitar token de sessão \r\n${error}`);
-  //         throw error;
-  //     }
-  // }
 
   async obtemPaginaDeLogin(sessionId) {
     try {

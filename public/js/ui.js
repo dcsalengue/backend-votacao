@@ -366,34 +366,39 @@ const ui = {
 
       try {
         // Criptografando os dados
-        
-        const encryptedDataCandidato = await criptografia.encryptUserData(pbKeyCandidato, {
-          timestamp: horaDoVoto,
-          id_candidato: candidato.getAttribute("id_eleitor"),
-          nome_candidato: candidato.textContent,
-        });
 
-        const encrypteSessiondData = await criptografia.encryptUserData(api.publicKeySession, {
+        const encryptedDataCandidato = await criptografia.encryptUserData(
+          pbKeyCandidato,
+          {
             timestamp: horaDoVoto,
             id_candidato: candidato.getAttribute("id_eleitor"),
             nome_candidato: candidato.textContent,
-          });
-        // const voto = {
-        //   timestamp: horaDoVoto,
-        //   id_candidato: candidato.getAttribute("id_eleitor"),
-        //   nome_candidato: candidato.textContent,
-        //   encryptedData: encryptedData,
-        // };
+          }
+        );
+
+        const encrypteSessiondData = await criptografia.encryptUserData(
+          api.publicKeySession,
+          {
+            timestamp: horaDoVoto,
+            id_candidato: candidato.getAttribute("id_eleitor"),
+            nome_candidato: candidato.textContent,
+          }
+        );
 
         const voto = {
           votoPublico: encrypteSessiondData,
-          votoCandidato: encryptedDataCandidato
+          votoCandidato: encryptedDataCandidato,
         };
 
-        await api.votar(voto)
-        console.log("Voto registrado:", voto);
+        const result = await api.votar(voto);
+        if (result.message) {
+          alert(result.message);
+        } else {
+          alert(result.error);
+        }
       } catch (error) {
         console.error("Erro ao processar o voto:", error);
+        alert("Erro ao processar o voto:", error.message);
       }
     });
 
@@ -401,8 +406,7 @@ const ui = {
     escolhaCandidatosContainer.appendChild(botaoVotar);
 
     return escolhaCandidatosContainer;
-},
-
+  },
 
   montaRadioSelectEleicao(container, selectionContainer, candidatos) {
     if (!container || !selectionContainer) {
