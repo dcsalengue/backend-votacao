@@ -280,6 +280,7 @@ app.get("/dadoseleicoes", async (req, res) => {
   const uuid = req.headers["uuid"];
   console.log(`dadoseleicoes ${uuid}`);
   const result = await bd.obtemDadosEleicao(uuid);
+
   console.log(`${JSON.stringify(result)}`);
   res.json(result);
 });

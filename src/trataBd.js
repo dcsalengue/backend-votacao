@@ -223,9 +223,10 @@ const bd = {
     return opcoes;
   },
 
+
   async obtemDadosEleicao(uuid) {
     let dadosEleicao = null;
-    try {
+    try {       
       const result = await prisma.$queryRaw`
                     SELECT * 
                     FROM "eleicoes" 
