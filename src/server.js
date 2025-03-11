@@ -775,6 +775,17 @@ app.post("/votar", async (req, res) => {
   }
 });
 
+
+app.get("/resultado", async (req, res) => {
+  const sessionId = req.headers["session-id"];
+  const uuid = req.headers["uuid-eleicao"];
+  console.log(`dadoseleicoes ${uuid}`);
+  const result = await bd.obtemResultadoEleicao(uuid);
+
+  console.log(`${JSON.stringify(result)}`);
+  res.json(result);
+});
+
 // app.get("/favicon.ico", (req, res) => res.status(204));
 
 // setInterval(() => {

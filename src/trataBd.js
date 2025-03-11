@@ -779,6 +779,30 @@ const bd = {
       return { success: false, error: "Erro ao registrar voto" };
     }
   },
+
+  async obtemResultadoEleicao(id_eleicao){
+    try {
+        const result = await prisma.$queryRaw`
+              SELECT c."votos", e."cpf", u."nome"
+              FROM "candidatos" c
+              JOIN "eleitores" e ON c."id_eleitor" = e."id" 
+              JOIN "usuarios" u ON u."cpf" = e."cpf"       
+              WHERE e."id_eleicao" = CAST(${id_eleicao} AS UUID)
+          `;
+          
+        if (result.length > 0) {
+            console.log(`bd ln 794 ${result} ${result.length}`)
+          return result;
+        } else {
+            console.log(`bd ln 797 Não encontrado`)
+          return null;
+        }
+      } catch (error) {
+        console.error("❌ Erro ao buscar resultado:", error);
+        return null;
+      }
+  }
+
 };
 
 export default bd;

@@ -634,6 +634,24 @@ class Api {
     }
   }
 
+  async resultadoEleicao(){
+    try {
+      const response = await axios.get(`${URL_BASE}/resultado`, {
+        headers: {
+          "session-id": `${this.sessionId}`,
+          "uuid-eleicao": `${this.uuidEleicao}`,
+        },
+      });
+
+      console.log(response.data);
+      // Obtendo os dados do corpo da resposta (body)
+      return response.data;
+    } catch (error) {
+      alert(`Erro ao requisitar resultado da eleição \r\n${error}`);
+      throw error;
+    }
+  }
+
   geraUsuarios(conteudoArquivo) {
     const linhas = conteudoArquivo.split("\r\n");
     linhas.forEach(async (linha) => {

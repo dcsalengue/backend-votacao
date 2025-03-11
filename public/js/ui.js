@@ -89,8 +89,46 @@ const ui = {
 
       console.log("Eleição");
     } else if (item.textContent === "Resultado") {
-      console.log("Resultado");
+        const candidatos = await api.resultadoEleicao();
+        
+        // Criar um container para a lista
+        const tabelaVotos = document.createElement("ul");
+        tabelaVotos.classList.add("w-full");
+  
+        candidatos.forEach((candidato) => {
+            const { votos, nome, cpf } = candidato;
+    
+            const linhaCandidato = document.createElement("li");
+            const nomeCandidato = document.createElement("span");
+            const cpfCandidato = document.createElement("span");
+            const votosCandidato = document.createElement("span");
+    
+            // Adicionando classes para estilização
+            linhaCandidato.classList.add("w-full", "flex", "justify-between", "gap-4", "p-2", "border-b");
+            nomeCandidato.classList.add("w-1/3", "text-left", "font-bold");
+            cpfCandidato.classList.add("w-1/3", "text-center", "text-gray-500");
+            votosCandidato.classList.add("w-1/3","text-blue-600");
+    
+            // Definir textos
+            nomeCandidato.textContent = `${nome}`;
+            cpfCandidato.textContent = `CPF: ${cpf}`;
+            votosCandidato.textContent = `Votos: ${votos}`;
+    
+            // Montar estrutura da linha
+            linhaCandidato.appendChild(nomeCandidato);
+            linhaCandidato.appendChild(cpfCandidato);
+            linhaCandidato.appendChild(votosCandidato);
+    
+            // Adicionar à lista
+            tabelaVotos.appendChild(linhaCandidato);
+        });
+    
+        // Adicionar lista ao container
+        containerDadosMenu.appendChild(tabelaVotos);
+    
+        console.log("✅ Resultado da eleição atualizado!");
     }
+    
   },
 
   async montaDadosUsuario(listaUsuarios) {
@@ -391,15 +429,15 @@ const ui = {
         };
 
         const result = await api.votar(voto);
-       
-        console.log(result.error)
+
+        console.log(result.error);
         if (result.message) {
           alert(result.message);
         } else {
           alert(result.error.error);
         }
       } catch (error) {
-        console.log(`${error} ${JSON.stringfy(error)}`)
+        console.log(`${error} ${JSON.stringfy(error)}`);
         console.error("Erro ao processar o voto:", error);
         alert("Erro ao processar o voto:", error.message);
       }
